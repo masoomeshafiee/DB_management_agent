@@ -1,5 +1,5 @@
 # Importing the required modules
-from google.adk.agents import Agent
+from google.adk.agents import Agent, LlmAgent
 from google.adk.models.google_llm import Gemini
 from google.adk.runners import InMemoryRunner
 from google.adk.tools import AgentTool, FunctionTool
@@ -9,7 +9,7 @@ import os
 
 
 from lab_data_manager import data_validation, insert_csv
-
+from lab_data_manager.insert_csv import insert_from_csv
 import logging
 
 # configuring the logging
@@ -53,7 +53,32 @@ try:
 except Exception as e:
     logger.error(f"Error creating data validation agent: {e}")
     raise e
+
+
+try:
+    insert_agent = LlmAgent(
+        name = "insert_agent",
+        model = Gemini(model="gemini-2.5-flash-lite", retry_config=retry_config),
+        description = "This agent insert a new csv file into the database.",
+        instruction = 
+        """
+            You are a helpful assistant that inserts data from a CSV file into a database
+            using the provided `insert_from_csv` tool.
+
+            Required tool arguments:
+            - csv_path (string, path to CSV)
+            - db_path (string, path or connection string)
+
+            After calling the tool, summarize the number of skipped rows based on output_key.
+        """,
+        tools = [FunctionTool(func=insert_from_csv)],
+        output_key="skipped_rows"
+    )
+except Exception as e:
+    logger.error(f"Error creating insert agent: {e}")
+    raise e
 # ----------------------------------------------------------------------------------------
+
 
 # runners for the agents
 
