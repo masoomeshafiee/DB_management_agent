@@ -13,7 +13,7 @@ def decide_and_perform_delete_records(db_path, table, filters=None, limit=None, 
     # First, perform a dry run to see how many records would be deleted
     dry_run_result = delete_records_by_filter(db_path, table, filters, limit, dry_run=True)
     potential_deletions = dry_run_result.get("delete_candidate", 0)
-    logger.info(f"Dry run: {potential_deletions} records would be deleted from {table}.")
+    logger.info(f"Dry run: {potential_deletions["preview_count"]} records would be deleted from {table}.")
 
     threshold_deletion = 10  # Define a threshold for maximum deletions allowed
     if potential_deletions <= threshold_deletion:
@@ -39,7 +39,7 @@ def decide_and_perform_delete_records(db_path, table, filters=None, limit=None, 
         return {
             "status": "approved",
             "message": f"Proceeding with deletion of {potential_deletions} records from {table}.",
-            "deleted_count": result,
+            "deleted_count": result["deleted"],
         }
     
     else:
