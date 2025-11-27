@@ -13,6 +13,7 @@ from lab_data_manager import data_validation, insert_csv
 from lab_data_manager.insert_csv import insert_from_csv
 from lab_data_manager.delete_records import delete_records_by_filter
 from google.adk.tools.tool_context import ToolContext
+from google.adk.code_executors import BuiltInCodeExecutor
 import logging
 
 # configuring the logging
@@ -57,7 +58,7 @@ except Exception as e:
     logger.error(f"Error creating data validation agent: {e}")
     raise e
 
-
+# Agent for inserting new data into the database
 try:
     insert_agent = LlmAgent(
         name = "insert_agent",
@@ -80,6 +81,35 @@ try:
 except Exception as e:
     logger.error(f"Error creating insert agent: {e}")
     raise e
+# Agent for infering the filters from the user request 
+filter_infer_agent = Agent(
+    name = "filter_infer_agent",
+    model = Gemini(model="gemini-2.5-flash-lite", retry_config=retry_config),
+    description = "An agent to infer SQL filters from user requests for the following delete/ search operations.",
+    instruction = """ You are a filter inference agent. Your goal is to infer SQL filters from the user requests to be used in delete or search operations on the lab data management database.
+    The user will provide you with a criteria in natural laguage for selecting records for further operations. But this criteria needs to be converted to a dictionary with a certain format to be uased by the other agents responsible for doing
+    the database operations. The filter dictionary should have the following format:
+    field_name: value, where field_name is the name of the column in the database table and value is the value to filter by.
+    But we only have the limited set of filters that are supported. You should ONLY use the following fields for creating the filters dictionary:
+    organism, protein, strain, condition, user_name, concentration_value, concentration_unit, capture_setting_id,capture_type, exposure_time, time_interval, is_valid,
+    dye_concentration_value, dye_concentration_unit, date, replicate, experiment_id, raw_file_id, raw_file_name, tracking_file_id, mask_id, analysis_file_id, analysis_result_id, raw_file_type,
+     mask_type, mask_file_type, analysis_file_type,analysis_result_type, comment, email. 
+    These are the keys that are supported by the database schema. You should NOT use any other fields for creating the filters dictionary.
+    Also make sure to use the EXACT field names as they are in the database schema. Do NOT use any synonyms or variations(such as upper case, etc.) of the field names.
+    You infere the "key-value" pairs from the user request. Once you infere the key and the corresponding values, you MUST output a python code that creates a dictionary called "filters" with the inferred key-value pairs.
+    For example, if the user request is "Delete all records for organism E.coli and protein DnaA", you should output the following code:
+    filters = {"organism": "E.coli", "protein": "GFP"}. You MUST provide the output in the form of a dictionary ONLY. Do NOT include any other text or explanation before or after the code block.
+    If a certain field is not mentioned in the user request, do NOT include it in the filters dictionary.
+    If the user request is ambiguous respond with "The provided criteria is ambiguous. Please provide more specific details." 
+    If the user provides the criteria but not the values for the fields, respond with "The provided criteria is incomplete. Please provide values for the specified fields."
+    If the usr provides criteria that includes fields outside of the supported set, respond with "The provided criteria includes unsupported fields. Please use only the supported fields.
+    If the user request is not related to filter inference, respond with "I am only allowed to infer filters for database operations."
+    
+    """,
+    code_executor=BuiltInCodeExecutor(),
+    output_key="filters"
+)
+# Agent for deleting records from the database
 
 delete_agent = LlmAgent(
     name="delete_agent",
@@ -142,13 +172,15 @@ except Exception as e:
 
 async def main():
 
-    data_validation_runner = InMemoryRunner(agent = data_validation_agent)
+    #data_validation_runner = InMemoryRunner(agent = data_validation_agent)
 
-    response = await data_validation_runner.run_debug("Validate the regular metadata in the file /Volumes/Masoumeh/Masoumeh/Masoumeh_data/1-Rfa1/dwell time/normal S/1s interval/metadata_complete.csv and save invalid records to /Volumes/Masoumeh/Masoumeh/Masoumeh_data/1-Rfa1/dwell time/normal/invalid_rows.csv")
+    #response = await data_validation_runner.run_debug("Validate the regular metadata in the file /Volumes/Masoumeh/Masoumeh/Masoumeh_data/1-Rfa1/dwell time/normal S/1s interval/metadata_complete.csv and save invalid records to /Volumes/Masoumeh/Masoumeh/Masoumeh_data/1-Rfa1/dwell time/normal/invalid_rows.csv")
 
-    print("Data Validation Agent Response:")
+    #print("Data Validation Agent Response:")
+    filter_infer_runner = InMemoryRunner(agent = filter_infer_agent)
+    response = await filter_infer_runner.run_debug("all records for organism E.coli and protein DnaA")
     print(response)
-    logger.info(f"Data Validation Agent Response: {response}")
+    logger.info(f"Filter inference Response: {response}")
 
 asyncio.run(main())
 
