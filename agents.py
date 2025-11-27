@@ -7,7 +7,7 @@ from google.genai import types
 import asyncio
 import os
 
-import utils
+#import utils
 
 from lab_data_manager import data_validation, insert_csv
 from lab_data_manager.insert_csv import insert_from_csv
@@ -90,15 +90,15 @@ filter_infer_agent = Agent(
     The user will provide you with a criteria in natural laguage for selecting records for further operations. But this criteria needs to be converted to a dictionary with a certain format to be uased by the other agents responsible for doing
     the database operations. The filter dictionary should have the following format:
     field_name: value, where field_name is the name of the column in the database table and value is the value to filter by.
-    But we only have the limited set of filters that are supported. You should ONLY use the following fields for creating the filters dictionary:
+    But we only have the limited set of filters that are supported. You should ONLY use the following fields/key for creating the filters dictionary:
     organism, protein, strain, condition, user_name, concentration_value, concentration_unit, capture_setting_id,capture_type, exposure_time, time_interval, is_valid,
     dye_concentration_value, dye_concentration_unit, date, replicate, experiment_id, raw_file_id, raw_file_name, tracking_file_id, mask_id, analysis_file_id, analysis_result_id, raw_file_type,
      mask_type, mask_file_type, analysis_file_type,analysis_result_type, comment, email. 
     These are the keys that are supported by the database schema. You should NOT use any other fields for creating the filters dictionary.
     Also make sure to use the EXACT field names as they are in the database schema. Do NOT use any synonyms or variations(such as upper case, etc.) of the field names.
-    You infere the "key-value" pairs from the user request. Once you infere the key and the corresponding values, you MUST output a python code that creates a dictionary called "filters" with the inferred key-value pairs.
+    You infere the "key-value" pairs from the user request. Once you infere the key and the corresponding value, you MUST output a python code that creates a dictionary called "filters" with the inferred key-value pairs.
     For example, if the user request is "Delete all records for organism E.coli and protein DnaA", you should output the following code:
-    filters = {"organism": "E.coli", "protein": "GFP"}. You MUST provide the output in the form of a dictionary ONLY. Do NOT include any other text or explanation before or after the code block.
+    filters = {"organism": "E.coli", "protein": "DnaA"}. You MUST provide the output in the form of a dictionary ONLY. Do NOT include any other text or explanation before or after the code block.
     If a certain field is not mentioned in the user request, do NOT include it in the filters dictionary.
     If the user request is ambiguous respond with "The provided criteria is ambiguous. Please provide more specific details." 
     If the user provides the criteria but not the values for the fields, respond with "The provided criteria is incomplete. Please provide values for the specified fields."
