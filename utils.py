@@ -9,7 +9,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def decide_and_perform_delete_records(db_path, table, filters=None, limit=None, dry_run=True, tool_context: ToolContext):
+def decide_and_perform_delete_records(db_path, table,  tool_context: ToolContext, filters=None, limit=None, dry_run=True):
     # First, perform a dry run to see how many records would be deleted
     dry_run_result = delete_records_by_filter(db_path, table, filters, limit, dry_run=True)
     potential_deletions = dry_run_result.get("delete_candidate", 0)
