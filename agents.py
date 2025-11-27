@@ -7,13 +7,16 @@ from google.genai import types
 import asyncio
 import os
 
+import utils
 
 from lab_data_manager import data_validation, insert_csv
 from lab_data_manager.insert_csv import insert_from_csv
+from lab_data_manager.delete_records import delete_records_by_filter
+from google.adk.tools.tool_context import ToolContext
 import logging
 
 # configuring the logging
-logging.basicConfig(filename = "/Users/masoomeshafiee/Projects/agent.log", level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', force=True)
+logging.basicConfig(filename = "./agent.log", level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', force=True)
 logger = logging.getLogger(__name__)
 
 
@@ -77,8 +80,62 @@ try:
 except Exception as e:
     logger.error(f"Error creating insert agent: {e}")
     raise e
+
+delete_agent = LlmAgent(
+    name="delete_agent",
+    model=Gemini(model="gemini-2.5-flash-lite", retry_config=retry_config),
+    description="This agent deletes records from the database based on specified criteria.",
+    instruction=
+    """
+        You are a helpful assistant that deletes records from a database.
+        You MUST use the `decide_and_perform_delete_records` tool for this.
+      
+        Required tool arguments:
+            - db_path (string)
+            - table (string)
+            - filters (string, optional SQL WHERE clause)
+
+        After calling the tool, summarize the number of deleted records based on output_key.
+    """,
+    tools=[FunctionTool(func=utils.decide_and_perform_delete_records)],
+    output_key="deleted_count"
+)
+
+# ----------------------------------------------------------------------------------------
+# 2. DEFINE ROOT AGENT
 # ----------------------------------------------------------------------------------------
 
+try:
+    root_agent = Agent(
+        name="root_agent",
+        model=Gemini(model="gemini-2.5-flash-lite", retry_config=retry_config),
+        description="Root orchestrator for Laboratory Data Management.",
+        instruction="""
+        You are the Lab Data Manager Orchestrator. Your job is to understand user requests and delegate tasks to the appropriate specialist agents.
+        
+        You have access to the following specialists:
+        1. data_validation_agent: For checking CSV files before they are touched.
+        2. insert_agent: For adding new data to the database.
+        3. delete_agent: For removing records from the database.
+
+        Rules:
+        - If a user asks to delete data, delegate to the 'delete_agent'.
+        - If a user asks to upload or insert data, first ask if they want to validate it. If yes, call 'data_validation_agent', then 'insert_agent'.
+        - Always report back the final status from the specialist agent.
+        """,
+        # We wrap the sub-agents as tools here
+        tools=[
+            AgentTool(data_validation_agent),
+            AgentTool(insert_agent),
+            AgentTool(delete_agent)
+        ]
+    )
+    logger.info("Root agent created successfully.")
+except Exception as e:
+    logger.error(f"Error creating root agent: {e}")
+    raise e
+
+# ----------------------------------------------------------------------------------------
 
 # runners for the agents
 
@@ -94,4 +151,5 @@ async def main():
     logger.info(f"Data Validation Agent Response: {response}")
 
 asyncio.run(main())
+
 
