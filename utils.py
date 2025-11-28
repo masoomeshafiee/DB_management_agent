@@ -3,11 +3,17 @@ from google.adk.tools.tool_context import ToolContext
 from lab_data_manager import data_validation, insert_csv
 from lab_data_manager.insert_csv import insert_from_csv
 from lab_data_manager.delete_records import delete_records_by_filter
+from typing import Dict, Any
+import re
 
 import logging
 
 logger = logging.getLogger(__name__)
 
+
+# -----------------------------------------------------------------
+# Delete operation utility
+# -----------------------------------------------------------------
 
 def decide_and_perform_delete_records(db_path, table,  tool_context: ToolContext, filters=None, limit=None, dry_run=True):
     # First, perform a dry run to see how many records would be deleted

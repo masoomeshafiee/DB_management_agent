@@ -96,8 +96,12 @@ filter_infer_agent = Agent(
      mask_type, mask_file_type, analysis_file_type,analysis_result_type, comment, email. 
     These are the keys that are supported by the database schema. You should NOT use any other fields for creating the filters dictionary.
     Also make sure to use the EXACT field names as they are in the database schema. Do NOT use any synonyms or variations(such as upper case, etc.) of the field names.
+    For the values you should use exactly what the user provides with the exception of the following fields for which you should follw the determined format for certain fields:
+    1. date: "YYYYMMDD" (as a string, e.g., "20230915")
+    2. exposure_time, time_interval : in seconds (float)
+    3. condition_unit, concentration_unit: use the abbreviations such as "nM", "uM", "mM", etc.
     You infere the "key-value" pairs from the user request. Once you infere the key and the corresponding value, you MUST output a python code that creates a dictionary called "filters" with the inferred key-value pairs.
-    For example, if the user request is "Delete all records for organism E.coli and protein DnaA", you should output the following code:
+    For example, if the user request is "Delete all records for organism E.coli and protein DnaA", you should output the following:
     filters = {"organism": "E.coli", "protein": "DnaA"}. You MUST provide the output in the form of a dictionary ONLY. Do NOT include any other text or explanation before or after the code block.
     If a certain field is not mentioned in the user request, do NOT include it in the filters dictionary.
     If the user request is ambiguous respond with "The provided criteria is ambiguous. Please provide more specific details." 
@@ -178,7 +182,7 @@ async def main():
 
     #print("Data Validation Agent Response:")
     filter_infer_runner = InMemoryRunner(agent = filter_infer_agent)
-    response = await filter_infer_runner.run_debug("all records for organism E.coli and protein DnaA")
+    response = await filter_infer_runner.run_debug("all records for organism E.coli after the date 20220101 with protein DnaA and dye concentration value 10 nM")
     print(response)
     logger.info(f"Filter inference Response: {response}")
 
