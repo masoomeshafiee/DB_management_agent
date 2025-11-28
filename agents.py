@@ -23,8 +23,13 @@ logger = logging.getLogger(__name__)
 
 
 # Configuring retry options for the agents
-retry_config = types.HttpRetryOptions(attempts = 5, exp_base = 7, initial_delay = 1, http_status_codes = [429, 500, 503, 504])
-
+# retry_config = types.HttpRetryOptions(attempts = 5, exp_base = 7, initial_delay = 1, http_status_codes = [429, 500, 503, 504])
+retry_config = types.HttpRetryOptions(
+    attempts=1,          # avoid burst retries on 429
+    exp_base=2,
+    initial_delay=10,
+    http_status_codes=[429, 500, 503, 504],
+)
 
 
 # ----------------------------------------------------------------------------------------
@@ -45,13 +50,16 @@ try:
         3. Validate data types for each field (e.g., dates, numbers, strings).
         4. Identify any duplicate records based on unique identifiers.
         You are ONLY allowed to use the "validate_csv" and "validate_analysis_metadata" function tools to perform the validation tasks.
-        The user should provide you with a CSV "file path" and an "output path" for invalid records. These are the inputs of the function tool to be used. If the user does not provide these, ask them to do so.
         Call the validate_csv function tool to validate the regular metadata CSV. Call the validate_analysis_metadata function tool to validate the analysis metadata CSV. Do not mix them up. 
-        If you receive any request outside of data validation, respond with "I am only allowed to perform data validation tasks. 
-        The functions save the invalid records to the specified output path. But they also return them as a list of dictionaries.
+        You will be provided with a CSV "file path" for data validation and an "output path" for invalid records. These are the inputs of the function tool to be used. 
+        The functions will save the invalid records to the specified output path. But they also return them as a list of dictionaries (invalid_rows).
+        If the list is empty, you MUST return validation_result = {PASS: "All records are valid. No invalid records found."}.
+        If you were not provided with the "file path" and the "output path", return validation_result = {ERROR: "Missing required inputs: file path and/or output path."}.
+        If you receive any request outside of data validation, return  validation_result = {ERROR:"I am only allowed to perform data validation tasks."}
+
         """,
         tools = [FunctionTool(data_validation.validate_csv), FunctionTool(data_validation.validate_analysis_metadata)],
-        output_key = "invalid_rows"
+        output_key = "validation_result"
     )
     logger.info("Data validation agent created successfully.")
 except Exception as e:
@@ -104,10 +112,10 @@ filter_infer_agent = Agent(
     For example, if the user request is "Delete all records for organism E.coli and protein DnaA", you should output the following:
     filters = {"organism": "E.coli", "protein": "DnaA"}. You MUST provide the output in the form of a dictionary ONLY. Do NOT include any other text or explanation before or after the code block.
     If a certain field is not mentioned in the user request, do NOT include it in the filters dictionary.
-    If the user request is ambiguous respond with "The provided criteria is ambiguous. Please provide more specific details." 
-    If the user provides the criteria but not the values for the fields, respond with "The provided criteria is incomplete. Please provide values for the specified fields."
-    If the usr provides criteria that includes fields outside of the supported set, respond with "The provided criteria includes unsupported fields. Please use only the supported fields.
-    If the user request is not related to filter inference, respond with "I am only allowed to infer filters for database operations."
+    If the user request is ambiguous your code MUST output {error: "The provided criteria is ambiguous. Please provide more specific details." }
+    If the user provides the criteria but not the values for the fields, your code MUST output {error: "The provided criteria is incomplete. Please provide values for the specified fields."}
+    If the usr provides criteria that includes fields outside of the supported set, your code MUST output {error:"The provided criteria includes unsupported fields. Please use only the supported fields.}
+    If the user request is not related to filter inference, your code MUST output {error:"I am only allowed to infer filters for database operations."}
     
     """,
     code_executor=BuiltInCodeExecutor(),
@@ -187,5 +195,4 @@ async def main():
     logger.info(f"Filter inference Response: {response}")
 
 asyncio.run(main())
-
 
