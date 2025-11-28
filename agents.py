@@ -7,7 +7,7 @@ from google.genai import types
 import asyncio
 import os
 
-#import utils
+import utils
 
 from lab_data_manager import data_validation, insert_csv
 from lab_data_manager.insert_csv import insert_from_csv
@@ -84,7 +84,7 @@ except Exception as e:
 # Agent for infering the filters from the user request 
 filter_infer_agent = Agent(
     name = "filter_infer_agent",
-    model = Gemini(model="gemini-2.5-flash-lite", retry_config=retry_config),
+    model = Gemini(model="gemini-2.5-flash-lite", api_key=os.getenv("GOOGLE_API_KEY"), retry_config=retry_config),
     description = "An agent to infer SQL filters from user requests for the following delete/ search operations.",
     instruction = """ You are a filter inference agent. Your goal is to infer SQL filters from the user requests to be used in delete or search operations on the lab data management database.
     The user will provide you with a criteria in natural laguage for selecting records for further operations. But this criteria needs to be converted to a dictionary with a certain format to be uased by the other agents responsible for doing
