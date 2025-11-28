@@ -50,3 +50,27 @@ def decide_and_perform_delete_records(db_path, table,  tool_context: ToolContext
     
 
 
+from google.genai.errors import ClientError
+rom google.adk.runners import InMemoryRunner
+import asyncio
+# Backoff helper that honors RetryInfo on 429
+async def run_with_backoff(runner: InMemoryRunner, prompt: str):
+    while True:
+        try:
+            return await runner.run_debug(prompt)
+        except ClientError as e:
+            # Only handle 429; re-raise others
+            if getattr(e, "status_code", None) != 429:
+                raise
+            # Default wait
+            delay = 65
+            try:
+                details = (e.response_json or {}).get("error", {}).get("details", [])
+                for d in details:
+                    if d.get("@type", "").endswith("RetryInfo"):
+                        retry = d.get("retryDelay", "60s").rstrip("s")
+                        delay = max(5, int(float(retry)) + 2)
+                        break
+            except Exception:
+                pass
+            await asyncio.sleep(delay)
