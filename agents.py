@@ -1,5 +1,5 @@
 # Importing the required modules
-from google.adk.agents import Agent, LlmAgent
+from google.adk.agents import Agent, LlmAgent, SequentialAgent
 from google.adk.models.google_llm import Gemini
 from google.adk.runners import InMemoryRunner
 from google.adk.tools import AgentTool, FunctionTool
@@ -14,6 +14,7 @@ from lab_data_manager.insert_csv import insert_from_csv
 from lab_data_manager.delete_records import delete_records_by_filter
 from google.adk.tools.tool_context import ToolContext
 from google.adk.code_executors import BuiltInCodeExecutor
+from google.adk.apps.app import App, ResumabilityConfig
 import logging
 
 # configuring the logging
@@ -89,6 +90,7 @@ try:
 except Exception as e:
     logger.error(f"Error creating insert agent: {e}")
     raise e
+
 # Agent for infering the filters from the user request 
 filter_infer_agent = Agent(
     name = "filter_infer_agent",
@@ -121,8 +123,10 @@ filter_infer_agent = Agent(
     code_executor=BuiltInCodeExecutor(),
     output_key="filters"
 )
+#--------------------------------------------------------------------------------
 # Agent for deleting records from the database
-
+#--------------------------------------------------------------------------------
+# sub-agent tp perform the delete operation
 delete_agent = LlmAgent(
     name="delete_agent",
     model=Gemini(model="gemini-2.5-flash-lite", retry_config=retry_config),
@@ -142,6 +146,20 @@ delete_agent = LlmAgent(
     tools=[FunctionTool(func=utils.decide_and_perform_delete_records)],
     output_key="deleted_count"
 )
+# Wrap the deletion agent in the App which adds a persistence layer that saves and restores state.
+deletion_app = App(
+    name = "deletion_app",
+    root_agent = delete_agent,
+    resumability_config = ResumabilityConfig(is_resumable = True, storage_path = "./deletion_app_state")
+)
+logger.info("Deletion agent and app created successfully.")
+
+# supervisor agent to manage the filter inference and subsequent delete operation with confirmation
+delete_supervisor_agent = SequentialAgent(
+    name = "delete_supervisor_agent",
+    sub_agents = [filter_infer_agent, delete_agent]
+)
+
 
 # ----------------------------------------------------------------------------------------
 # 2. DEFINE ROOT AGENT
