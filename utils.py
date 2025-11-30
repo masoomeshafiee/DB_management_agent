@@ -53,30 +53,76 @@ def decide_and_perform_delete_records(db_path, table,  tool_context: ToolContext
             "status": "denied",
             "message": f"Deletion of {potential_deletions} records from {table} has been cancelled by the user.",
         }
-    
 
 
 from google.genai.errors import ClientError
-rom google.adk.runners import InMemoryRunner
+from google.adk.runners import InMemoryRunner
 import asyncio
+import logging
+
 # Backoff helper that honors RetryInfo on 429
-async def run_with_backoff(runner: InMemoryRunner, prompt: str):
-    while True:
+# async def run_with_backoff(runner: InMemoryRunner, prompt: str):
+#     while True:
+#         try:
+#             return await runner.run_debug(prompt)
+#         except ClientError as e:
+#             # Only handle 429; re-raise others
+#             if getattr(e, "status_code", None) != 429:
+#                 raise
+#             # Default wait
+#             delay = 65
+#             try:
+#                 details = (e.response_json or {}).get("error", {}).get("details", [])
+#                 for d in details:
+#                     if d.get("@type", "").endswith("RetryInfo"):
+#                         retry = d.get("retryDelay", "60s").rstrip("s")
+#                         delay = max(5, int(float(retry)) + 2)
+#                         break
+#             except Exception:
+#                 pass
+#             await asyncio.sleep(delay)
+
+logger = logging.getLogger(__name__)
+
+async def run_with_backoff(runner: InMemoryRunner, prompt: str = None, max_retries: int = 3, **kwargs):
+    """
+    Robust wrapper that:
+    1. Trims history to prevent Input Token Limit errors.
+    2. Catches 429 errors and sleeps.
+    3. Accepts **kwargs to handle 'confirmation=True' logic.
+    """
+    
+    # --- FEATURE 1: PREVENTATIVE TRIMMING ---
+    # If history is getting huge (> 15 turns), keep only system prompt + last 10 turns.
+    # This keeps you under the 250k token limit.
+    if hasattr(runner, 'history') and len(runner.history) > 15:
+        logger.info(f"History length {len(runner.history)} too high. Trimming...")
+        # Keep index 0 (System Instruction) and the last 10 interactions
+        runner.history = [runner.history[0]] + runner.history[-10:]
+
+    attempt = 0
+    while attempt < max_retries:
         try:
-            return await runner.run_debug(prompt)
+            # --- FEATURE 2: ARGUMENT FLEXIBILITY ---
+            # We pass **kwargs so you can use this for confirmation=True later
+            return await runner.run_debug(prompt, **kwargs)
+            
         except ClientError as e:
-            # Only handle 429; re-raise others
-            if getattr(e, "status_code", None) != 429:
-                raise
-            # Default wait
-            delay = 65
-            try:
-                details = (e.response_json or {}).get("error", {}).get("details", [])
-                for d in details:
-                    if d.get("@type", "").endswith("RetryInfo"):
-                        retry = d.get("retryDelay", "60s").rstrip("s")
-                        delay = max(5, int(float(retry)) + 2)
-                        break
-            except Exception:
-                pass
-            await asyncio.sleep(delay)
+            error_code = getattr(e, "code", None) or getattr(e, "status_code", None)
+            
+            if error_code == 429:
+                attempt += 1
+                wait_time = 65  # Safe buffer for 1-minute quota reset
+                
+                msg = f"[⚠️ QUOTA EXCEEDED] 429 Hit. Attempt {attempt}/{max_retries}. Sleeping {wait_time}s..."
+                print(msg)
+                logger.warning(msg)
+                
+                await asyncio.sleep(wait_time)
+                continue 
+            
+            # Re-raise non-429 errors immediately
+            raise e
+            
+    # If we run out of retries
+    raise RuntimeError("Max retries exceeded for API rate limit.")
