@@ -44,21 +44,43 @@ try:
         name = "data_validation_agent",
         model = Gemini(model = "gemini-2.5-flash-lite", api_key=os.getenv("GOOGLE_API_KEY"), retry_options = retry_config),
         description = "An agent to validate  csv metadata file before inserting into the database.",
-        instruction = """You are a data validation agent. Your goal is to validate the CSV metadata file for correctness and completeness before it is inserted into the lab data management database.,
-        You will be provided with a CSV file containing metadata about lab data files.  Your job is to check the following:
-        1. Ensure all required fields are present and correctly formatted.
-        2. Check for any missing or null values in critical fields.
-        3. Validate data types for each field (e.g., dates, numbers, strings).
-        4. Identify any duplicate records based on unique identifiers.
-        You are ONLY allowed to use the "validate_csv" and "validate_analysis_metadata" function tools to perform the validation tasks.
-        Call the validate_csv function tool to validate the regular metadata CSV. Call the validate_analysis_metadata function tool to validate the analysis metadata CSV. Do not mix them up. 
-        You will be provided with a CSV "file path" for data validation and an "output path" for invalid records. These are the inputs of the function tool to be used. 
-        The functions will save the invalid records to the specified output path. But they also return them as a list of dictionaries (invalid_rows).
-        If the list is empty, you MUST return validation_result = {PASS: "All records are valid. No invalid records found."}.
-        If you were not provided with the "file path" and the "output path", return validation_result = {ERROR: "Missing required inputs: file path and/or output path."}.
-        If you receive any request outside of data validation, return  validation_result = {ERROR:"I am only allowed to perform data validation tasks."}
+        instruction = 
+        """
+        You are a data validation agent. Your goal is to validate the CSV metadata file for correctness and completeness.
 
-        """,
+        **CRITICAL PATH INSTRUCTION:** You must pass the file path argument **EXACTLY** as the user provided it.
+        - **Do NOT** add "./" to the beginning.
+        - **Do NOT** convert absolute paths (starting with "/") to relative paths.
+        - If the user writes "/Users/name/file.csv", you MUST send "/Users/name/file.csv" to the tool. 
+
+        **CRITICAL WORKFLOW INSTRUCTION:** Even if the user asks to "Insert" or "Upload" a file, **your ONLY job is to validate it.** Do not refuse the request; simply run the validation tool.
+
+        **TOOL SELECTION STRATEGY (CRITICAL):**
+        Analyze the user's request to determine the type of data:
+        
+        1. **Regular / Experiment Metadata:**
+        - Keywords: "regular data", "metadata", "experiment info", "standard".
+        - ACTION: Call `validate_csv`.
+        
+        2. **Analysis / Result Metadata:**
+        - Keywords: "analysis data", "results", "processed data", "analysis metadata".
+        - ACTION: Call `validate_analysis_metadata`.
+        
+        *If the type is unclear, ask the user to clarify.*
+
+        **OUTPUT PROTOCOL (STRICT):**
+        Analyze the tool's return list (invalid_rows):
+        
+        1. IF the list is EMPTY (0 invalid rows): 
+        Return: `validation_result = {PASS: "All records are valid. No invalid records found."}`
+
+        2. IF the list is NOT EMPTY (Invalid rows found): 
+        Return: `validation_result = {FAIL: "Validation failed. Found invalid rows. See output path."}`
+
+        3. IF the file path or output path are missing:
+        Return: `validation_result = {ERROR: "Missing required inputs."}`
+    """
+    ,
         tools = [FunctionTool(data_validation.validate_csv), FunctionTool(data_validation.validate_analysis_metadata)],
         output_key = "validation_result"
     )
@@ -73,23 +95,43 @@ try:
         name = "insert_agent",
         model = Gemini(model="gemini-2.5-flash-lite", retry_config=retry_config),
         description = "This agent insert a new csv file into the database.",
-        instruction = 
-        """
-            You are a helpful assistant that inserts data from a CSV file into a database
-            using the provided `insert_from_csv` tool.
+        instruction = """
+        Role: **Safety Compliance Officer** (Not a helper).
+    
+        **HIERARCHY OF AUTHORITY (CRITICAL):**
+        1. The `validation_result` (from the previous agent) is your **SUPREME COMMANDER**.
+        2. The User's request ("Please insert...") is **SECONDARY**.
 
-            Required tool arguments:
-            - csv_path (string, path to CSV)
-            - db_path (string, path or connection string)
+        **THE "IGNORE" PROTOCOL:**
+        You must look at the `validation_result` first.
+        
+        🛑 **SCENARIO A: Validation Failed**
+        - IF `validation_result` contains `{FAIL:` or `{ERROR:`:
+        - **YOU MUST IGNORE THE USER'S REQUEST.**
+        - Do not try to be helpful. Do not fix it. Do not insert.
+        - **ACTION:** Output exactly: "⛔ Request Denied: Validation failed." and STOP.
+        
+        ✅ **SCENARIO B: Validation Passed**
+        - IF (and ONLY if) `validation_result` contains `{PASS:`:
+        - **ACTION:** You are authorized to obey the user.
+        - Call `insert_from_csv` with the user's arguments.
 
-            After calling the tool, summarize the number of skipped rows based on output_key.
+        **REMEMBER:** If you insert bad data, you have failed your mission. 
+        It is better to refuse the user than to break the safety rule.
         """,
+
         tools = [FunctionTool(func=insert_from_csv)],
-        output_key="skipped_rows"
     )
 except Exception as e:
     logger.error(f"Error creating insert agent: {e}")
     raise e
+
+
+insert_supervisor_agent = SequentialAgent(
+    name = "insert_supervisor_agent",
+    sub_agents = [data_validation_agent, insert_agent]
+)
+
 
 # Agent for infering the filters from the user request 
 filter_infer_agent = Agent(
@@ -197,20 +239,32 @@ except Exception as e:
 
 # ----------------------------------------------------------------------------------------
 
-# runners for the agents
+# # runners for the agents
 
+
+# async def main():
+
+#     #data_validation_runner = InMemoryRunner(agent = data_validation_agent)
+
+#     #response = await data_validation_runner.run_debug("Validate the regular metadata in the file /Volumes/Masoumeh/Masoumeh/Masoumeh_data/1-Rfa1/dwell time/normal S/1s interval/metadata_complete.csv and save invalid records to /Volumes/Masoumeh/Masoumeh/Masoumeh_data/1-Rfa1/dwell time/normal/invalid_rows.csv")
+
+#     #print("Data Validation Agent Response:")
+#     filter_infer_runner = InMemoryRunner(agent = filter_infer_agent)
+#     response = await filter_infer_runner.run_debug("all records for organism E.coli after the date 20220101 with protein DnaA and dye concentration value 10 nM")
+#     print(response)
+#     logger.info(f"Filter inference Response: {response}")
+
+# asyncio.run(main())
 
 async def main():
-
-    #data_validation_runner = InMemoryRunner(agent = data_validation_agent)
-
-    #response = await data_validation_runner.run_debug("Validate the regular metadata in the file /Volumes/Masoumeh/Masoumeh/Masoumeh_data/1-Rfa1/dwell time/normal S/1s interval/metadata_complete.csv and save invalid records to /Volumes/Masoumeh/Masoumeh/Masoumeh_data/1-Rfa1/dwell time/normal/invalid_rows.csv")
-
-    #print("Data Validation Agent Response:")
-    filter_infer_runner = InMemoryRunner(agent = filter_infer_agent)
-    response = await filter_infer_runner.run_debug("all records for organism E.coli after the date 20220101 with protein DnaA and dye concentration value 10 nM")
+    runner = InMemoryRunner(agent=insert_supervisor_agent)
+    response = await utils.run_with_backoff(
+        runner,
+        "Please insert the regular data from '/Users/niushamirhakimi/Documents/code/llm/google5/DB_management_agent/test/metadata_complete_insert.csv' into the database located at 'data/lab_data.db', and save  invalid records to './invalid_rows.csv'."
+    )
+    #"./test/metadata_complete_insert.csv"
     print(response)
-    logger.info(f"Filter inference Response: {response}")
+
+# ...existing code...
 
 asyncio.run(main())
-
