@@ -54,7 +54,42 @@ def decide_and_perform_delete_records(db_path, table,  tool_context: ToolContext
             "message": f"Deletion of {potential_deletions} records from {table} has been cancelled by the user.",
         }
 
+def ask_for_deletion_confirmation(tool_context: ToolContext, db_path:str, table:str, filters:Dict[str, Any], limit:int=10, dry_run:bool=True)->Dict[str, Any]:
+    """
+    pauses execution and asks for user confirmation for the deletion operation. 
+    Completes or cancles based on the approval descision.
 
+
+
+    """
+    # initial confirmation request
+    if not tool_context.tool_confirmation:
+        dry_run_result = delete_records_by_filter(db_path, table, filters, limit, dry_run=True)
+        logger.info(f"Dry run: {dry_run_result['preview_count']} records would be deleted from {table}. Check {dry_run_result['preview_path']} for preview.")
+        tool_context.request_confirmation(hint=f"Attempting to delete {dry_run_result['preview_count']} records from {table}. Do you want to proceed?",
+        payload={"db_path":db_path, "table": table,"filters":filters,"limit":limit, "dry_run":dry_run})
+
+        return {
+            "status": "pending",
+            "message": f"Deletion of {dry_run_result['preview_count']} records from {table} requires confirmation.",
+        }
+    # user confirmed
+    if tool_context.tool_confirmation.confirmed:
+        result = delete_records_by_filter(db_path, table, filters, limit, dry_run=dry_run)
+        return {
+            "status": "approved",
+            "message": f"Proceeding with deletion of {result['deleted']} records from {table}.",
+            "deleted_count": result["deleted"],
+            "deleted_records_preview_path": result.get("preview_path", "")
+        }
+    # user denied
+    else:
+        return {
+            "status": "denied",
+            "message": f"Deletion of records from {table} has been cancelled by the user.",
+        }
+    
+    
 from google.genai.errors import ClientError
 from google.adk.runners import InMemoryRunner
 import asyncio
