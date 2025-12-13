@@ -54,12 +54,11 @@ def decide_and_perform_delete_records(db_path, table,  tool_context: ToolContext
             "message": f"Deletion of {potential_deletions} records from {table} has been cancelled by the user.",
         }
 
+
 def ask_for_deletion_confirmation(tool_context: ToolContext, db_path:str, table:str, filters:Dict[str, Any], limit:int=10, dry_run:bool=True)->Dict[str, Any]:
     """
     pauses execution and asks for user confirmation for the deletion operation. 
     Completes or cancles based on the approval descision.
-
-
 
     """
     # initial confirmation request
@@ -89,33 +88,18 @@ def ask_for_deletion_confirmation(tool_context: ToolContext, db_path:str, table:
             "message": f"Deletion of records from {table} has been cancelled by the user.",
         }
     
-    
+
+# -----------------------------------------------------------------
+# This is a robust wrapper to run agents with backoff and history trimming
+# -----------------------------------------------------------------
+#it can be called instead of runner.async.run 
+#This fuction was created to handle rate limit errors (429) and history trimming to avoid Input Token Limit errors.
+
+
 from google.genai.errors import ClientError
 from google.adk.runners import InMemoryRunner
 import asyncio
 import logging
-
-# Backoff helper that honors RetryInfo on 429
-# async def run_with_backoff(runner: InMemoryRunner, prompt: str):
-#     while True:
-#         try:
-#             return await runner.run_debug(prompt)
-#         except ClientError as e:
-#             # Only handle 429; re-raise others
-#             if getattr(e, "status_code", None) != 429:
-#                 raise
-#             # Default wait
-#             delay = 65
-#             try:
-#                 details = (e.response_json or {}).get("error", {}).get("details", [])
-#                 for d in details:
-#                     if d.get("@type", "").endswith("RetryInfo"):
-#                         retry = d.get("retryDelay", "60s").rstrip("s")
-#                         delay = max(5, int(float(retry)) + 2)
-#                         break
-#             except Exception:
-#                 pass
-#             await asyncio.sleep(delay)
 
 logger = logging.getLogger(__name__)
 
