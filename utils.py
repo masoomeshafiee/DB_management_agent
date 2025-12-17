@@ -103,28 +103,25 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-async def run_with_backoff(runner: InMemoryRunner, prompt: str = None, max_retries: int = 3, **kwargs):
+async def run_with_backoff(runner: InMemoryRunner, prompt: str = None, max_retries: int = 3, session_id: str = "default_session", user_id: str = "default_user", **kwargs):
     """
-    Robust wrapper that:
-    1. Trims history to prevent Input Token Limit errors.
-    2. Catches 429 errors and sleeps.
-    3. Accepts **kwargs to handle 'confirmation=True' logic.
+    Robust wrapper for tunner.run_async that:
+    1. Catches 429 errors and sleeps.
+    2. Yields events like a normal runner.run_async call.
     """
     
-    # --- FEATURE 1: PREVENTATIVE TRIMMING ---
-    # If history is getting huge (> 15 turns), keep only system prompt + last 10 turns.
-    # This keeps you under the 250k token limit.
-    if hasattr(runner, 'history') and len(runner.history) > 15:
-        logger.info(f"History length {len(runner.history)} too high. Trimming...")
-        # Keep index 0 (System Instruction) and the last 10 interactions
-        runner.history = [runner.history[0]] + runner.history[-10:]
-
     attempt = 0
     while attempt < max_retries:
         try:
-            # --- FEATURE 2: ARGUMENT FLEXIBILITY ---
-            # We pass **kwargs so you can use this for confirmation=True later
-            return await runner.run_debug(prompt, **kwargs)
+            # The streaming is warpped and if the runner crashes due to 429, the exception is caught here.
+            async for event in runner.run_async(
+                user_id=user_id,
+                new_message=prompt,
+                session_id=session_id,
+                **kwargs
+            ):
+                yield event
+            return  # If completed successfully, exit the function
             
         except ClientError as e:
             error_code = getattr(e, "code", None) or getattr(e, "status_code", None)

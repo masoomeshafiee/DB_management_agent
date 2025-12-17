@@ -1,6 +1,6 @@
 #!/bin/python3
 
-import asynco
+import asyncio
 from google.adk.agents import Agent, LlmAgent, SequentialAgent
 from google.adk.models.google_llm import Gemini
 from google.adk.runners import InMemoryRunner
@@ -12,7 +12,7 @@ import asyncio
 import os
 from typing import Dict, Any
 import uuid
-import utils
+from utils import run_with_backoff
 
 from lab_data_manager import data_validation, insert_csv
 from lab_data_manager.insert_csv import insert_from_csv
@@ -59,6 +59,8 @@ def create_approval_message(approval_id: str, user_input:str) -> types.Content:
     confirmation_response = types.FunctionResponse(id = approval_id, name = "adk_request_confirmation", response = {"confirmed": is_approved})
     return types.Content(role = "user", parts = [types.Part(function_response = confirmation_response)])
 
+
+
 async def run_db_workflow(runner, user_request:str, session_id:str, user_id:str="default_user") -> Dict[str, Any]:
     """
     Orchestrates the database operation workflow.
@@ -67,7 +69,7 @@ async def run_db_workflow(runner, user_request:str, session_id:str, user_id:str=
     query_content = types.Content(role="user", parts=[types.Part(text=user_request)])
     
     events = []
-    async for event in runner.run_async(user_id= user_id, session_id = session_id, new_message = query_content):
+    async for event in run_with_backoff(runner, user_id= user_id, session_id = session_id, prompt = query_content):
         events.append(event)
         #print thoughts as they happen
         if event.content and event.content.parts:
@@ -87,10 +89,11 @@ async def run_db_workflow(runner, user_request:str, session_id:str, user_id:str=
         approval_message = create_approval_message(approval_info["approval_id"], user_input)
 
         #resume the runner with the approval message
-        async for event in runner.run_async(
+        async for event in run_with_backoff(
+            runner,
             user_id=user_id,
             session_id=session_id,
-            new_message =approval_message,
+            prompt =approval_message,
             invocation_id=approval_info["invocation_id"]
         ):
             if event.content and event.content.parts:
@@ -98,7 +101,7 @@ async def run_db_workflow(runner, user_request:str, session_id:str, user_id:str=
                     if part.text:
                         print(f"Agent > {part.text}")
             
-            return {"status": "completed_with_approval"}
+        return {"status": "completed_with_approval"}
         
     return {"status": "completed_without_approval"}
 

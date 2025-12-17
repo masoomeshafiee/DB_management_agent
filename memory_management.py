@@ -31,7 +31,7 @@ async def compress_history_if_needed(runner, threshold: int = 15):
         {text_log}
         SUMMARIZE:
     """
-    response = await summerizer_model.generate_message(prompt=prompt)
+    response = await summerizer_model.generate_content_async(prompt=prompt)
 
     summary_msg = types.Content(
         role="system",

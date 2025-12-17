@@ -2,25 +2,72 @@ import asyncio
 import os
 import glob
 
+from google.adk.runners import Runner
+from google.adk.sessions import DatabaseSessionService
+
 from agents import db_manager_app
-from memory_managment import compress_history_if_needed
+from memory_management import compress_history_if_needed
 from workflow import run_db_workflow
 
-SESSION_DIR = "./sessions"
+# Define where the database file will live
+DB_FOLDER = "db_manager_app_state"
+DB_FILE = "sessions.db"
 
-def get_session():
-    """
-    Retrieves an existing session ID or creates a new one based on user input.
-    """
-    if not os.path.exists(SESSION_DIR): os.makedirs(SESSION_DIR)
-    existing_sessions = glob.glob(os.path.join(SESSION_DIR, "session_*.json"))
-    sessions_ids = [os.path.splitext(os.path.basename(s))[0] for s in existing_sessions]
+def get_session_name():
 
-    print("Existing sessions:")
-    for sid in sessions_ids:
-        print(f"- {sid}")
+    """Ask the user to provide a session name"""
 
-    choice = input("Enter session ID to continue or press Enter to create a new session: ").strip()
-    if choice and choice in sessions_ids:
-        return choice
-    return "default_session"
+    if not os.path.exists(DB_FOLDER):
+        os.makedirs(DB_FOLDER)
+
+    print(f"The sessions are stored in the: {DB_FOLDER}/{DB_FILE} file.")
+
+    choice = input("Enter a session name to load or create (leave empty for default session): ").strip()
+
+    return choice if choice else "default"
+
+
+async def main():
+
+
+    db_path = os.path.join(DB_FOLDER, DB_FILE)
+    db_url = f"sqlite:///{db_path}"
+
+    session_service = DatabaseSessionService(db_url)
+    session_name = get_session_name()
+    print(f"Using session name: {session_name}")
+
+    try:
+ 
+        await session_service.create_session(
+            app_name=db_manager_app.name,
+            user_id="default_user",
+            session_id=session_name
+        )
+        print(f"Session '{session_name}' created successfully.")
+    except Exception as e:
+        print(f"Session '{session_name}' already exists. Loading existing session.")
+
+    runner = Runner(
+    app=db_manager_app,
+    session_service=session_service,
+    )
+
+    while True:
+
+        try:
+            user_prompt = input("\nEnter your database request (or type 'exit' to quit): ").strip()
+            if user_prompt.lower() == 'exit':
+                print("Exiting the database management agent. Goodbye!")
+                break
+
+            await run_db_workflow(runner, user_prompt, session_id=session_name)
+
+            await compress_history_if_needed(runner, threshold=15)
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+
