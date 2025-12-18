@@ -5,8 +5,7 @@ import glob
 from google.adk.runners import Runner
 from google.adk.sessions import DatabaseSessionService
 
-from agents import db_manager_app
-from memory_management import compress_history_if_needed
+from DB_management_agent.agent.agents import db_manager_app
 from workflow import run_db_workflow
 
 # Define where the database file will live
@@ -62,8 +61,6 @@ async def main():
                 break
 
             await run_db_workflow(runner, user_prompt, session_id=session_name)
-
-            await compress_history_if_needed(runner, threshold=15)
 
         except Exception as e:
             print(f"An error occurred: {e}")

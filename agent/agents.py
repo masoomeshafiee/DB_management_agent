@@ -5,19 +5,18 @@ from google.adk.runners import InMemoryRunner
 from google.adk.runners import Runner
 from google.adk.tools import AgentTool, FunctionTool
 from google.genai import types
-from google.adk.sessions import InMemorySessionService
-import asyncio
+
 import os
-from typing import Dict, Any
+
 import uuid
-import utils
+from . import utils
 
 from lab_data_manager import data_validation, insert_csv
 from lab_data_manager.insert_csv import insert_from_csv
 from lab_data_manager.delete_records import delete_records_by_filter
 from google.adk.tools.tool_context import ToolContext
 from google.adk.code_executors import BuiltInCodeExecutor
-from google.adk.apps.app import App, ResumabilityConfig
+from google.adk.apps.app import App, ResumabilityConfig, EventsCompactionConfig
 import logging
 
 # configuring the logging
@@ -237,10 +236,11 @@ except Exception as e:
     raise e
 
 # create the root agent app to add persistence layer
-db_manager_app = App(name = "db_manager_app", root_agent = root_agent, resumability_config = ResumabilityConfig(is_resumable = True, storage_path = "./db_manager_app_state"))
+db_manager_app = App(name = "db_manager_app",  
+    root_agent = root_agent,
+    resumability_config = ResumabilityConfig(is_resumable = True, storage_path = "./db_manager_app_state"),
+    events_compaction_config=EventsCompactionConfig(
+        compaction_interval=5,  # Cleanup every 5 turns
+        overlap_size=2)          # Keep the 2 newest messages, summarize the rest
+    )
 logger.info("DB Manager app created successfully.")
-
-# # create the root agent runner
-# session_service = InMemorySessionService()
-# db_manager_runner = Runner(app=db_manager_app, session_service=session_service)
-# logger.info("DB Manager runner created successfully.")
