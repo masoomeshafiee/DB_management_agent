@@ -45,7 +45,7 @@ retry_config = types.HttpRetryOptions(
 try: 
     data_validation_agent = Agent(
         name = "data_validation_agent",
-        model = Gemini(model = "gemini-2.5-flash-lite", api_key=os.getenv("GOOGLE_API_KEY"), retry_options = retry_config),
+        model = Gemini(model = "gemini-2.0-flash", api_key=os.getenv("GOOGLE_API_KEY"), retry_options = retry_config),
         description = "An agent to validate  csv metadata file before inserting into the database.",
         instruction = 
         """
@@ -96,7 +96,7 @@ except Exception as e:
 try:
     insert_agent = LlmAgent(
         name = "insert_agent",
-        model = Gemini(model="gemini-2.5-flash-lite", retry_config=retry_config),
+        model = Gemini(model="gemini-2.0-flash", retry_config=retry_config),
         description = "This agent insert a new csv file into the database.",
         instruction = """
         Role: **Safety Compliance Officer** (Not a helper).
@@ -142,7 +142,7 @@ insert_supervisor_agent = SequentialAgent(
 #--------------------------------------------------------------------------------
 filter_infer_agent = Agent(
     name = "filter_infer_agent",
-    model = Gemini(model="gemini-2.5-flash-lite", api_key=os.getenv("GOOGLE_API_KEY"), retry_config=retry_config),
+    model = Gemini(model="gemini-2.0-flash", api_key=os.getenv("GOOGLE_API_KEY"), retry_config=retry_config),
     description = "An agent to infer SQL filters from user requests for the following delete/ search operations.",
     instruction = """ You are a filter inference agent. Your goal is to infer SQL filters from the user requests to be used in delete or search operations on the lab data management database.
     The user will provide you with a criteria in natural laguage for selecting records for further operations. But this criteria needs to be converted to a dictionary with a certain format to be uased by the other agents responsible for doing
@@ -158,18 +158,18 @@ filter_infer_agent = Agent(
     1. date: "YYYYMMDD" (as a string, e.g., "20230915")
     2. exposure_time, time_interval : in seconds (float)
     3. condition_unit, concentration_unit: use the abbreviations such as "nM", "uM", "mM", etc.
-    You infere the "key-value" pairs from the user request. Once you infere the key and the corresponding value, you MUST output a python code that creates a dictionary called "filters" with the inferred key-value pairs.
-    For example, if the user request is "Delete all records for organism E.coli and protein DnaA", you should output the following:
-    filters = {"organism": "E.coli", "protein": "DnaA"}. You MUST provide the output in the form of a dictionary ONLY. Do NOT include any other text or explanation before or after the code block.
+    Output format:
+        - Return ONLY a single Python dictionary literal.
+        - NO backticks, NO code fences, NO explanation, NO extra text.
+        - Example: if the user request is "Delete all records for organism E.coli and protein DnaA", you should output the following:
+            {"organism": "E.coli", "protein": "DnaA"}
     If a certain field is not mentioned in the user request, do NOT include it in the filters dictionary.
-    If the user request is ambiguous your code MUST output {error: "The provided criteria is ambiguous. Please provide more specific details." }
-    If the user provides the criteria but not the values for the fields, your code MUST output {error: "The provided criteria is incomplete. Please provide values for the specified fields."}
-    If the usr provides criteria that includes fields outside of the supported set, your code MUST output {error:"The provided criteria includes unsupported fields. Please use only the supported fields.}
-    If the user request is not related to filter inference, your code MUST output {error:"I am only allowed to infer filters for database operations."}
+    If the user request is ambiguous you MUST output {error: "The provided criteria is ambiguous. Please provide more specific details." }
+    If the user provides the criteria but not the values for the fields, you MUST output {error: "The provided criteria is incomplete. Please provide values for the specified fields."}
+    If the usr provides criteria that includes fields outside of the supported set, you MUST output {error:"The provided criteria includes unsupported fields. Please use only the supported fields.}
+    If the user request is not related to filter inference, your MUST output {error:"I am only allowed to infer filters for database operations."}
     
-    """,
-    code_executor=BuiltInCodeExecutor(),
-    output_key="filters"
+    """
 )
 #--------------------------------------------------------------------------------
 # Agent for deleting records from the database
@@ -219,7 +219,7 @@ filter_infer_agent = Agent(
 # supervisor agent to manage the filter inference and subsequent delete operation with confirmation
 delete_supervisor_agent = Agent(
     name="delete_supervisor_agent",
-    model=Gemini(model="gemini-2.5-flash-lite", retry_config=retry_config),
+    model=Gemini(model="gemini-2.0-flash", retry_config=retry_config),
     description = "Supervisor agent to manage the filter inference and deletion operation with user confirmation.",
     instruction = """ You are the Delete Operation Supervisor. Your job is to 
     1. FIRST ALWAYS infer the filters from the user request ONLY by calling the filter_infer_agent tool. Pass it the entire user message. You should receive the "filters" dictionary as an output from that tool.
@@ -250,7 +250,7 @@ delete_supervisor_agent = Agent(
 try:
     root_agent = Agent(
         name="root_agent",
-        model=Gemini(model="gemini-2.5-flash-lite", retry_config=retry_config),
+        model=Gemini(model="gemini-2.0-flash", retry_config=retry_config),
         description="Root orchestrator for Laboratory Data Management.",
         instruction="""
         You are the Lab Data Manager Orchestrator. Your job is to understand user requests and delegate tasks to the appropriate specialist agents.
@@ -270,9 +270,11 @@ try:
         The user should provide you the necessary details for performing the operations.
         For the insert operation, the user must provide the file path of the CSV file to be inserted and the output path for saving invalid records (if any).
         For the delete operation, the user must provide the database path, the table to delete record from, and the criteria for selecting records to be deleted.(The criteria will be used to infer the filters by the filter_infer_agent internally).
+        You get the "deletion_result" from the delete_supervisor_agent which includes the status of the deletion operation, a message and number of deleted/to_be_deleted records.
         """,
         # We use the specialist operation agents as sub-agents
-        tools=[AgentTool(agent=data_validation_agent), AgentTool(agent=insert_supervisor_agent), AgentTool(agent=delete_supervisor_agent)]
+        sub_agents=[insert_supervisor_agent, delete_supervisor_agent],
+        #tools=[AgentTool(agent=data_validation_agent), AgentTool(agent=insert_supervisor_agent), AgentTool(agent=delete_supervisor_agent)]
         
     )
     logger.info("Root agent created successfully.")
@@ -322,7 +324,7 @@ def create_approval_message(approval_id: str, user_input:str) -> types.Content:
     Returns:
         types.Content object with the approval response.
     """
-    confirmation_response = type.FunctionResponse(id = approval_id, name = "adk_request_confirmation", response = {"confirmed": user_input.lower() == "approve"})
+    confirmation_response = types.FunctionResponse(id = approval_id, name = "adk_request_confirmation", response = {"confirmed": user_input.lower() == "approve"})
     return types.Content(role = "user", parts = [types.Part(function_response = confirmation_response)])
 
 # function to orchestrate the entire deletion approval flow.
@@ -356,6 +358,8 @@ async def run_db_operation_workflow(user_request:str)->Dict[str, Any]:
                 for part in event.content.parts:
                     if part.text:
                         print(f"Agent > {part.text}")
+                    if part.function_call:
+                        print(f"Agent made a function call: {part.function_call.name} with args {part.function_call.args}")
         return {"status": "Operation completed_after_confirmation"}
     else:
         # No approval requested; process events normally.
@@ -364,6 +368,8 @@ async def run_db_operation_workflow(user_request:str)->Dict[str, Any]:
                 for part in event.content.parts:
                     if part.text:
                         print(f"Agent > {part.text}")
+                    if part.function_call:
+                        print(f"Agent made a function call: {part.function_call.name} with args {part.function_call.args}. no approval was requested.")
         #return {"status": "Operation completed_without_confirmation"}
 
             
@@ -395,6 +401,12 @@ async def run_db_operation_workflow(user_request:str)->Dict[str, Any]:
 
 # ...existing code...
 
+
+# async def main():
+#     filter_runner = InMemoryRunner(agent=filter_infer_agent)
+#     response = await filter_runner.run_debug("all records for organism yeast after the date 20220101 with protein Rfa1 and dye concentration value 10 nM")
+#     print(response)
+#     logger.info(f"Filter inference Response: {response}")
 
 async def main():
     user_text = "Delete records from the 'experiment' table in the database located at /Users/masoomeshafiee/Projects/agent_DB_manager/Reyes_lab_data.db' for all records for organism yeast after the date 20220101 with protein Rfa1 anddye concentration value 10 nM. Limit the deletion to 5 records and perform a dry run first."
