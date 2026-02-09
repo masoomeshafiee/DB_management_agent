@@ -158,7 +158,7 @@ Insert the records from metadata_run_12.csv
 - Reject invalid rows
 - Insert only validated records
 
-** Agent outputs:
+**Agent outputs:**
 Along the `csv file` containing the `invalidated/skipped` records , it will return:
 ```
 {
@@ -167,7 +167,7 @@ Along the `csv file` containing the `invalidated/skipped` records , it will retu
   "rows_rejected": 3
 }
 ```
-#### Example 3 — Delete (Human-in-the-loop)
+##### Example 3 — Delete (Human-in-the-loop)
 **User input**
 ```
 Delete all invalid experiments from March.
