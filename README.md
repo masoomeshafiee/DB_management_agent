@@ -4,7 +4,8 @@ An LLM-powered, agent-based database management system designed to help non-tech
 
 This project uses Google Agent Development Kit (ADK) to translate human-language requests into validated, auditable database operations, without requiring SQL knowledge, lowering the barrier to good data management practices in experimental biology labs.
 
-Status:  Active development
+Status: Active development
+
 This repository contains Version 1, focused on correctness, safety, and observability.
 
 
@@ -35,20 +36,10 @@ All without writing SQL.
 
 The system follows a multi-agent design, orchestrated by a root agent:
 
-**User (Natural Language)**
-                         ↓
-             Root Agent (reasoning)
-                         ↓
- ┌───────────────┐
- │        Specialized                 │      
- │        Sub-Agents                  │
- └───────────────┘
-                         ↓
-   Python Query Builders
-                         ↓
-      SQLite Database
-      
-      
+**User (Natural Language)** --> **Root Agent (reasoning)** --> **Specialized Sub-Agents** --> **Python Query Builders** --> **SQLite Database**
+                
+
+ 
 ##### **Note:**
 The system does not allow free-form SQL generation.
 Instead, agents select from explicit, tested Python query builders, ensuring safety and traceability. This:
@@ -191,6 +182,7 @@ Delete all invalid experiments from March.
 Deletion proceeds only after confirmation.
 
 ### Project Structure:
+```
 db_management_agent/
 ├── agents/
 ├── tools/
@@ -201,6 +193,7 @@ db_management_agent/
 ├── tests/
 ├── main.py
 └── README.md
+```
 
 #### Technologies Used:
 - Python
@@ -231,7 +224,7 @@ python main.py
 ```
 Example interaction:
 
-**`User`**: Show all experiments from bacteria with duration > 60
+**`User`**: Show all experiments from E.coli with protein DnaA.
 **`Agent`**: Found 24 matching records.
 
 #### Contributors
