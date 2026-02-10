@@ -41,6 +41,7 @@ def decide_and_perform_delete_records(db_path, table,  tool_context: ToolContext
         }
     
     if tool_context.tool_confirmation.confirmed:
+        logger.info(f"User confirmed deletion of {potential_deletions} records from {table}. Proceeding with deletion.")
         result = delete_records_by_filter(db_path, table, filters, limit, dry_run=False)
         return {
             "status": "approved",
@@ -54,18 +55,19 @@ def decide_and_perform_delete_records(db_path, table,  tool_context: ToolContext
             "message": f"Deletion of {potential_deletions} records from {table} has been cancelled by the user.",
         }
 
+
 def ask_for_deletion_confirmation(tool_context: ToolContext, db_path:str, table:str, filters:Dict[str, Any], limit:int=10, dry_run:bool=True)->Dict[str, Any]:
     """
     pauses execution and asks for user confirmation for the deletion operation. 
     Completes or cancles based on the approval descision.
 
-
-
     """
+    logger.info(f"AUDI: User {tool_context.user_id} requested deletion on table {table} with filters {filters}.")
+
     # initial confirmation request
     if not tool_context.tool_confirmation:
+        logger.info(f"Requesting confirmation from user {tool_context.user_id} for deletion on table {table} with filters {filters}.")
         dry_run_result = delete_records_by_filter(db_path, table, filters, limit, dry_run=True)
-        logger.info(f"Dry run: {dry_run_result['preview_count']} records would be deleted from {table}. Check {dry_run_result['preview_path']} for preview.")
         tool_context.request_confirmation(hint=f"Attempting to delete {dry_run_result['preview_count']} records from {table}. Do you want to proceed?",
         payload={"db_path":db_path, "table": table,"filters":filters,"limit":limit, "dry_run":dry_run})
 
@@ -75,6 +77,7 @@ def ask_for_deletion_confirmation(tool_context: ToolContext, db_path:str, table:
         }
     # user confirmed
     if tool_context.tool_confirmation.confirmed:
+        logger.info(f"User {tool_context.user_id} confirmed deletion on table {table} with filters {filters}. Proceeding with deletion.")
         result = delete_records_by_filter(db_path, table, filters, limit, dry_run=dry_run)
         return {
             "status": "approved",
@@ -84,63 +87,46 @@ def ask_for_deletion_confirmation(tool_context: ToolContext, db_path:str, table:
         }
     # user denied
     else:
+        logger.info(f"User {tool_context.user_id} denied deletion on table {table} with filters {filters}. Cancelling deletion.")
         return {
             "status": "denied",
             "message": f"Deletion of records from {table} has been cancelled by the user.",
         }
     
-    
+
+# -----------------------------------------------------------------
+# This is a robust wrapper to run agents with backoff and history trimming
+# -----------------------------------------------------------------
+#it can be called instead of runner.async.run 
+#This fuction was created to handle rate limit errors (429) and history trimming to avoid Input Token Limit errors.
+
+
 from google.genai.errors import ClientError
 from google.adk.runners import InMemoryRunner
 import asyncio
 import logging
 
-# Backoff helper that honors RetryInfo on 429
-# async def run_with_backoff(runner: InMemoryRunner, prompt: str):
-#     while True:
-#         try:
-#             return await runner.run_debug(prompt)
-#         except ClientError as e:
-#             # Only handle 429; re-raise others
-#             if getattr(e, "status_code", None) != 429:
-#                 raise
-#             # Default wait
-#             delay = 65
-#             try:
-#                 details = (e.response_json or {}).get("error", {}).get("details", [])
-#                 for d in details:
-#                     if d.get("@type", "").endswith("RetryInfo"):
-#                         retry = d.get("retryDelay", "60s").rstrip("s")
-#                         delay = max(5, int(float(retry)) + 2)
-#                         break
-#             except Exception:
-#                 pass
-#             await asyncio.sleep(delay)
-
 logger = logging.getLogger(__name__)
 
-async def run_with_backoff(runner: InMemoryRunner, prompt: str = None, max_retries: int = 3, **kwargs):
+async def run_with_backoff(runner: InMemoryRunner, prompt: str = None, max_retries: int = 3, session_id: str = "default_session", user_id: str = "default_user", **kwargs):
     """
-    Robust wrapper that:
-    1. Trims history to prevent Input Token Limit errors.
-    2. Catches 429 errors and sleeps.
-    3. Accepts **kwargs to handle 'confirmation=True' logic.
+    Robust wrapper for tunner.run_async that:
+    1. Catches 429 errors and sleeps.
+    2. Yields events like a normal runner.run_async call.
     """
     
-    # --- FEATURE 1: PREVENTATIVE TRIMMING ---
-    # If history is getting huge (> 15 turns), keep only system prompt + last 10 turns.
-    # This keeps you under the 250k token limit.
-    if hasattr(runner, 'history') and len(runner.history) > 15:
-        logger.info(f"History length {len(runner.history)} too high. Trimming...")
-        # Keep index 0 (System Instruction) and the last 10 interactions
-        runner.history = [runner.history[0]] + runner.history[-10:]
-
     attempt = 0
     while attempt < max_retries:
         try:
-            # --- FEATURE 2: ARGUMENT FLEXIBILITY ---
-            # We pass **kwargs so you can use this for confirmation=True later
-            return await runner.run_debug(prompt, **kwargs)
+            # The streaming is warpped and if the runner crashes due to 429, the exception is caught here.
+            async for event in runner.run_async(
+                user_id=user_id,
+                new_message=prompt,
+                session_id=session_id,
+                **kwargs
+            ):
+                yield event
+            return  # If completed successfully, exit the function
             
         except ClientError as e:
             error_code = getattr(e, "code", None) or getattr(e, "status_code", None)

@@ -5,25 +5,28 @@ from google.adk.runners import InMemoryRunner
 from google.adk.runners import Runner
 from google.adk.tools import AgentTool, FunctionTool
 from google.genai import types
-from google.adk.sessions import InMemorySessionService
-import asyncio
+
 import os
-from typing import Dict, Any
+
 import uuid
-import utils
+from . import utils
 
 from lab_data_manager import data_validation, insert_csv
 from lab_data_manager.insert_csv import insert_from_csv
 from lab_data_manager.delete_records import delete_records_by_filter
 from google.adk.tools.tool_context import ToolContext
 from google.adk.code_executors import BuiltInCodeExecutor
-from google.adk.apps.app import App, ResumabilityConfig
+from google.adk.apps.app import App, ResumabilityConfig, EventsCompactionConfig
 import logging
 
 # configuring the logging
-logging.basicConfig(filename = "./agent.log", level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', force=True)
+logging.basicConfig(
+    filename = "./agent.log",
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    force=True,
+    )
 logger = logging.getLogger(__name__)
-
 
 
 # Configuring retry options for the agents
@@ -136,7 +139,6 @@ insert_supervisor_agent = SequentialAgent(
 )
 
 
-
 #--------------------------------------------------------------------------------
 # # Agent for infering the filters from the user request 
 #--------------------------------------------------------------------------------
@@ -169,53 +171,14 @@ filter_infer_agent = Agent(
     If the usr provides criteria that includes fields outside of the supported set, you MUST output {error:"The provided criteria includes unsupported fields. Please use only the supported fields.}
     If the user request is not related to filter inference, your MUST output {error:"I am only allowed to infer filters for database operations."}
     
-    """
+    """,
+    code_executor=BuiltInCodeExecutor(),
+    output_key="filters"
 )
-#--------------------------------------------------------------------------------
-# Agent for deleting records from the database
-#--------------------------------------------------------------------------------
-# sub-agent to perform the delete operation
-# delete_agent = LlmAgent(
-#     name="delete_agent",
-#     model=Gemini(model="gemini-2.5-flash-lite", retry_config=retry_config),
-#     description="This agent deletes records from the database based on specified criteria.",
-#     instruction=
-#     """
-#         You are a helpful assistant that deletes records from a database.
-#         You MUST use the `decide_and_perform_delete_records` tool for this.
-#         When you receive a deletion request, the filter_infer_agent must have already infered the filters from the user request first. So you will receive the filters dictionary as an input argument.
-#         Then you do the following steps:
-#         1. You MUST call the 'ask_for_deletion_confirmation' tool with the following arguments:
-#             - db_path (string)
-#             - table (string)
-#             - filters (dictionary, inferrd from the user request by the filter_infer_agent)
-#             - limit (integer, optional, default is 10)
-#             - dry_run (boolean, optional, default is True)
-#         2. If the response status is "pending", you MUST wait for user confirmation before proceeding.
-#         3. If the response status is "approved", you MUST proceed with the deletion using the ask_for_deletion_confirmation tool.
-#         4. If the response status is "denied", you MUST cancel the deletion operation.
-
-#         After calling the tool, summarize the result and number of deleted records based on output_key.
-#     """,
-#     tools=[FunctionTool(utils.ask_for_deletion_confirmation, require_confirmation=True)],
-#     output_key="deleted_count"
-# )
 
 
-# # Wrap the deletion agent in the App which adds a persistence layer that saves and restores state.
-# deletion_app = App(
-#     name = "deletion_app",
-#     root_agent = delete_agent,
-#     resumability_config = ResumabilityConfig(is_resumable = True, storage_path = "./deletion_app_state")
-# )
-# logger.info("Deletion agent and app created successfully.")
 
-# # create the deletion runner
-# session_service = InMemorySessionService()
-# deletion_runner = Runner(app=deletion_app, session_service=session_service)
-# logger.info("Deletion runner created successfully.")
-
-
+# ----------------------------------------------------------------------------------------
 # supervisor agent to manage the filter inference and subsequent delete operation with confirmation
 delete_supervisor_agent = Agent(
     name="delete_supervisor_agent",
@@ -283,135 +246,15 @@ except Exception as e:
     raise e
 
 # create the root agent app to add persistence layer
+<<<<<<< HEAD:agent/agents.py
+db_manager_app = App(name = "db_manager_app",  
+    root_agent = root_agent,
+    resumability_config = ResumabilityConfig(is_resumable = True, storage_path = "./db_manager_app_state"),
+    events_compaction_config=EventsCompactionConfig(
+        compaction_interval=5,  # Cleanup every 5 turns
+        overlap_size=2)          # Keep the 2 newest messages, summarize the rest
+    )
+logger.info("DB Manager app created successfully.")
+=======
 db_manager_app = App(name = "db_manager_app", root_agent = root_agent, resumability_config = ResumabilityConfig(is_resumable = True, storage_path = "./db_manager_app_state"))
 logger.info("DB Manager app created successfully.")
-
-# create the root agent runner
-session_service = InMemorySessionService()
-db_manager_runner = Runner(app=db_manager_app, session_service=session_service)
-logger.info("DB Manager runner created successfully.")
-
-# ----------------------------------------------------------------------------------------
-# 3. DEFINE WORKFLOWS
-# ----------------------------------------------------------------------------------------
-
-def check_for_approval(events):
-    """Check if events contain an approval request.
-
-    Returns:
-        dict with approval details or None
-    """
-    for event in events:
-        if event.content and event.content.parts:
-            for part in event.content.parts:
-                if (
-                    part.function_call
-                    and part.function_call.name == "adk_request_confirmation"
-                ):
-                    return {
-                        "approval_id": part.function_call.id,
-                        "invocation_id": event.invocation_id,
-                    }
-    return None
-
-def create_approval_message(approval_id: str, user_input:str) -> types.Content:
-    """Create a message content for approval response.
-
-    Args:
-        approval_id: The ID of the approval request.
-        user_input: User's input text (e.g., "approve" or "deny").
-
-    Returns:
-        types.Content object with the approval response.
-    """
-    confirmation_response = types.FunctionResponse(id = approval_id, name = "adk_request_confirmation", response = {"confirmed": user_input.lower() == "approve"})
-    return types.Content(role = "user", parts = [types.Part(function_response = confirmation_response)])
-
-# function to orchestrate the entire deletion approval flow.
-async def run_db_operation_workflow(user_request:str)->Dict[str, Any]:
-    """
-    Orchestrates the db operation workflow.
-    """
-    # create a unique session id 
-    session_id = f"db_session_{uuid.uuid4().hex[:8]}"
-
-    # create the session
-    await session_service.create_session(app_name = db_manager_app.name, user_id ="default_user", session_id = session_id)
-
-
-    query_content = types.Content(role="user", parts=[types.Part(text=user_request)])
-    events = []
-    # STEP 1: Send initial request to the root Agent app.
-    async for event in db_manager_runner.run_async(user_id = "default_user", session_id = session_id, new_message = query_content):
-        events.append(event)
-    # STEP 2: Check for approval request in the events.
-    approval_info = check_for_approval(events)
-        # STEP 3: If approval is requested, pause and wait for user decision.
-    if approval_info:
-        print(f" Pausing for approval...")
-        user_input = input("Type APPROVE to proceed or DENY to cancel: ")
-
-        approval_message = create_approval_message(approval_info["approval_id"], user_input)
-            
-        async for event in db_manager_runner.run_async(user_id="default_user", session_id=session_id, new_message =approval_message, invocation_id=approval_info["invocation_id"]):
-            if event.content and event.content.parts:
-                for part in event.content.parts:
-                    if part.text:
-                        print(f"Agent > {part.text}")
-                    if part.function_call:
-                        print(f"Agent made a function call: {part.function_call.name} with args {part.function_call.args}")
-        return {"status": "Operation completed_after_confirmation"}
-    else:
-        # No approval requested; process events normally.
-        for event in events:
-            if event.content and event.content.parts:
-                for part in event.content.parts:
-                    if part.text:
-                        print(f"Agent > {part.text}")
-                    if part.function_call:
-                        print(f"Agent made a function call: {part.function_call.name} with args {part.function_call.args}. no approval was requested.")
-        #return {"status": "Operation completed_without_confirmation"}
-
-            
-
-# ----------------------------------------------------------------------------------------
-
-# async def main():
-
-#     #data_validation_runner = InMemoryRunner(agent = data_validation_agent)
-
-#     #response = await data_validation_runner.run_debug("Validate the regular metadata in the file /Volumes/Masoumeh/Masoumeh/Masoumeh_data/1-Rfa1/dwell time/normal S/1s interval/metadata_complete.csv and save invalid records to /Volumes/Masoumeh/Masoumeh/Masoumeh_data/1-Rfa1/dwell time/normal/invalid_rows.csv")
-
-#     #print("Data Validation Agent Response:")
-#     filter_infer_runner = InMemoryRunner(agent = filter_infer_agent)
-#     response = await filter_infer_runner.run_debug("all records for organism E.coli after the date 20220101 with protein DnaA and dye concentration value 10 nM")
-#     print(response)
-#     logger.info(f"Filter inference Response: {response}")
-
-# asyncio.run(main())
-
-# async def main():
-#     runner = InMemoryRunner(agent=insert_supervisor_agent)
-#     response = await utils.run_with_backoff(
-#         runner,
-#         "Please validate the regular data from '/Users/niushamirhakimi/Documents/code/llm/google5/DB_management_agent/test/metadata_complete_insert.csv' and save invalid records to './invalid_rows.csv'."
-#     )
-#     #"./test/metadata_complete_insert.csv"
-#     print(response)
-
-# ...existing code...
-
-
-# async def main():
-#     filter_runner = InMemoryRunner(agent=filter_infer_agent)
-#     response = await filter_runner.run_debug("all records for organism yeast after the date 20220101 with protein Rfa1 and dye concentration value 10 nM")
-#     print(response)
-#     logger.info(f"Filter inference Response: {response}")
-
-async def main():
-    user_text = "Delete records from the 'experiment' table in the database located at /Users/masoomeshafiee/Projects/agent_DB_manager/Reyes_lab_data.db' for all records for organism yeast after the date 20220101 with protein Rfa1 anddye concentration value 10 nM. Limit the deletion to 5 records and perform a dry run first."
-    response = await run_db_operation_workflow(user_text)
-    print(response)
-    logger.info(f"Deletion Supervisor Agent Response: {response}")
-
-asyncio.run(main())
