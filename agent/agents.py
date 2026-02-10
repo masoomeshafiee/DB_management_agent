@@ -20,7 +20,12 @@ from google.adk.apps.app import App, ResumabilityConfig, EventsCompactionConfig
 import logging
 
 # configuring the logging
-logging.basicConfig(filename = "./agent.log", level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', force=True)
+logging.basicConfig(
+    filename = "./agent.log",
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    force=True,
+    )
 logger = logging.getLogger(__name__)
 
 

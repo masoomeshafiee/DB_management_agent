@@ -2,10 +2,11 @@ import asyncio
 import os
 import glob
 
+from agent import utils
 from google.adk.runners import Runner
 from google.adk.sessions import DatabaseSessionService
 
-from DB_management_agent.agent.agents import db_manager_app
+from agent.agents import db_manager_app
 from workflow import run_db_workflow
 
 # Define where the database file will live
@@ -67,4 +68,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-

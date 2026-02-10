@@ -41,6 +41,7 @@ def decide_and_perform_delete_records(db_path, table,  tool_context: ToolContext
         }
     
     if tool_context.tool_confirmation.confirmed:
+        logger.info(f"User confirmed deletion of {potential_deletions} records from {table}. Proceeding with deletion.")
         result = delete_records_by_filter(db_path, table, filters, limit, dry_run=False)
         return {
             "status": "approved",
@@ -61,10 +62,12 @@ def ask_for_deletion_confirmation(tool_context: ToolContext, db_path:str, table:
     Completes or cancles based on the approval descision.
 
     """
+    logger.info(f"AUDI: User {tool_context.user_id} requested deletion on table {table} with filters {filters}.")
+
     # initial confirmation request
     if not tool_context.tool_confirmation:
+        logger.info(f"Requesting confirmation from user {tool_context.user_id} for deletion on table {table} with filters {filters}.")
         dry_run_result = delete_records_by_filter(db_path, table, filters, limit, dry_run=True)
-        logger.info(f"Dry run: {dry_run_result['preview_count']} records would be deleted from {table}. Check {dry_run_result['preview_path']} for preview.")
         tool_context.request_confirmation(hint=f"Attempting to delete {dry_run_result['preview_count']} records from {table}. Do you want to proceed?",
         payload={"db_path":db_path, "table": table,"filters":filters,"limit":limit, "dry_run":dry_run})
 
@@ -74,6 +77,7 @@ def ask_for_deletion_confirmation(tool_context: ToolContext, db_path:str, table:
         }
     # user confirmed
     if tool_context.tool_confirmation.confirmed:
+        logger.info(f"User {tool_context.user_id} confirmed deletion on table {table} with filters {filters}. Proceeding with deletion.")
         result = delete_records_by_filter(db_path, table, filters, limit, dry_run=dry_run)
         return {
             "status": "approved",
@@ -83,6 +87,7 @@ def ask_for_deletion_confirmation(tool_context: ToolContext, db_path:str, table:
         }
     # user denied
     else:
+        logger.info(f"User {tool_context.user_id} denied deletion on table {table} with filters {filters}. Cancelling deletion.")
         return {
             "status": "denied",
             "message": f"Deletion of records from {table} has been cancelled by the user.",
