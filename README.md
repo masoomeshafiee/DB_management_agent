@@ -40,12 +40,18 @@ The system follows a multi-agent design, orchestrated by a root agent:
                 
 
  
-##### **Note:**
-The system does not allow free-form SQL generation.
+##### ** Important Note:**
+1. The system does not allow free-form SQL generation.
 Instead, agents select from explicit, tested Python query builders, ensuring safety and traceability. This:
 - Prevents hallucinated or unsafe SQL
 - Makes behavior deterministic
 - Enables unit testing
+
+2. **Python Database Layer Dependency**
+The Python layer that directly interfaces with the database—and whose modules are exposed to the agent system as tools—is developed and maintained in a separate repository:
+https://github.com/masoomeshafiee/data-management-system-SQLite
+
+To use the agent-based database manager, the `lab-data-manager` package (the Python database layer) must be installed in your environment.
 
 #### **Agent Design**
 
@@ -185,13 +191,13 @@ Deletion proceeds only after confirmation.
 ```
 db_management_agent/
 ├── agents/
-├── tools/
-├── database/
+├── utils/
 ├── memory/
 ├── observability/
 ├── config/
-├── tests/
+├── test/
 ├── main.py
+├── workflow.py
 └── README.md
 ```
 
