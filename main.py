@@ -15,7 +15,7 @@ from workflow import run_db_workflow
 from observability.logging_config import config_logging
 
 # Set the App-level logger: 
-logger = logging.getLogger("db_management_agent")
+#logger = logging.getLogger("db_management_agent")
 
 # Define where the database file will live
 DB_FOLDER = "db_manager_app_state"
@@ -27,28 +27,29 @@ def get_session_name():
 
     if not os.path.exists(DB_FOLDER):
         os.makedirs(DB_FOLDER)
-    logger.info(f"The sessions are stored in the session database file located at {DB_FOLDER}/{DB_FILE}")
-    
+    #logger.info(f"The sessions are stored in the session database file located at {DB_FOLDER}/{DB_FILE}")
+    print(f"The sessions are stored in the: {DB_FOLDER}/{DB_FILE} file.")
 
     choice = input("Enter a session name to load or create (leave empty for default session): ").strip()
 
     session_name = choice if choice else "default"
-    logger.info(f"Selected session name: {session_name}")
+    #logger.info(f"Selected session name: {session_name}")
 
     return session_name
 
 
 async def main():
 
-    config_logging(level="INFO")
+    #config_logging(level="INFO")
 
-    logger.info("Starting Database Management Agent")
+    #logger.info("Starting Database Management Agent")
 
     db_path = os.path.join(DB_FOLDER, DB_FILE)
     db_url = f"sqlite+aiosqlite:///{db_path}"
 
     session_service = DatabaseSessionService(db_url)
     session_name = get_session_name()
+    print(f"Using session name: {session_name}")
     
 
     try:
@@ -58,9 +59,11 @@ async def main():
             user_id="default_user",
             session_id=session_name
         )
-        logger.info(f"Session '{session_name}' created or loaded successfully.")
+        print(f"Session '{session_name}' created successfully.")
+        #logger.info(f"Session '{session_name}' created or loaded successfully.")
     except Exception as e:
-        logger.exception(f"Failed to create/load session '{session_name}' due to the following error:{e}")
+        #logger.exception(f"Failed to create/load session '{session_name}' due to the following error:{e}")
+        print(f"Session '{session_name}' already exists. Loading existing session.")
         traceback.print_exc()
 
     runner = Runner(
@@ -68,20 +71,22 @@ async def main():
     session_service=session_service,
     )
 
-    logger.info("Runner initialized successfully")
+    #logger.info("Runner initialized successfully")
 
     while True:
 
         try:
             user_prompt = input("\nEnter your database request (or type 'exit' to quit): ").strip()
             if user_prompt.lower() == 'exit':
-                logger.info("User requested exit, exiting the database management agent. Goodbye!")
+                #logger.info("User requested exit, exiting the database management agent. Goodbye!")
+                print("Exiting the database management agent. Goodbye!")
                 break
-            logger.info(f"Received user request: {user_prompt}")
+            #logger.info(f"Received user request: {user_prompt}")
             await run_db_workflow(runner, user_prompt, session_id=session_name)
 
         except Exception as e:
-            logger.exception(f"Unhandled error during workflow execution: {e}")
+            print(f"An error occurred: {e}")
+            #logger.exception(f"Unhandled error during workflow execution: {e}")
             traceback.print_exc()
 
 if __name__ == "__main__":

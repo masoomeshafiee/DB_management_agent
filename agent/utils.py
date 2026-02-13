@@ -17,7 +17,7 @@ from typing import Any, Dict, Optional
 
 
 logger = logging.getLogger(__name__) # for normal module logs
-audit_logger = logging.getLogger("db_management_agent.audit") # for “who did what” actions (these go to audit.log)
+#audit_logger = logging.getLogger("db_management_agent.audit") # for “who did what” actions (these go to audit.log)
 
 
 # -----------------------------------------------------------------
@@ -76,13 +76,13 @@ def ask_for_deletion_confirmation(tool_context: ToolContext, db_path: str, table
     """
     logger.info(f"AUDIT: User {tool_context.user_id} requested deletion on table {table} with filters {filters}.")
 
-    audit_logger.info(
-        "Deletion requested | user_id=%s table=%s filters=%s limit=%s",
-        getattr(tool_context, "user_id", None),
-        table,
-        filters,
-        limit,
-    )
+    # audit_logger.info(
+    #     "Deletion requested | user_id=%s table=%s filters=%s limit=%s",
+    #     getattr(tool_context, "user_id", None),
+    #     table,
+    #     filters,
+    #     limit,
+    # )
     
 
     # initial confirmation request
@@ -100,12 +100,12 @@ def ask_for_deletion_confirmation(tool_context: ToolContext, db_path: str, table
         tool_context.request_confirmation(hint=f"Attempting to delete {dry_run_result['preview_count']} records from {table}. Do you want to proceed?",
         payload={"db_path":db_path, "table": table,"filters":filters,"limit":limit, "dry_run":dry_run})
 
-        audit_logger.info(
-            "Deletion confirmation requested | user_id=%s table=%s",
-            getattr(tool_context, "user_id", None),
-            table,
+        # audit_logger.info(
+        #     "Deletion confirmation requested | user_id=%s table=%s",
+        #     getattr(tool_context, "user_id", None),
+        #     table,
             
-        )
+        # )
 
         return {
             "status": "pending",
@@ -115,12 +115,12 @@ def ask_for_deletion_confirmation(tool_context: ToolContext, db_path: str, table
     # user confirmed
     if tool_context.tool_confirmation.confirmed:
 
-        audit_logger.info(
-            "Deletion confirmed | user_id=%s table=%s filters=%s",
-            getattr(tool_context, "user_id", None),
-            table,
-            filters,
-        )
+        # audit_logger.info(
+        #     "Deletion confirmed | user_id=%s table=%s filters=%s",
+        #     getattr(tool_context, "user_id", None),
+        #     table,
+        #     filters,
+        # )
 
         logger.info(f"User {tool_context.user_id} confirmed deletion on table {table} with filters {filters}. Proceeding with deletion.")
         result = delete_records_by_filter(db_path, table, filters, limit, dry_run=dry_run)
@@ -131,12 +131,12 @@ def ask_for_deletion_confirmation(tool_context: ToolContext, db_path: str, table
             "Deletion executed | table=%s",
             table,
         )
-        audit_logger.info(
-            "Deletion executed | user_id=%s table=%s",
-            getattr(tool_context, "user_id", None),
-            table
+        # audit_logger.info(
+        #     "Deletion executed | user_id=%s table=%s",
+        #     getattr(tool_context, "user_id", None),
+        #     table
             
-        )
+        # )
         return {
             "status": "approved",
             "message": f"Proceeding with deletion of {result['deleted']} records from {table}.",
@@ -147,11 +147,11 @@ def ask_for_deletion_confirmation(tool_context: ToolContext, db_path: str, table
 
     
     else:
-        audit_logger.info(
-        "Deletion denied | user_id=%s table=%s filters=%s",
-        getattr(tool_context, "user_id", None),
-        table,
-        filters,)
+        # audit_logger.info(
+        # "Deletion denied | user_id=%s table=%s filters=%s",
+        # getattr(tool_context, "user_id", None),
+        # table,
+        # filters,)
         logger.info("Deletion cancelled by user | table=%s", table)
         return {
             "status": "denied",

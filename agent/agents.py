@@ -20,9 +20,14 @@ from lab_data_manager import data_validation
 from lab_data_manager.insert_csv import insert_from_csv
 from lab_data_manager.delete_records import delete_records_by_filter
 
-
+logging.basicConfig(
+    filename = "./agent.log",
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    force=True,
+    )
 logger = logging.getLogger(__name__)
-audit_logger = logging.getLogger("db_management_agent.audit")
+#audit_logger = logging.getLogger("db_management_agent.audit")
 
 API_KEY = os.getenv("GOOGLE_API_KEY")
 
