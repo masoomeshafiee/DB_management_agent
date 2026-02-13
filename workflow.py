@@ -1,10 +1,10 @@
 #!/bin/python3
 
-import asyncio
 from google.adk.agents import Agent, LlmAgent, SequentialAgent
 from google.adk.models.google_llm import Gemini
 from google.adk.runners import InMemoryRunner
 from google.adk.runners import Runner
+from google.adk.plugins.logging_plugin import LoggingPlugin
 from google.adk.tools import AgentTool, FunctionTool
 from google.genai import types
 from google.adk.sessions import InMemorySessionService
