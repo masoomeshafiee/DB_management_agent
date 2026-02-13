@@ -40,7 +40,7 @@ The system follows a multi-agent design, orchestrated by a root agent:
                 
 
  
-##### ** Important Note:**
+##### **Important Note:**
 1. The system does not allow free-form SQL generation.
 Instead, agents select from explicit, tested Python query builders, ensuring safety and traceability. This:
 - Prevents hallucinated or unsafe SQL
@@ -48,6 +48,7 @@ Instead, agents select from explicit, tested Python query builders, ensuring saf
 - Enables unit testing
 
 2. **Python Database Layer Dependency**
+
 The Python layer that directly interfaces with the database—and whose modules are exposed to the agent system as tools—is developed and maintained in a separate repository:
 https://github.com/masoomeshafiee/data-management-system-SQLite
 
