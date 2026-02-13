@@ -66,7 +66,6 @@ async def main():
     runner = Runner(
     app=db_manager_app,
     session_service=session_service,
-    plugins=[LoggingPlugin()],
     )
 
     logger.info("Runner initialized successfully")

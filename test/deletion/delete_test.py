@@ -14,9 +14,9 @@
 
 # -------------------------------------------------------------------------
 # 2. Delete records with filters that match multiple records.
-# user prompt: "Delete all experiments that are marked as invalid."
+# user prompt: "Delete all experiments that are marked as invalid in the database stored in this directory: example_data/db/Reyes_lab_data.db."
 # table: "Experiment". filters: {"is_valid": "N"}. This will delete all records from the Experiment table where is_valid is 'N' in the database in this directory: example_data/db/Reyes_lab_data.db."
-# user prompt: "Delete all experiments that took place on August 3rd, 2023."
+# user prompt: "Delete all experiments that took place on August 3rd, 2023, in this directory: example_data/db/Reyes_lab_data.db.""
 # table: "Experiment". filters: {"date": "20230803"}. This will delete all records from the Experiment table where date is '2023-08-03', in the database in this directory: example_data/db/Reyes_lab_data.db."
 #------------------------------------------------------------------------
 

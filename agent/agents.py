@@ -6,6 +6,7 @@ from google.adk.models.google_llm import Gemini
 from google.adk.tools import AgentTool, FunctionTool
 from google.adk.apps.app import App, ResumabilityConfig, EventsCompactionConfig
 from google.adk.code_executors import BuiltInCodeExecutor
+from google.adk.plugins.logging_plugin import LoggingPlugin
 
 from google.genai import types
 
@@ -256,7 +257,8 @@ try:
         resumability_config = ResumabilityConfig(is_resumable = True, storage_path = "./db_manager_app_state"),
         events_compaction_config=EventsCompactionConfig(
             compaction_interval=5,  # Cleanup every 5 turns
-            overlap_size=2)          # Keep the 2 newest messages, summarize the rest
+            overlap_size=2),          # Keep the 2 newest messages, summarize the rest
+        plugins=[LoggingPlugin()]
         )
     logger.info(f"DB Manager app: {db_manager_app.name} created successfully.")
 except Exception as e:

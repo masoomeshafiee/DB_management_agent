@@ -22,7 +22,7 @@ def config_logging(log_dir:Path | str=DEFAULT_LOG_DIR, level: str="INFO") -> Non
             "standard": {"format": fmt, "datefmt": datefmt},
         },
         "handlers": {
-            "consol": {
+            "console": {
             "class": "logging.StreamHandler",
             "formatter": "standard",
             "level": level,

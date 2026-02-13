@@ -68,13 +68,13 @@ def decide_and_perform_delete_records(db_path, table,  tool_context: ToolContext
         }
 
 
-def ask_for_deletion_confirmation(tool_context: ToolContext, db_path:str, table:str, filters:Dict[str, Any], limit:int | None, dry_run:bool=True)->Dict[str, Any]:
+def ask_for_deletion_confirmation(tool_context: ToolContext, db_path: str, table: str, filters: dict, limit: int | None = None, dry_run: bool = True) -> Dict[str, Any]:
     """
     pauses execution and asks for user confirmation for the deletion operation. 
     Completes or cancles based on the approval descision.
 
     """
-    #logger.info(f"AUDIT: User {tool_context.user_id} requested deletion on table {table} with filters {filters}.")
+    logger.info(f"AUDIT: User {tool_context.user_id} requested deletion on table {table} with filters {filters}.")
 
     audit_logger.info(
         "Deletion requested | user_id=%s table=%s filters=%s limit=%s",
@@ -83,17 +83,17 @@ def ask_for_deletion_confirmation(tool_context: ToolContext, db_path:str, table:
         filters,
         limit,
     )
+    
 
     # initial confirmation request
     if not tool_context.tool_confirmation:
-        #logger.info(f"Requesting confirmation from user {tool_context.user_id} for deletion on table {table} with filters {filters}.")
+        logger.info(f"Requesting confirmation from user {tool_context.user_id} for deletion on table {table} with filters {filters}.")
         dry_run_result = delete_records_by_filter(db_path, table, filters, limit, dry_run=True)
 
-        preview_count = int(dry_run_result.get("preview_count", 0))
+        #preview_count = int(dry_run_result.get("preview_count", 0))
         logger.info(
-            "Delete dry-run | table=%s preview_count=%s limit=%s",
+            "Delete dry-run | table=%s limit=%s",
             table,
-            preview_count,
             limit,
         )
 
@@ -101,16 +101,16 @@ def ask_for_deletion_confirmation(tool_context: ToolContext, db_path:str, table:
         payload={"db_path":db_path, "table": table,"filters":filters,"limit":limit, "dry_run":dry_run})
 
         audit_logger.info(
-            "Deletion confirmation requested | user_id=%s table=%s preview_count=%s",
+            "Deletion confirmation requested | user_id=%s table=%s",
             getattr(tool_context, "user_id", None),
             table,
-            preview_count,
+            
         )
 
         return {
             "status": "pending",
             "message": f"Deletion of {dry_run_result['preview_count']} records from {table} requires confirmation.",
-            "preview_count": preview_count,
+            
         }
     # user confirmed
     if tool_context.tool_confirmation.confirmed:
@@ -122,26 +122,24 @@ def ask_for_deletion_confirmation(tool_context: ToolContext, db_path:str, table:
             filters,
         )
 
-        #logger.info(f"User {tool_context.user_id} confirmed deletion on table {table} with filters {filters}. Proceeding with deletion.")
+        logger.info(f"User {tool_context.user_id} confirmed deletion on table {table} with filters {filters}. Proceeding with deletion.")
         result = delete_records_by_filter(db_path, table, filters, limit, dry_run=dry_run)
-        deleted_count = int(result.get("deleted", 0))
-        preview_path = result.get("preview_path", "")
+        #deleted_count = int(result.get("deleted", 0))
+        #preview_path = result.get("preview_path", "")
 
         logger.info(
-            "Deletion executed | table=%s deleted=%s preview_path=%s",
+            "Deletion executed | table=%s",
             table,
-            deleted_count,
-            preview_path,
         )
         audit_logger.info(
-            "Deletion executed | user_id=%s table=%s deleted=%s",
+            "Deletion executed | user_id=%s table=%s",
             getattr(tool_context, "user_id", None),
-            table,
-            deleted_count,
+            table
+            
         )
         return {
             "status": "approved",
-            "message": f"Proceeding with deletion of {deleted_count} records from {table}.",
+            "message": f"Proceeding with deletion of {result['deleted']} records from {table}.",
             "deleted_count": result["deleted"],
             "deleted_records_preview_path": result.get("preview_path", "")
         }
@@ -181,13 +179,13 @@ async def run_with_backoff(runner: InMemoryRunner, prompt: str = None, max_retri
             #The streaming is warpped and if the runner crashes due to 429, the exception is caught here.
             #now the runner has logging plugin, plugin callbacks will run as part of the runner lifecycle (before/after run, agent, tool, etc.) so we get to see everythin.
 
-            logger.info(
-                "Runner call | attempt=%s/%s session_id=%s user_id=%s",
-                attempt,
-                max_retries,
-                session_id,
-                user_id,
-            )
+            # logger.info(
+            #     "Runner call | attempt=%s/%s session_id=%s user_id=%s",
+            #     attempt,
+            #     max_retries,
+            #     session_id,
+            #     user_id,
+            # )
 
             async for event in runner.run_async(
                 user_id=user_id,
