@@ -6,10 +6,9 @@ import traceback
 
 #from agent import utils
 from google.adk.runners import Runner
-from google.adk.plugins.logging_plugin import LoggingPlugin
 from google.adk.sessions import DatabaseSessionService
 
-from agent.agents import db_manager_app
+from agent.root_agent import db_manager_app
 from workflow import run_db_workflow
 
 from observability.logging_config import config_logging
@@ -45,7 +44,7 @@ async def main():
     #logger.info("Starting Database Management Agent")
 
     db_path = os.path.join(DB_FOLDER, DB_FILE)
-    db_url = f"sqlite+aiosqlite:///{db_path}"
+    db_url = f"sqlite:///{db_path}"
 
     session_service = DatabaseSessionService(db_url)
     session_name = get_session_name()

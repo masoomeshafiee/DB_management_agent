@@ -74,7 +74,7 @@ def ask_for_deletion_confirmation(tool_context: ToolContext, db_path: str, table
     Completes or cancles based on the approval descision.
 
     """
-    logger.info(f"AUDIT: User {tool_context.user_id} requested deletion on table {table} with filters {filters}.")
+    logger.info(f"AUDIT: User {tool_context._invocation_context.user_id} requested deletion on table {table} with filters {filters}.")
 
     # audit_logger.info(
     #     "Deletion requested | user_id=%s table=%s filters=%s limit=%s",
@@ -87,7 +87,7 @@ def ask_for_deletion_confirmation(tool_context: ToolContext, db_path: str, table
 
     # initial confirmation request
     if not tool_context.tool_confirmation:
-        logger.info(f"Requesting confirmation from user {tool_context.user_id} for deletion on table {table} with filters {filters}.")
+        logger.info(f"Requesting confirmation from user {tool_context._invocation_context.user_id} for deletion on table {table} with filters {filters}.")
         dry_run_result = delete_records_by_filter(db_path, table, filters, limit, dry_run=True)
 
         #preview_count = int(dry_run_result.get("preview_count", 0))
@@ -122,7 +122,7 @@ def ask_for_deletion_confirmation(tool_context: ToolContext, db_path: str, table
         #     filters,
         # )
 
-        logger.info(f"User {tool_context.user_id} confirmed deletion on table {table} with filters {filters}. Proceeding with deletion.")
+        logger.info(f"User {tool_context._invocation_context.user_id} confirmed deletion on table {table} with filters {filters}. Proceeding with deletion.")
         result = delete_records_by_filter(db_path, table, filters, limit, dry_run=dry_run)
         #deleted_count = int(result.get("deleted", 0))
         #preview_path = result.get("preview_path", "")

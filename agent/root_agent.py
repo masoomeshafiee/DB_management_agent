@@ -2,6 +2,7 @@ from __future__ import annotations
 
 # Importing the required modules
 from google.adk.agents import Agent
+from google.adk.tools import AgentTool
 from google.adk.models.google_llm import Gemini
 from google.adk.apps.app import App, ResumabilityConfig, EventsCompactionConfig
 from google.adk.plugins.logging_plugin import LoggingPlugin
@@ -77,8 +78,8 @@ try:
     
         # We use the specialist operation agents as sub-agents
         # Pass the actual Agent instances defined in the modules
-        # sub_agents=[insert_mod.insert_supervisor_agent, delete_mod.delete_supervisor_agent],
-        tools=[ AgentTool(agent=insert_supervisor_agent), AgentTool(agent=delete_supervisor_agent)]
+        sub_agents=[insert_mod.insert_supervisor_agent, delete_mod.delete_supervisor_agent],
+        # tools=[ AgentTool(agent=insert_mod.insert_supervisor_agent), AgentTool(agent=delete_mod.delete_supervisor_agent)]
         
     )
     logger.info("Root agent created successfully. Name:%s", root_agent.name)
