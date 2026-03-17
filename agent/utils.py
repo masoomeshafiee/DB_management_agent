@@ -98,7 +98,7 @@ def ask_for_deletion_confirmation(tool_context: ToolContext, db_path: str, table
         )
 
         tool_context.request_confirmation(hint=f"Attempting to delete {dry_run_result['preview_count']} records from {table}. Do you want to proceed?",
-        payload={"db_path":db_path, "table": table,"filters":filters,"limit":limit, "dry_run":dry_run})
+        payload={"db_path":db_path, "table": table,"filters":filters,"limit":limit, "dry_run":False})
 
         # audit_logger.info(
         #     "Deletion confirmation requested | user_id=%s table=%s",
@@ -138,14 +138,13 @@ def ask_for_deletion_confirmation(tool_context: ToolContext, db_path: str, table
             
         # )
         return {
-            "status": "approved",
-            "message": f"Proceeding with deletion of {result['deleted']} records from {table}.",
+            "status": "completed",
+            "message": f"Successfully deleted {result['deleted']} records records from {table}.",
             "deleted_count": result["deleted"],
             "deleted_records_preview_path": result.get("preview_path", "")
         }
     # user denied
 
-    
     else:
         # audit_logger.info(
         # "Deletion denied | user_id=%s table=%s filters=%s",

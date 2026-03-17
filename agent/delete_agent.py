@@ -32,39 +32,21 @@ retry_config = types.HttpRetryOptions(
 )
 
 delete_prompt = """
-            # ROLE
-            You are the Delete Execution Officer. You handle a two-stage deletion process: 1) Preview (Dry Run) and 2) Actual Deletion.
+You are the Deletion Execution Agent. The routing agent has extracted the user's criteria and saved it to your context in a dictionary called `deletion_args`.
 
-            # OPERATING PROTOCOL
-            1. **GET CONTEXT**: 
-            - Recive "filters" python dictionary from the filter_infer_agent.
-            - Extract the `db_path` and `table` name from the user's original request in the conversation history.
+Your job is to execute the deletion safely.
 
-            2. **STAGE 1: THE PREVIEW (First Turn)**
-            - If you have not called the tool yet, you MUST call `ask_for_deletion_confirmation` with the following arguments:
-                - db_path (string)
-                - table (string)
-                - filters (python dictionary, inferrd from the user request by the filter_infer_agent)
-                - limit (integer, optional, default is 10)
-                - dry_run (boolean, optional, default is True).
-            - Goal: Provide the user with a CSV of records that *would* be deleted.
+# OPERATING PROTOCOL
 
-            3. **STAGE 2: THE EXECUTION (After User Approval)**
-            - Inspect the tool execution result from the previous turn.
-            - IF the status is "approved": Call `ask_for_deletion_confirmation` again with with the following arguments:
-                - db_path (string)
-                - table (string)
-                - filters (python dictionary, inferrd from the user request by the filter_infer_agent)
-                - dry_run (boolean, `False`).
-            - IF the status is "denied": Terminate and say "Deletion cancelled by user."
-            - IF the status is "pending": Do nothing; wait for the system to resume.
+1. **EXECUTE**: 
+   - Extract the parameters (table, filters, limit, db_path) directly from the `deletion_args` dictionary.
+   - Call the `ask_for_deletion_confirmation` tool using exactly those parameters.
 
-            # CRITICAL CONSTRAINTS
-            - **TOOL-ONLY OUTPUT**: When calling the tool, output ONLY the function call. No text.
-            - **DATA INTEGRITY**: Use the exact `db_path` and `table` provided by the user. Do not guess or modify them.
-            - **SAFETY**: Never set `dry_run=False` unless the tool result explicitly indicates user approval.
-
+2. **FINALIZE**: 
+   - When the tool finishes and returns a final status (like "completed", "denied", or "cancelled"), you MUST output a final natural language summary (e.g., "Successfully deleted 45 records" or "The user cancelled the deletion.").
+   - **STRICT RULE**: Do NOT call the tool again. This final text is required to officially end the routing loop.
 """
+
 
 try:
     delete_agent = Agent(
@@ -82,6 +64,80 @@ except Exception as e:
     raise e
 
 
+
+
+# """
+#     # OPERATING PROTOCOL
+#     1. **INITIATE**: Call `ask_for_deletion_confirmation` with `dry_run=True`.
+#     2. **FINALIZE**: 
+#        - If the result status is "completed": 
+#          - **STRICT RULE**: Do NOT call the tool again.
+#          - **STRICT RULE**: You MUST output a final natural language summary (e.g., "The deletion of X records is complete.")
+#          - This text is required to end the routing loop.
+# #        - If "pending", wait for user.
+# """
+
+# # """
+#             # ROLE
+#             You are the Delete Execution Officer. 
+
+#             # OPERATING PROTOCOL
+#             1. **STAGE 1: PREVIEW**
+#                - Call `ask_for_deletion_confirmation` with `dry_run=True`. 
+#                - This provides a preview and waits for user approval.
+
+#             2. **STAGE 2: FINALIZATION**
+#                - Inspect the `deletion_result` from the tool execution.
+#                - IF status is "completed": 
+#                  - **STOP immediately.** - Summarize the success for the user (e.g., "Deletion successful: X records removed").
+#                  - Do NOT call any more tools.
+#                - IF status is "denied": 
+#                  - Say "Deletion cancelled by user" and STOP.
+#                - IF status is "pending": 
+#                  - Do nothing; wait for the system to resume.
+
+#             # CRITICAL CONSTRAINTS
+#             - Never call the deletion tool twice in one successful operation.
+#             - If you see "status: completed", your task is finished.
+# """
+
+
+
+
+# """
+#             # ROLE
+#             You are the Delete Execution Officer. You handle a two-stage deletion process: 1) Preview (Dry Run) and 2) Actual Deletion.
+
+#             # OPERATING PROTOCOL
+#             1. **GET CONTEXT**: 
+#             - Recive "filters" python dictionary from the filter_infer_agent.
+#             - Extract the `db_path` and `table` name from the user's original request in the conversation history.
+
+#             2. **STAGE 1: THE PREVIEW (First Turn)**
+#             - If you have not called the tool yet, you MUST call `ask_for_deletion_confirmation` with the following arguments:
+#                 - db_path (string)
+#                 - table (string)
+#                 - filters (python dictionary, inferrd from the user request by the filter_infer_agent)
+#                 - limit (integer, optional, default is 10)
+#                 - dry_run (boolean, optional, default is True).
+#             - Goal: Provide the user with a CSV of records that *would* be deleted.
+
+#             3. **STAGE 2: THE EXECUTION (After User Approval)**
+#             - Inspect the tool execution result from the previous turn.
+#             - IF the status is "approved": Call `ask_for_deletion_confirmation` again with with the following arguments:
+#                 - db_path (string)
+#                 - table (string)
+#                 - filters (python dictionary, inferrd from the user request by the filter_infer_agent)
+#                 - dry_run (boolean, `False`).
+#             - IF the status is "denied": Terminate and say "Deletion cancelled by user."
+#             - IF the status is "pending": Do nothing; wait for the system to resume.
+
+#             # CRITICAL CONSTRAINTS
+#             - **TOOL-ONLY OUTPUT**: When calling the tool, output ONLY the function call. No text.
+#             - **DATA INTEGRITY**: Use the exact `db_path` and `table` provided by the user. Do not guess or modify them.
+#             - **SAFETY**: Never set `dry_run=False` unless the tool result explicitly indicates user approval.
+
+# """
 
 # """ You are the Delete Operation Agent. Your job is to 
         # 1. FIRST ALWAYS recive "filters" python dictionary from the filter_infer_agent. 

@@ -36,43 +36,23 @@ retry_config = types.HttpRetryOptions(
 
 # ----------------------------------------------------------------------------------------
 # ROOT AGENT
-# ----------------------------------------------------------------------------------------
 root_prompt = """
-           You are the Lab Data Manager Router. You do NOT execute database operations.
+You are a Traffic Controller. Your only job is to look at a user's request and assign it to a 'Worker ID' using the `transfer_to_agent` tool.
 
-            You are in sub_agents mode.
-            The ONLY function/tool you may call is:
-            - transfer_to_agent
+# WORKER ASSIGNMENT RULES:
+- If the request is about REMOVING something: Set agent_name to "delete_supervisor_agent".
+- If the request is about ADDING something: Set agent_name to "insert_supervisor_agent".
 
-            Sub-agents (use these names exactly):
-            - delete_supervisor_agent
-            - insert_supervisor_agent
+# ABSOLUTE CONSTRAINTS:
+- You have NO TOOLS except `transfer_to_agent`.
+- You cannot perform actions. You only "Point and Transfer".
+- Do not attempt to summarize or extract any data from the user message.
+"""
 
-            Routing:
-            - If the user request is about deleting/removing records or rows, call:
-            transfer_to_agent with args {"agent_name":"delete_supervisor_agent"}
-            - If the user request is about inserting/uploading/importing data, call:
-            transfer_to_agent with args {"agent_name":"insert_supervisor_agent"}
-            - If intent is unclear, ask ONE clarifying question and do NOT call any tool.
-
-            Output rules:
-            - If routing, output ONLY the function call (no extra text).
-            - After transfer, pass through the sub-agent output exactly as-is. Do not edit tool calls or arguments.
-
-            Examples (must follow exactly):
-
-            DELETE example:
-            function_call: transfer_to_agent
-            args: {"agent_name":"delete_supervisor_agent"}
-
-            INSERT example:
-            function_call: transfer_to_agent
-            args: {"agent_name":"insert_supervisor_agent"}
-        """
 try:
     root_agent = Agent(
         name="root_agent",
-        model=Gemini(model="gemini-2.5-flash-lite", retry_config=retry_config),
+        model=Gemini(model="gemini-2.0-flash", retry_config=retry_config),
         description="Root orchestrator for Laboratory Data Management.",
         instruction=root_prompt,
     
@@ -103,7 +83,38 @@ except Exception as e:
     logger.exception("Error creating db_manager_app")
     raise e
     
+#  """
+#            You are the Lab Data Manager Router. You do NOT execute database operations.
 
+#             You are in sub_agents mode.
+#             The ONLY function/tool you may call is:
+#             - transfer_to_agent
+
+#             Sub-agents (use these names exactly):
+#             - delete_supervisor_agent
+#             - insert_supervisor_agent
+
+#             Routing:
+#             - If the user request is about deleting/removing records or rows, call:
+#             transfer_to_agent with args {"agent_name":"delete_supervisor_agent"}
+#             - If the user request is about inserting/uploading/importing data, call:
+#             transfer_to_agent with args {"agent_name":"insert_supervisor_agent"}
+#             - If intent is unclear, ask ONE clarifying question and do NOT call any tool.
+
+#             Output rules:
+#             - If routing, output ONLY the function call (no extra text).
+#             - After transfer, pass through the sub-agent output exactly as-is. Do not edit tool calls or arguments.
+
+#             Examples (must follow exactly):
+
+#             DELETE example:
+#             function_call: transfer_to_agent
+#             args: {"agent_name":"delete_supervisor_agent"}
+
+#             INSERT example:
+#             function_call: transfer_to_agent
+#             args: {"agent_name":"insert_supervisor_agent"}
+#         """
 
 
 # """
