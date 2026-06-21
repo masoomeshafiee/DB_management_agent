@@ -9,19 +9,37 @@ from lab_data_manager import data_validation, insert_csv
 from lab_data_manager.insert_csv import insert_from_csv
 from lab_data_manager.delete_records import delete_records_by_filter
 
+from .pydantic_models import ALLOWED_TABLES, StrictLabFilters, TABLE_ALIASES
+
 import re
 import logging
 import asyncio
 from typing import Any, Dict, Optional
 
 
-
-logger = logging.getLogger(__name__) # for normal module logs
-#audit_logger = logging.getLogger("db_management_agent.audit") # for “who did what” actions (these go to audit.log)
+logger = logging.getLogger(__name__)
 
 
 # -----------------------------------------------------------------
-# Delete operation utility
+# Table name normalisation (replaces DeletionSchema.map_table_names)
+# -----------------------------------------------------------------
+
+def resolve_table_name(table: str) -> str:
+    """Map natural language aliases to canonical table names.
+
+    For example, "track" maps to "TrackingFiles" and "raw files" maps to
+    "RawFiles".
+    Returns the input unchanged if no alias matches.
+    """
+    name = table.strip().lower()
+    for alias, canonical in TABLE_ALIASES.items():
+        if re.search(rf'\b{alias}\b', name):
+            return canonical
+    return table
+
+
+# -----------------------------------------------------------------
+# Delete operation utilities
 # -----------------------------------------------------------------
 
 # Not used:
@@ -68,94 +86,154 @@ def decide_and_perform_delete_records(db_path, table,  tool_context: ToolContext
         }
 
 
-def ask_for_deletion_confirmation(tool_context: ToolContext, db_path: str, table: str, filters: dict, limit: int | None = None, dry_run: bool = True) -> Dict[str, Any]:
+def preview_deletion(tool_context: ToolContext, db_path: str, table: str, filters: dict, limit: int | None = None) -> Dict[str, Any]:
     """
-    pauses execution and asks for user confirmation for the deletion operation. 
-    Completes or cancles based on the approval descision.
-
+    Validates filters, performs a dry-run, and stores the pending operation in
+    session state. Does NOT delete anything. The delete_agent should show
+    the preview count to the user and ask them to type CONFIRM or CANCEL.
     """
-    logger.info(f"AUDIT: User {tool_context._invocation_context.user_id} requested deletion on table {table} with filters {filters}.")
+    # --- Resolve table alias ("track" → "TrackingFiles") ---
+    table = resolve_table_name(table)
 
-    # audit_logger.info(
-    #     "Deletion requested | user_id=%s table=%s filters=%s limit=%s",
-    #     getattr(tool_context, "user_id", None),
-    #     table,
-    #     filters,
-    #     limit,
-    # )
-    
+    # --- Safety checks ---
+    if not table:
+        logger.warning("preview_deletion blocked: no table specified")
+        return {"status": "blocked", "message": "No table specified. Please provide a table name."}
+    if not filters:
+        logger.warning("preview_deletion blocked: empty filters for table=%s", table)
+        return {
+            "status": "blocked",
+            "message": (
+                f"No filter criteria provided. Deleting without filters would remove "
+                f"ALL records from '{table}'. Please specify criteria (e.g. date, organism, is_valid)."
+            ),
+        }
+    if table not in ALLOWED_TABLES:
+        logger.warning("preview_deletion blocked: unsupported table=%s", table)
+        return {
+            "status": "blocked",
+            "message": f"Unsupported table name: '{table}'.",
+        }
 
-    # initial confirmation request
-    if not tool_context.tool_confirmation:
-        logger.info(f"Requesting confirmation from user {tool_context._invocation_context.user_id} for deletion on table {table} with filters {filters}.")
-        dry_run_result = delete_records_by_filter(db_path, table, filters, limit, dry_run=True)
+    # Validate again at the database boundary and reject unsupported fields.
+    try:
+        validated = StrictLabFilters(**filters)
+        clean_filters = validated.model_dump(exclude_none=True)
+    except Exception as e:
+        logger.warning("preview_deletion blocked: invalid filters | %s", e)
+        return {
+            "status": "blocked",
+            "message": f"Invalid filter fields: {e}",
+        }
 
-        #preview_count = int(dry_run_result.get("preview_count", 0))
-        logger.info(
-            "Delete dry-run | table=%s limit=%s",
+    logger.info("preview_deletion | table=%s filters=%s", table, clean_filters)
+    result = delete_records_by_filter(db_path, table, clean_filters, limit, dry_run=True)
+    preview_count = result.get("preview_count", 0)
+
+    # Store pending deletion so execute_deletion can read it on the next turn
+    tool_context.state["pending_deletion"] = {
+        "db_path": db_path,
+        "table": table,
+        "filters": clean_filters,
+        "limit": limit,
+        "preview_count": preview_count,
+    }
+    logger.info("preview_deletion stored in state | count=%s", preview_count)
+    return {
+        "status": "preview",
+        "preview_count": preview_count,
+        "message": (
+            f"{preview_count} record(s) from '{table}' would be deleted.\n"
+            f"Filters applied: {clean_filters}\n"
+            f"Type CONFIRM to proceed with deletion or CANCEL to abort."
+        ),
+    }
+
+
+def execute_deletion(tool_context: ToolContext) -> Dict[str, Any]:
+    """
+    Executes the deletion that was previewed in a previous turn.
+    Reads db_path, table, filters, and limit from session state key
+    'pending_deletion'. Clears the pending state after execution.
+    """
+    pending = tool_context.state.get("pending_deletion")
+    if not pending:
+        logger.warning("execute_deletion called but no pending_deletion in state")
+        return {
+            "status": "error",
+            "message": "No pending deletion found. Please submit a new delete request.",
+        }
+
+    db_path = pending["db_path"]
+    table   = pending["table"]
+    filters = pending["filters"]
+    limit   = pending.get("limit")
+
+    logger.info("execute_deletion | table=%s filters=%s", table, filters)
+    try:
+        result = delete_records_by_filter(
+            db_path,
             table,
+            filters,
             limit,
+            dry_run=False,
         )
-
-        tool_context.request_confirmation(hint=f"Attempting to delete {dry_run_result['preview_count']} records from {table}. Do you want to proceed?",
-        payload={"db_path":db_path, "table": table,"filters":filters,"limit":limit, "dry_run":False})
-
-        # audit_logger.info(
-        #     "Deletion confirmation requested | user_id=%s table=%s",
-        #     getattr(tool_context, "user_id", None),
-        #     table,
-            
-        # )
-
-        return {
-            "status": "pending",
-            "message": f"Deletion of {dry_run_result['preview_count']} records from {table} requires confirmation.",
-            
-        }
-    # user confirmed
-    if tool_context.tool_confirmation.confirmed:
-
-        # audit_logger.info(
-        #     "Deletion confirmed | user_id=%s table=%s filters=%s",
-        #     getattr(tool_context, "user_id", None),
-        #     table,
-        #     filters,
-        # )
-
-        logger.info(f"User {tool_context._invocation_context.user_id} confirmed deletion on table {table} with filters {filters}. Proceeding with deletion.")
-        result = delete_records_by_filter(db_path, table, filters, limit, dry_run=dry_run)
-        #deleted_count = int(result.get("deleted", 0))
-        #preview_path = result.get("preview_path", "")
-
-        logger.info(
-            "Deletion executed | table=%s",
+    except Exception as e:
+        logger.exception(
+            "execute_deletion failed | table=%s filters=%s",
             table,
+            filters,
         )
-        # audit_logger.info(
-        #     "Deletion executed | user_id=%s table=%s",
-        #     getattr(tool_context, "user_id", None),
-        #     table
-            
-        # )
         return {
-            "status": "completed",
-            "message": f"Successfully deleted {result['deleted']} records records from {table}.",
-            "deleted_count": result["deleted"],
-            "deleted_records_preview_path": result.get("preview_path", "")
+            "status": "error",
+            "message": (
+                f"Deletion failed before any records were removed: {e}. "
+                "The pending deletion was preserved."
+            ),
         }
-    # user denied
 
-    else:
-        # audit_logger.info(
-        # "Deletion denied | user_id=%s table=%s filters=%s",
-        # getattr(tool_context, "user_id", None),
-        # table,
-        # filters,)
-        logger.info("Deletion cancelled by user | table=%s", table)
+    if not isinstance(result, dict):
+        logger.error(
+            "execute_deletion received unexpected result type: %s",
+            type(result).__name__,
+        )
         return {
-            "status": "denied",
-            "message": f"Deletion of records from {table} has been cancelled by the user.",
+            "status": "error",
+            "message": (
+                "Deletion returned an unexpected result. "
+                "The pending deletion was preserved."
+            ),
         }
+
+    # Clear pending state only after the database layer reports success.
+    tool_context.state.pop("pending_deletion", None)
+
+    logger.info("execute_deletion complete | deleted=%s", result.get("deleted"))
+    return {
+        "status": "completed",
+        "deleted_count": result.get("deleted", 0),
+        "message": f"Successfully deleted {result.get('deleted', 0)} record(s) from '{table}'.",
+    }
+
+
+def cancel_deletion(tool_context: ToolContext) -> Dict[str, Any]:
+    """Cancel and clear the deletion currently stored in session state."""
+    pending = tool_context.state.pop("pending_deletion", None)
+    if not pending:
+        return {
+            "status": "cancelled",
+            "message": "No pending deletion was found.",
+        }
+
+    logger.info(
+        "cancel_deletion | table=%s filters=%s",
+        pending.get("table"),
+        pending.get("filters"),
+    )
+    return {
+        "status": "cancelled",
+        "message": "Deletion cancelled. No records were removed.",
+    }
     
 
 # -----------------------------------------------------------------

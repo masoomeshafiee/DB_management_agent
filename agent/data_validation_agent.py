@@ -4,32 +4,15 @@ from __future__ import annotations
 from google.adk.agents import Agent
 from google.adk.models.google_llm import Gemini
 from google.adk.tools import FunctionTool
-from google.genai import types
 
 import os
 import logging
 
 from lab_data_manager import data_validation
 
-logging.basicConfig(
-    filename = "./agent.log",
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    force=True,
-    )
+from .config import retry_config
+
 logger = logging.getLogger(__name__)
-#audit_logger = logging.getLogger("db_management_agent.audit")
-
-API_KEY = os.getenv("GOOGLE_API_KEY")
-
-# Configuring retry options for the agents
-# retry_config = types.HttpRetryOptions(attempts = 5, exp_base = 7, initial_delay = 1, http_status_codes = [429, 500, 503, 504])
-retry_config = types.HttpRetryOptions(
-    attempts=1,          # avoid burst retries on 429
-    exp_base=2,
-    initial_delay=10,
-    http_status_codes=[429, 500, 503, 504],
-)
 
 
 # ----------------------------------------------------------------------------------------

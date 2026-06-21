@@ -7,31 +7,17 @@ from google.adk.models.google_llm import Gemini
 from google.adk.apps.app import App, ResumabilityConfig, EventsCompactionConfig
 from google.adk.plugins.logging_plugin import LoggingPlugin
 
-from google.genai import types
-
 import os
 import logging
+
 # Import sibling modules using relative imports
 from . import delete_supervisor_agent as delete_mod
+from . import deletion_confirmation_agent as confirmation_mod
 from . import insert_supervisor_agent as insert_mod
+from . import query_agent as query_mod
+from .config import retry_config
 
-logging.basicConfig(
-    filename = "./agent.log",
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    force=True,
-    )
 logger = logging.getLogger(__name__)
-#audit_logger = logging.getLogger("db_management_agent.audit")
-
-API_KEY = os.getenv("GOOGLE_API_KEY")
-
-retry_config = types.HttpRetryOptions(
-    attempts=1,          # avoid burst retries on 429
-    exp_base=2,
-    initial_delay=10,
-    http_status_codes=[429, 500, 503, 504],
-)
 
 
 # ----------------------------------------------------------------------------------------
@@ -40,8 +26,11 @@ root_prompt = """
 You are a Traffic Controller. Your only job is to look at a user's request and assign it to a 'Worker ID' using the `transfer_to_agent` tool.
 
 # WORKER ASSIGNMENT RULES:
-- If the request is about REMOVING something: Set agent_name to "delete_supervisor_agent".
-- If the request is about ADDING something: Set agent_name to "insert_supervisor_agent".
+- If the request is about REMOVING or DELETING records: Set agent_name to "delete_supervisor_agent".
+- If the request is about CONFIRMING or APPROVING a pending deletion (e.g. "CONFIRM", "yes", "approve", "proceed"): Set agent_name to "deletion_confirmation_agent".
+- If the request is about CANCELLING a pending deletion (e.g. "CANCEL", "no", "deny", "abort"): Set agent_name to "deletion_confirmation_agent".
+- If the request is about ADDING, UPLOADING, or INSERTING data: Set agent_name to "insert_supervisor_agent".
+- If the request is about READING, SEARCHING, QUERYING, LISTING, COUNTING, or FINDING records (e.g. "show me", "find", "list", "how many", "what are", "search for"): Set agent_name to "query_agent".
 
 # ABSOLUTE CONSTRAINTS:
 - You have NO TOOLS except `transfer_to_agent`.
@@ -52,13 +41,18 @@ You are a Traffic Controller. Your only job is to look at a user's request and a
 try:
     root_agent = Agent(
         name="root_agent",
-        model=Gemini(model="gemini-2.0-flash", retry_config=retry_config),
+        model=Gemini(model="gemini-2.5-flash", api_key=os.getenv("GOOGLE_API_KEY"), retry_config=retry_config),
         description="Root orchestrator for Laboratory Data Management.",
         instruction=root_prompt,
     
         # We use the specialist operation agents as sub-agents
         # Pass the actual Agent instances defined in the modules
-        sub_agents=[insert_mod.insert_supervisor_agent, delete_mod.delete_supervisor_agent],
+        sub_agents=[
+            insert_mod.insert_supervisor_agent,
+            delete_mod.delete_supervisor_agent,
+            confirmation_mod.deletion_confirmation_agent,
+            query_mod.query_agent,
+        ],
         # tools=[ AgentTool(agent=insert_mod.insert_supervisor_agent), AgentTool(agent=delete_mod.delete_supervisor_agent)]
         
     )
@@ -82,59 +76,3 @@ try:
 except Exception as e:
     logger.exception("Error creating db_manager_app")
     raise e
-    
-#  """
-#            You are the Lab Data Manager Router. You do NOT execute database operations.
-
-#             You are in sub_agents mode.
-#             The ONLY function/tool you may call is:
-#             - transfer_to_agent
-
-#             Sub-agents (use these names exactly):
-#             - delete_supervisor_agent
-#             - insert_supervisor_agent
-
-#             Routing:
-#             - If the user request is about deleting/removing records or rows, call:
-#             transfer_to_agent with args {"agent_name":"delete_supervisor_agent"}
-#             - If the user request is about inserting/uploading/importing data, call:
-#             transfer_to_agent with args {"agent_name":"insert_supervisor_agent"}
-#             - If intent is unclear, ask ONE clarifying question and do NOT call any tool.
-
-#             Output rules:
-#             - If routing, output ONLY the function call (no extra text).
-#             - After transfer, pass through the sub-agent output exactly as-is. Do not edit tool calls or arguments.
-
-#             Examples (must follow exactly):
-
-#             DELETE example:
-#             function_call: transfer_to_agent
-#             args: {"agent_name":"delete_supervisor_agent"}
-
-#             INSERT example:
-#             function_call: transfer_to_agent
-#             args: {"agent_name":"insert_supervisor_agent"}
-#         """
-
-
-# """
-# You are the Lab Data Manager Orchestrator. Your job is to understand user requests and delegate tasks to the appropriate specialist agents.
-# To perform the operations, you are ONLY allowed to call your espesialist listed bellow. You MUST not call any other tools nor performing the task yourself. 
-# You have access to the following specialists:
-
-# 1. insert_supervisor_agent: For adding new data from the CSV files to the database.
-# 2. delete_supervisor_agent: For deleting records from the database.
-
-# Rules:
-# - You MUST analyze the user's request to determine the intent (insert vs delete) and delegate to the correct sub agent.
-# - If a user asks to delete data, delegate to the 'delete_supervisor_agent'.
-# - If a user asks to upload or insert data, delegate to the 'insert_supervisor_agent'.
-# - If a sub-agent returns a function_call, you MUST NOT modify it. You MUST forward it exactly as-is in your own output.
-# - Do NOT summarize or restate anything when the sub-agent uses a tool. Only pass through the function_call unchanged.
-# - If a sub-agent emits a tool call, you MUST forward it exactly. Do NOT add your own text unless the sub-agent produced text.
-
-# The user should provide you the necessary details for performing the operations.
-# For the insert operation, the user must provide the file path of the CSV file to be inserted and the output path for saving invalid records (if any).
-# For the delete operation, the user must provide the database path, the table to delete record from, and the criteria for selecting records to be deleted.(The criteria will be used to infer the filters by the filter_infer_agent internally).
-# You get the "deletion_result" from the delete_supervisor_agent which includes the status of the deletion operation, a message and number of deleted/to_be_deleted records.
-# """,

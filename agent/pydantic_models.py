@@ -1,6 +1,6 @@
 import re
-from pydantic import BaseModel, Field,  field_validator, ConfigDict
-from typing import Optional, Dict, Any, Literal
+from pydantic import BaseModel, Field, field_validator, ConfigDict
+from typing import Optional, Any, Literal
 
 
 TABLE_ALIASES = {
@@ -20,9 +20,24 @@ TABLE_ALIASES = {
     "person": "User"
 }
 
+ALLOWED_TABLES = frozenset({
+    "AnalysisFiles",
+    "AnalysisResultExperiment",
+    "AnalysisResults",
+    "CaptureSetting",
+    "Condition",
+    "Experiment",
+    "ExperimentAnalysisFiles",
+    "Masks",
+    "Organism",
+    "Protein",
+    "RawFiles",
+    "TrackingFiles",
+    "User",
+})
+
 
 class LabFilters(BaseModel):
-    model_config = ConfigDict(extra="forbid")  # Forbid extra fields not defined in the model
     organism: Optional[str] = None
     protein: Optional[str] = None
     strain: Optional[str] = None
@@ -67,48 +82,57 @@ class LabFilters(BaseModel):
         return v
 
 
+class StrictLabFilters(LabFilters):
+    """Database-boundary validator that rejects unsupported filter fields."""
+
+    model_config = ConfigDict(extra="forbid")
+
+
 class DeletionSchema(BaseModel):
+    """Structured request produced by the deletion filter agent."""
+
     db_path: str = Field(
         default="./data/sample_data.db",
-        description="Path to the SQLite database file."
+        min_length=1,
+        description="Path to the SQLite database file.",
     )
-
-
     table: Literal[
-            "AnalysisFiles", "AnalysisResultExperiment", "AnalysisResults", 
-            "CaptureSetting", "Condition", "Experiment", 
-            "ExperimentAnalysisFiles", "Masks", "Organism", 
-            "Protein", "RawFiles", "TrackingFiles", "User"
-        ] = Field(
+        "AnalysisFiles",
+        "AnalysisResultExperiment",
+        "AnalysisResults",
+        "CaptureSetting",
+        "Condition",
+        "Experiment",
+        "ExperimentAnalysisFiles",
+        "Masks",
+        "Organism",
+        "Protein",
+        "RawFiles",
+        "TrackingFiles",
+        "User",
+    ] = Field(
         ...,
-        description="Name of the table to delete records from. Map natural language like 'track files' to 'TrackingFiles'."
+        description="Canonical name of the table containing records to delete.",
     )
-
-    # Uses the strict schema instead of open Dict
-    filters: Optional[LabFilters] = Field(
-        default_factory=LabFilters, 
-        description="Structured filters for the deletion criteria."
+    filters: LabFilters = Field(
+        default_factory=LabFilters,
+        description="Validated criteria selecting the records to delete.",
     )
-
-    limit: Optional[int] = Field(
-        10,
+    limit: int = Field(
+        default=10,
         ge=1,
+        le=1000,
+        description="Maximum number of records included in the deletion.",
     )
 
-    dry_run: bool = Field(
-        default= True,
-        description="Set to True for the initial preview request. The agent will ask for confirmation before proceeding with the actual deletion."
-    )
-    
-    @field_validator('table', mode='before')
+    @field_validator("table", mode="before")
     @classmethod
-    def map_table_names(cls, v: Any) -> str:
+    def map_table_names(cls, value: Any) -> Any:
+        if not isinstance(value, str):
+            return value
 
-        if isinstance(v, str):
-            name = v.lower()
-            for alias, table_name in TABLE_ALIASES.items():
-                if re.search(rf'\b{alias}\b', name):
-                    return table_name
-        # if the input doesn't match any alias, return it as is (hoping it's a valid table name)
-        return v
-
+        normalized = value.strip().lower()
+        for alias, table_name in TABLE_ALIASES.items():
+            if re.search(rf"\b{re.escape(alias)}\b", normalized):
+                return table_name
+        return value.strip()

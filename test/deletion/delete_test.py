@@ -22,7 +22,7 @@
 
 # -------------------------------------------------------------------------
 # 3. Delete records from a table that has foreign key dependencies.
-# user prompt: " Delete all records from table TrackingFiles from August 3rd, 2023, in the database in this directory: data/sample_data.db."
+# user prompt: " Delete all records from table TrackingFiles from August 3rd, 2023, in the database in this directory: ./data/sample_data.db."
 # table: "TrackingFiles". filters:{"date": "20230803", "is_valid": "N"}. This will delete all records from the TrackingFiles table where date is '2023-08-03' and is_valid is 'N' in the Experiment table in the database in this directory: data/sample_data.db."
 # user prompt: "Delete all yeast Rfa1 raw files that are untreated marked as invalid, in the database in this directory: data/sample_data.db."
 # table: "RawFile". filters: {"organism": "yeast", "protein": "Rfa1", "condition": "untreated", "is_valid": "N"}. This will delete all records from the RawFile table where organism is 'yeast', protein is 'Rfa1', condition is 'untreated', and is_valid is 'N'.

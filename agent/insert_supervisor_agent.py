@@ -3,18 +3,11 @@ from __future__ import annotations
 # Importing the required modules
 from google.adk.agents import SequentialAgent
 
-import os
 import logging
 
 from . import data_validation_agent as validation_mod
 from . import insert_agent as insert_mod
 
-logging.basicConfig(
-    filename = "./agent.log",
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    force=True,
-    )
 logger = logging.getLogger(__name__)
 
 insert_supervisor_agent = SequentialAgent(
