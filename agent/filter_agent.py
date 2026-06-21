@@ -49,10 +49,6 @@ dye_concentration_unit, dye_concentration_value (float)
 3. Only include filters explicitly mentioned — do not guess defaults.
 4. If the request is dangerously ambiguous (e.g. "delete everything"), output an empty filters dict: {{}}.
 5. If the request does not provide usable deletion criteria, keep `filters` empty so the deletion safety layer blocks it.
-6. If the latest message is a confirmation or cancellation such as "APPROVED",
-   "CONFIRM", "yes", "CANCEL", "no", or "deny", reuse the table, database path,
-   filters, and limit from the most recent deletion request in the conversation.
-   Do not replace the previous filters with an empty object.
 """
 
 try:
