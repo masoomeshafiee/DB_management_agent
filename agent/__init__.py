@@ -1,1 +1,1 @@
-from .agents import db_manager_app
+from .root_agent import root_agent
