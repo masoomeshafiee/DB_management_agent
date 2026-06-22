@@ -20,6 +20,13 @@ from typing import Any, Dict, Optional
 logger = logging.getLogger(__name__)
 
 
+# ADK State is mapping-like but does not implement dict.pop(). Assigning None
+# records a state delta and makes subsequent pending-deletion checks evaluate
+# as empty.
+def clear_pending_deletion(tool_context: ToolContext) -> None:
+    tool_context.state["pending_deletion"] = None
+
+
 # -----------------------------------------------------------------
 # Table name normalisation (replaces DeletionSchema.map_table_names)
 # -----------------------------------------------------------------
@@ -91,7 +98,7 @@ def preview_deletion(tool_context: ToolContext, db_path: str, table: str, filter
             dry_run=True,
         )
     except Exception as e:
-        tool_context.state.pop("pending_deletion", None)
+        clear_pending_deletion(tool_context)
         logger.exception(
             "preview_deletion failed | table=%s filters=%s",
             table,
@@ -104,7 +111,7 @@ def preview_deletion(tool_context: ToolContext, db_path: str, table: str, filter
 
     preview_count = result.get("preview_count", 0)
     if preview_count <= 0:
-        tool_context.state.pop("pending_deletion", None)
+        clear_pending_deletion(tool_context)
         return {
             "status": "no_matches",
             "preview_count": 0,
@@ -149,14 +156,14 @@ def execute_deletion(tool_context: ToolContext) -> Dict[str, Any]:
     confirmation = getattr(tool_context, "tool_confirmation", None)
     if confirmation is None:
         logger.error("execute_deletion called without confirmation context")
-        tool_context.state.pop("pending_deletion", None)
+        clear_pending_deletion(tool_context)
         return {
             "status": "error",
             "message": "Deletion was not executed because confirmation was unavailable.",
         }
 
     if not confirmation.confirmed:
-        tool_context.state.pop("pending_deletion", None)
+        clear_pending_deletion(tool_context)
         logger.info("execute_deletion denied | table=%s", pending["table"])
         return {
             "status": "cancelled",
@@ -170,7 +177,7 @@ def execute_deletion(tool_context: ToolContext) -> Dict[str, Any]:
 
     # The request has reached a terminal approved state. Remove it before
     # execution so a database failure cannot leave an old deletion pending.
-    tool_context.state.pop("pending_deletion", None)
+    clear_pending_deletion(tool_context)
 
     logger.info("execute_deletion | table=%s filters=%s", table, filters)
     try:

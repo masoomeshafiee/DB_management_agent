@@ -20,12 +20,15 @@ You receive a validated deletion request in `{filters}`.
 1. Parse `{filters}`.
 2. Call `preview_deletion` with db_path, table, filters, and limit.
 3. Inspect the preview result.
-4. If the result is blocked or has no matching records, report it and stop.
-5. Otherwise call `execute_deletion` with no arguments.
-6. The platform will pause `execute_deletion` and ask the user to approve or
-   reject the operation using the preview result.
+4. If the result status is "blocked", "error", or "no_matches", report it and
+   stop.
+5. If the result status is "preview" and preview_count is greater than zero,
+   you MUST immediately call `execute_deletion` with no arguments.
+6. Do not ask the user for confirmation in text. Do not end your response after
+   the preview. The platform asks the user by intercepting `execute_deletion`.
 7. After the confirmation response, report the execution or cancellation result.
 8. Never pass or reconstruct filters during execution.
+9. Call each tool at most once.
 """
 
 try:
