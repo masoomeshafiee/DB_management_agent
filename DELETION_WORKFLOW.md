@@ -55,104 +55,70 @@ The user then receives a message similar to:
 
 ```text
 10 records would be deleted.
-Type CONFIRM to proceed or CANCEL to abort.
+Review the approval request to proceed or reject the deletion.
 ```
 
-### 4. Confirmation or Cancellation
+### 4. Native Tool Confirmation
 
-When the user types `CONFIRM` or `CANCEL`, the root agent currently routes the
-message to `deletion_confirmation_agent`.
-
-For confirmation:
+After a successful preview, `delete_agent` requests the `execute_deletion`
+tool. That tool is registered with native ADK confirmation enabled.
 
 ```text
-CONFIRM
-→ deletion_confirmation_agent
-→ execute_deletion()
-→ read pending_deletion
-→ execute the stored database operation
+preview_deletion()
+→ store pending_deletion
+→ request execute_deletion()
+→ ADK pauses the tool call
 ```
 
-For cancellation:
+The interface collects the user's decision:
+
+- ADK Web displays its approval controls.
+- The CLI detects the confirmation event and asks through `input()`.
+- A future Streamlit interface can display approve and reject buttons.
+
+After the response:
 
 ```text
-CANCEL
-→ deletion_confirmation_agent
-→ cancel_deletion()
+Approved
+→ execute_deletion reads pending_deletion
 → clear pending_deletion
+→ execute the stored database operation
+
+Rejected
+→ execute_deletion clears pending_deletion
+→ return without deleting records
 ```
 
-The confirmation message cannot change the stored table or filters.
+The approval response cannot provide or modify deletion filters. Execution uses
+only the validated request saved during preview.
 
-## Why a Separate Confirmation Agent Exists
+## Interface Responsibilities
 
-This agent is a temporary workaround for testing through ADK Web.
+The database tools do not directly collect user input.
 
-ADK Web sends every user message through `root_agent`. When confirmation was
-routed back to `delete_supervisor_agent`, its sequential workflow restarted:
+ADK provides a confirmation event when the protected execution tool is
+requested. Each interface presents that event differently:
 
 ```text
-filter_infer_agent → delete_agent
+ADK Web   → graphical approval controls
+CLI       → terminal approval prompt in workflow.py
+Streamlit → application approval buttons
 ```
 
-The filter agent then received only `CONFIRM` instead of the original deletion
-request. It could produce empty filters and lose the original criteria.
+All interfaces resume the same protected tool call, so the underlying deletion
+implementation remains shared.
 
-`deletion_confirmation_agent` avoids this by bypassing filter extraction and
-operating directly on the validated deletion stored in session state.
+## State Cleanup
 
-## Why This Is Not the Final Design
+`pending_deletion` is cleared when:
 
-Confirmation is deterministic application behavior. It does not require LLM
-reasoning.
+- The preview finds no matching records.
+- The preview fails.
+- The user rejects confirmation.
+- The user approves confirmation, before database execution begins.
 
-Using an agent for confirmation adds:
-
-- An unnecessary model call.
-- Additional latency and API cost.
-- Another routing decision that can fail.
-- Extra code and maintenance.
-
-The current implementation is retained only to make the complete deletion flow
-testable through ADK Web.
-
-## Planned Replacement
-
-After the database workflows are stable, confirmation handling should move into
-the application workflow layer.
-
-The intended behavior is:
-
-```text
-If a pending deletion exists:
-    CONFIRM → execute the stored deletion
-    CANCEL  → clear the stored deletion
-Otherwise:
-    send the request through the normal agent workflow
-```
-
-Conceptually:
-
-```python
-async def handle_request(message, session):
-    command = message.strip().lower()
-
-    if session.has_pending_deletion:
-        if command in {"confirm", "approve", "yes"}:
-            return execute_pending_deletion(session)
-
-        if command in {"cancel", "deny", "no"}:
-            return cancel_pending_deletion(session)
-
-    return await run_agent_workflow(message, session)
-```
-
-After this is implemented:
-
-- `deletion_confirmation_agent` can be removed.
-- Confirmation will not require an LLM call.
-- The same preview and session-state safety model will remain.
-- CLI, API, and custom frontend clients can use the same deterministic logic.
+If database execution fails, the user must run a new preview before retrying.
+This prevents an old pending request from remaining active.
 
 ## Current Database-Layer Limitation
 
@@ -183,5 +149,4 @@ WHERE id IN (
 ```
 
 Until that external query builder is fixed, the agent catches the error,
-removes no records, and preserves `pending_deletion`.
-
+removes no records, and clears `pending_deletion`.

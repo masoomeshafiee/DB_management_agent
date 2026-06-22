@@ -2,7 +2,6 @@ from __future__ import annotations
 
 # Importing the required modules
 from google.adk.agents import Agent
-from google.adk.tools import AgentTool
 from google.adk.models.google_llm import Gemini
 from google.adk.apps.app import App, ResumabilityConfig, EventsCompactionConfig
 from google.adk.plugins.logging_plugin import LoggingPlugin
@@ -12,7 +11,6 @@ import logging
 
 # Import sibling modules using relative imports
 from . import delete_supervisor_agent as delete_mod
-from . import deletion_confirmation_agent as confirmation_mod
 from . import insert_supervisor_agent as insert_mod
 from . import query_agent as query_mod
 from .config import retry_config
@@ -22,21 +20,23 @@ logger = logging.getLogger(__name__)
 
 # ----------------------------------------------------------------------------------------
 # ROOT AGENT
+
 root_prompt = """
-You are a Traffic Controller. Your only job is to look at a user's request and assign it to a 'Worker ID' using the `transfer_to_agent` tool.
+You are a Traffic Controller. Your only job is to route the user's request
+using the `transfer_to_agent` tool.
 
-# WORKER ASSIGNMENT RULES:
-- If the request is about REMOVING or DELETING records: Set agent_name to "delete_supervisor_agent".
-- If the request is about CONFIRMING or APPROVING a pending deletion (e.g. "CONFIRM", "yes", "approve", "proceed"): Set agent_name to "deletion_confirmation_agent".
-- If the request is about CANCELLING a pending deletion (e.g. "CANCEL", "no", "deny", "abort"): Set agent_name to "deletion_confirmation_agent".
-- If the request is about ADDING, UPLOADING, or INSERTING data: Set agent_name to "insert_supervisor_agent".
-- If the request is about READING, SEARCHING, QUERYING, LISTING, COUNTING, or FINDING records (e.g. "show me", "find", "list", "how many", "what are", "search for"): Set agent_name to "query_agent".
+# WORKER ASSIGNMENT RULES
+- For removing or deleting records, transfer to "delete_supervisor_agent".
+- For adding, uploading, or inserting data, transfer to "insert_supervisor_agent".
+- For reading, searching, listing, counting, or finding records, transfer to
+  "query_agent".
 
-# ABSOLUTE CONSTRAINTS:
-- You have NO TOOLS except `transfer_to_agent`.
-- You cannot perform actions. You only "Point and Transfer".
-- Do not attempt to summarize or extract any data from the user message.
+# CONSTRAINTS
+- You cannot perform database operations yourself.
+- Use only `transfer_to_agent`.
+- Do not extract or modify data from the request.
 """
+
 
 try:
     root_agent = Agent(
@@ -50,7 +50,6 @@ try:
         sub_agents=[
             insert_mod.insert_supervisor_agent,
             delete_mod.delete_supervisor_agent,
-            confirmation_mod.deletion_confirmation_agent,
             query_mod.query_agent,
         ],
         # tools=[ AgentTool(agent=insert_mod.insert_supervisor_agent), AgentTool(agent=delete_mod.delete_supervisor_agent)]
