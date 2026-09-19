@@ -76,6 +76,21 @@ def config_logging(log_dir:Path | str=DEFAULT_LOG_DIR, level: str="INFO") -> Non
                 "level": level,
                 "propagate": False,
             },
+
+            # uvicorn sets up its own logging (with its own handlers, propagate=False)
+            # before this app's lifespan runs config_logging(). Without an explicit
+            # entry here, unhandled 500 tracebacks only ever print to the terminal
+            # and never reach any of our log files. Redirect them here explicitly.
+            "uvicorn.error": {
+                "handlers": ["error_file"],
+                "level": "INFO",
+                "propagate": False,
+            },
+            "uvicorn.access": {
+                "handlers": ["app_file"],
+                "level": "INFO",
+                "propagate": False,
+            },
         },
         # Every module calls logging.getLogger(__name__) and propagates here by default.
         # "console" handler omitted for now — keep the CLI quiet, logs still go to app.log/error.log.
