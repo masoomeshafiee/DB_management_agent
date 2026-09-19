@@ -63,7 +63,11 @@ class LabFilters(BaseModel):
     analysis_file_type: Optional[str] = None
     analysis_result_type: Optional[str] = None
     
-    is_valid: Optional[bool] = None
+    # The database stores this as the literal strings "Y"/"N", not a boolean.
+    # Normalize whatever the LLM produces (True/False, "true"/"yes"/"no", etc.)
+    # into "Y"/"N" so filters actually match rows instead of silently
+    # comparing against the wrong SQLite storage class.
+    is_valid: Optional[Literal["Y", "N"]] = None
 
     #strict formatting enfrcment
     date: Optional[str] = Field(default=None, pattern=r"^\d{8}$", description="Date in YYYYMMDD format as a string, e.g., '20230915'")
@@ -79,6 +83,19 @@ class LabFilters(BaseModel):
     def validate_date_format(cls, v: Any) -> str:
         if isinstance(v, str):
             return  re.sub(r'[-/\s]', '', v)
+        return v
+
+    @field_validator("is_valid", mode="before")
+    @classmethod
+    def normalize_is_valid(cls, v: Any) -> Any:
+        if isinstance(v, bool):
+            return "Y" if v else "N"
+        if isinstance(v, str):
+            normalized = v.strip().lower()
+            if normalized in ("y", "yes", "true", "valid"):
+                return "Y"
+            if normalized in ("n", "no", "false", "invalid"):
+                return "N"
         return v
 
 

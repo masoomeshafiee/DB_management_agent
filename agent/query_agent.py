@@ -25,6 +25,7 @@ from lab_data_manager.queries import (
 )
 
 from .config import retry_config
+from .utils import validate_filters
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +58,7 @@ def _df_to_str(df, max_rows: int = 50) -> str:
 # ---------------------------------------------------------------------------
 
 def search_experiments(
-    filters: dict,
+    filters: dict | None = None,
     db_path: str = _DEFAULT_DB_PATH,
     limit: int = 20,
 ) -> str:
@@ -82,6 +83,9 @@ def search_experiments(
         Formatted table of matching experiments.
     """
     logger.info("search_experiments | filters=%s limit=%s", filters, limit)
+    filters, error = validate_filters(filters)
+    if error:
+        return error
     df = list_experiments(db_path, filters=filters, limit=limit)
     return _df_to_str(df)
 
@@ -89,7 +93,7 @@ def search_experiments(
 def search_experiments_by_date_range(
     start_date: str,
     end_date: str,
-    filters: dict,
+    filters: dict | None = None,
     db_path: str = _DEFAULT_DB_PATH,
     limit: int = 20,
 ) -> str:
@@ -107,12 +111,15 @@ def search_experiments_by_date_range(
         Formatted table of matching experiments ordered by date ascending.
     """
     logger.info("search_experiments_by_date_range | %s to %s filters=%s", start_date, end_date, filters)
+    filters, error = validate_filters(filters)
+    if error:
+        return error
     df = list_experiments_between_dates(db_path, start_date, end_date, filters=filters, limit=limit)
     return _df_to_str(df)
 
 
 def search_experiments_in_period(
-    filters: dict,
+    filters: dict | None = None,
     db_path: str = _DEFAULT_DB_PATH,
     year: Optional[int] = None,
     month: Optional[int] = None,
@@ -132,13 +139,16 @@ def search_experiments_in_period(
         Formatted table of matching experiments.
     """
     logger.info("search_experiments_in_period | year=%s month=%s filters=%s", year, month, filters)
+    filters, error = validate_filters(filters)
+    if error:
+        return error
     df = list_experiments_in_period(db_path, year=year, month=month, filters=filters, limit=limit)
     return _df_to_str(df)
 
 
 def search_recent_experiments(
     days: int = 30,
-    filters: dict = {},
+    filters: dict | None = None,
     db_path: str = _DEFAULT_DB_PATH,
     limit: int = 50,
 ) -> str:
@@ -155,12 +165,15 @@ def search_recent_experiments(
         Formatted table of recent experiments ordered by date descending.
     """
     logger.info("search_recent_experiments | days=%s filters=%s", days, filters)
+    filters, error = validate_filters(filters)
+    if error:
+        return error
     df = list_recent_experiments(db_path, days=days, filters=filters, limit=limit)
     return _df_to_str(df)
 
 
 def get_most_recent_experiment(
-    filters: dict,
+    filters: dict | None = None,
     db_path: str = _DEFAULT_DB_PATH,
 ) -> str:
     """
@@ -174,12 +187,15 @@ def get_most_recent_experiment(
         The most recent matching experiment's details.
     """
     logger.info("get_most_recent_experiment | filters=%s", filters)
+    filters, error = validate_filters(filters)
+    if error:
+        return error
     df = find_most_recent_experiment(db_path, filters=filters)
     return _df_to_str(df)
 
 
 def get_earliest_experiment(
-    filters: dict,
+    filters: dict | None = None,
     db_path: str = _DEFAULT_DB_PATH,
 ) -> str:
     """
@@ -193,13 +209,16 @@ def get_earliest_experiment(
         The earliest matching experiment's details.
     """
     logger.info("get_earliest_experiment | filters=%s", filters)
+    filters, error = validate_filters(filters)
+    if error:
+        return error
     df = find_earliest_experiment(db_path, filters=filters)
     return _df_to_str(df)
 
 
 def count_experiments_by_time_period(
     period: str = "year",
-    filters: dict = {},
+    filters: dict | None = None,
     db_path: str = _DEFAULT_DB_PATH,
 ) -> str:
     """
@@ -214,13 +233,16 @@ def count_experiments_by_time_period(
         Counts per period.
     """
     logger.info("count_experiments_by_time_period | period=%s filters=%s", period, filters)
+    filters, error = validate_filters(filters)
+    if error:
+        return error
     df = count_experiments_by_period(db_path, period=period, filters=filters)
     return _df_to_str(df)
 
 
 def count_experiments_by_group(
     group_by: list[str],
-    filters: dict = {},
+    filters: dict | None = None,
     period: Optional[str] = None,
     db_path: str = _DEFAULT_DB_PATH,
 ) -> str:
@@ -239,6 +261,9 @@ def count_experiments_by_group(
         Counts per group.
     """
     logger.info("count_experiments_by_group | group_by=%s period=%s filters=%s", group_by, period, filters)
+    filters, error = validate_filters(filters)
+    if error:
+        return error
     df = count_experiments_trend(db_path, period=period, group_by=group_by, filters=filters)
     return _df_to_str(df)
 
@@ -246,7 +271,7 @@ def count_experiments_by_group(
 def count_one_entity_by_another(
     entity: str,
     by_entities: list[str],
-    filters: dict = {},
+    filters: dict | None = None,
     db_path: str = _DEFAULT_DB_PATH,
 ) -> str:
     """
@@ -263,13 +288,20 @@ def count_one_entity_by_another(
         Counts per group.
     """
     logger.info("count_one_entity_by_another | entity=%s by=%s filters=%s", entity, by_entities, filters)
+    filters, error = validate_filters(filters)
+    if error:
+        return error
     df = count_entity_by_another(db_path, entity=entity, by_entities=by_entities, filters=filters)
     return _df_to_str(df)
 
 
 def find_experiments_with_missing_files(
+    # ADK's automatic function-calling schema builder can't parse
+    # `list[str] | None` as a parameter type (raises ValueError at tool
+    # registration time, breaking every tool on this agent, not just this
+    # one). A mutable default is safe here since file_types is read-only.
     file_types: list[str] = ["raw", "tracking", "mask", "analysis"],
-    filters: dict = {},
+    filters: dict | None = None,
     db_path: str = _DEFAULT_DB_PATH,
     limit: int = 50,
 ) -> str:
@@ -286,12 +318,15 @@ def find_experiments_with_missing_files(
         Table of experiments missing the specified file types.
     """
     logger.info("find_experiments_with_missing_files | file_types=%s filters=%s", file_types, filters)
+    filters, error = validate_filters(filters)
+    if error:
+        return error
     df = find_experiments_missing_files(db_path, file_types=file_types, filters=filters, limit=limit)
     return _df_to_str(df)
 
 
 def find_duplicate_experiment_records(
-    filters: dict = {},
+    filters: dict | None = None,
     db_path: str = _DEFAULT_DB_PATH,
 ) -> str:
     """
@@ -307,6 +342,9 @@ def find_duplicate_experiment_records(
         Groups of duplicate experiments with their shared IDs.
     """
     logger.info("find_duplicate_experiment_records | filters=%s", filters)
+    filters, error = validate_filters(filters)
+    if error:
+        return error
     df = find_duplicate_experiments(db_path, filters=filters)
     return _df_to_str(df)
 
@@ -316,7 +354,7 @@ def find_records_with_missing_values(
     missing_columns: list[str],
     main_table: str = "Experiment",
     mode: str = "any",
-    filters: dict = {},
+    filters: dict | None = None,
     db_path: str = _DEFAULT_DB_PATH,
     limit: int = 50,
 ) -> str:
@@ -336,6 +374,9 @@ def find_records_with_missing_values(
         Records that have missing values in the specified columns.
     """
     logger.info("find_records_with_missing_values | missing=%s table=%s mode=%s", missing_columns, main_table, mode)
+    filters, error = validate_filters(filters)
+    if error:
+        return error
     df = find_missing_values(db_path, requested_columns, missing_columns, main_table=main_table, mode=mode, filters=filters, limit=limit)
     return _df_to_str(df)
 
@@ -411,6 +452,12 @@ try:
             find_records_with_missing_values,
         ],
         output_key="query_result",
+        # query_agent is added directly under root_agent (unlike delete/insert,
+        # which are wrapped in a SequentialAgent). Without this, ADK's
+        # _find_agent_to_run keeps routing every new message straight back to
+        # query_agent after it replies once, bypassing root_agent's router
+        # entirely for the rest of the session.
+        disallow_transfer_to_parent=True,
     )
     logger.info("Created agent: %s", query_agent.name)
 except Exception as e:

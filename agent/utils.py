@@ -45,6 +45,25 @@ def resolve_table_name(table: str) -> str:
     return table
 
 
+def validate_filters(filters: dict) -> tuple[dict, Optional[str]]:
+    """Validate/normalize query filters through StrictLabFilters.
+
+    query_agent's tools take a raw `filters: dict` straight from the LLM with
+    no validation, unlike preview_deletion. This applies the same boundary
+    check (rejects unknown filter keys, normalizes is_valid True/False/"yes"/
+    "no" into the "Y"/"N" the database actually stores) so search filtering
+    doesn't silently return zero rows the way deletion did before this fix.
+
+    Returns (clean_filters, None) on success, or ({}, error_message) if the
+    filters are invalid — callers should return the error message as-is.
+    """
+    try:
+        validated = StrictLabFilters(**(filters or {}))
+    except Exception as e:
+        return {}, f"Invalid filter fields: {e}"
+    return validated.model_dump(exclude_none=True), None
+
+
 # -----------------------------------------------------------------
 # Delete operation utilities
 # -----------------------------------------------------------------

@@ -27,7 +27,7 @@ DB_FILE = "sessions.db"
 
 class SessionRequest(BaseModel):
     session_name: str
-    user_request: str="default_user"
+    user_id: str = "default_user"
 
 
 class ChatRequest(BaseModel):
@@ -62,7 +62,7 @@ async def create_session(body: SessionRequest, request: Request):
     try:
         await session_service.create_session(
             app_name=db_manager_app.name,
-            user_id="default_user",
+            user_id=body.user_id,
             session_id=body.session_name
         )
         return {"message": f"Session '{body.session_name}' created successfully."}
