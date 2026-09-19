@@ -5,11 +5,13 @@ from google.adk.agents import Agent
 from google.adk.models.google_llm import Gemini
 
 import os
+import json
 import logging
 from datetime import datetime
 
 from .config import retry_config
 from .pydantic_models import DeletionSchema
+from .utils import _EXPLICIT_LIMIT_PATTERN, _get_raw_user_text
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +67,32 @@ User: "Remove every RawFiles entry with is_valid false"
 Output: {{"db_path": "./data/sample_data.db", "table": "RawFiles", "filters": {{"is_valid": false}}, "limit": null}}
 """
 
+def _sanitize_limit_in_model_response(callback_context, llm_response):
+    """Rewrite a hallucinated `limit` in the model's own JSON text so what the
+    user sees matches what preview_deletion/execute_deletion will actually do
+    (see agent.utils._sanitize_limit for the same check at execution time)."""
+    try:
+        part = llm_response.content.parts[0]
+        data = json.loads(part.text)
+    except Exception:
+        return None
+
+    if data.get("limit") is None:
+        return None
+
+    raw_text = _get_raw_user_text(callback_context)
+    if _EXPLICIT_LIMIT_PATTERN.search(raw_text):
+        return None
+
+    logger.warning(
+        "Rewriting hallucinated limit=%s in filter_infer_agent output to null",
+        data.get("limit"),
+    )
+    data["limit"] = None
+    part.text = json.dumps(data)
+    return llm_response
+
+
 try:
     filter_infer_agent = Agent(
         name = "filter_infer_agent",
@@ -72,7 +100,8 @@ try:
         description = "An agent to infer SQL filters from user requests for the following delete/ search operations.",
         instruction = filter_prompt,
         output_schema=DeletionSchema,
-        output_key="filters"
+        output_key="filters",
+        after_model_callback=_sanitize_limit_in_model_response,
     )
     logger.info(
         "Created agent: %s with output schema: %s",
