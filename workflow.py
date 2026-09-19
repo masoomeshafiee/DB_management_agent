@@ -8,6 +8,7 @@ from google.genai import types
 from agent.utils import run_with_backoff
 
 logger = logging.getLogger(__name__)
+audit_logger = logging.getLogger("db_management_agent.audit")
 
 APPROVAL_WORDS = {"yes", "y", "approve", "approved", "confirm", "ok"}
 DENIAL_WORDS = {"no", "n", "deny", "denied", "cancel"}
@@ -45,6 +46,19 @@ def check_for_approval(events):
     return None
 
 
+def extract_pending_deletion(events):
+    """Find the pending_deletion preview data written by preview_deletion.
+
+    Returns:
+        dict with table, filters, and preview_count, or None
+    """
+    for event in events:
+        state_delta = getattr(getattr(event, "actions", None), "state_delta", None)
+        if state_delta and "pending_deletion" in state_delta:
+            return state_delta["pending_deletion"]
+    return None
+
+
 def create_approval_message(
     approval_id: str,
     is_approved: bool,
@@ -67,6 +81,78 @@ def create_approval_message(
         role="user",
         parts=[types.Part(function_response=confirmation_response)],
     )
+
+
+async def submit_request(
+    runner,
+    user_request: str,
+    session_id: str,
+    user_id: str = "default_user",
+) -> dict:
+    """
+    """
+    audit_logger.info(f"REQUEST | user={user_id} | session={session_id} | text={user_request!r}")
+
+    query_content = types.Content(role="user", parts=[types.Part(text=user_request)])
+
+    events = []
+    reply_text = ""
+    async for event in run_with_backoff(
+        runner,
+        user_id=user_id,
+        session_id=session_id,
+        prompt=query_content,
+    ):
+        events.append(event)
+        if event.content and event.content.parts:
+            for part in event.content.parts:
+                if part.text:
+                    reply_text += part.text
+                    logger.info(f"Agent > {part.text}")
+                if part.function_call:
+                    logger.warning(f"Tool Call Detected: {part.function_call.name} with args {part.function_call.args}")
+                    audit_logger.info(
+                        f"TOOL_CALL | user={user_id} | session={session_id} | "
+                        f"tool={part.function_call.name} | args={part.function_call.args}"
+                    )
+
+    # check for approval request in the events.
+    approval_info = check_for_approval(events)
+
+    # If approval is requested, pause and wait for user decision.
+    if approval_info:
+        preview = extract_pending_deletion(events)
+        logger.warning(f"WAITING_FOR_APPROVAL | ID {approval_info['approval_id']} | Invocation: {approval_info['invocation_id']}")
+        audit_logger.info(
+            f"APPROVAL_REQUESTED | user={user_id} | session={session_id} | "
+            f"approval_id={approval_info['approval_id']} | preview={preview}"
+        )
+        return {"status": "pending_approval", "text": reply_text, "approval_info": approval_info, "preview": preview}
+
+    logger.info("WORKFLOW_END: Status: completed_without_approval")
+    audit_logger.info(f"RESPONSE | user={user_id} | session={session_id} | status=completed_without_approval | reply={reply_text!r}")
+    return {"status": "completed_without_approval", "text": reply_text, "approval_info": None, "preview": None}
+
+
+async def resume_with_confirmation(runner, approval_id, invocation_id, is_approved, session_id, user_id="default_user") -> dict:
+
+    audit_logger.info(
+        f"APPROVAL_DECISION | user={user_id} | session={session_id} | "
+        f"approval_id={approval_id} | approved={is_approved}"
+    )
+
+    approval_message = create_approval_message(approval_id, is_approved)
+    reply_text = ""
+    async for event in run_with_backoff(runner, user_id=user_id, session_id=session_id, prompt=approval_message, invocation_id=invocation_id):
+        if event.content and event.content.parts:
+            for part in event.content.parts:
+                if part.text:
+                    reply_text += part.text
+
+    status = "completed_approved" if is_approved else "completed_denied"
+    audit_logger.info(f"RESPONSE | user={user_id} | session={session_id} | status={status} | reply={reply_text!r}")
+    return {"status": status, "text": reply_text}
+
 
 
 async def run_db_workflow(

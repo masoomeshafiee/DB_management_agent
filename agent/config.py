@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import logging
 from google.genai import types
 
 # ---------------------------------------------------------------------------
@@ -14,11 +13,7 @@ retry_config = types.HttpRetryOptions(
 )
 
 # ---------------------------------------------------------------------------
-# Logging — configured once when this module is first imported.
-# All agent modules should only call logging.getLogger(__name__).
+# Logging is configured once, centrally, by the entrypoint (main.py / server.py)
+# via observability.logging_config.config_logging(). All agent modules should
+# only call logging.getLogger(__name__).
 # ---------------------------------------------------------------------------
-logging.basicConfig(
-    filename="./agent.log",
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
