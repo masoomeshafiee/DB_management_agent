@@ -17,6 +17,16 @@ from .config import retry_config
 
 logger = logging.getLogger(__name__)
 
+adk_plugin_logger = logging.getLogger("google_adk.logging_plugin")
+
+
+class FileLoggingPlugin(LoggingPlugin):
+    """LoggingPlugin variant that writes through logging instead of print(),
+    so its output is captured by the configured handlers (adk.log)."""
+
+    def _log(self, message: str) -> None:
+        adk_plugin_logger.info(message)
+
 
 # ----------------------------------------------------------------------------------------
 # ROOT AGENT
@@ -69,7 +79,7 @@ try:
         events_compaction_config=EventsCompactionConfig(
             compaction_interval=5,  # Cleanup every 5 turns
             overlap_size=2),          # Keep the 2 newest messages, summarize the rest
-        plugins=[LoggingPlugin()]
+        plugins=[FileLoggingPlugin()]
         )
     logger.info(f"DB Manager app: {db_manager_app.name} created successfully.")
 except Exception as e:

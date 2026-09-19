@@ -49,7 +49,8 @@ def config_logging(log_dir:Path | str=DEFAULT_LOG_DIR, level: str="INFO") -> Non
         "loggers": {
             # Explicit audit trail logger (opt in with logging.getLogger("db_management_agent.audit"))
             "db_management_agent.audit": {
-                "handlers": ["console", "audit_file", "error_file"],
+                # "console" handler omitted for now — keep the CLI quiet, logs still go to file.
+                "handlers": ["audit_file", "error_file"],
                 "level": level,
                 "propagate": False,
             },
@@ -58,18 +59,27 @@ def config_logging(log_dir:Path | str=DEFAULT_LOG_DIR, level: str="INFO") -> Non
             # The installed google-adk / google-genai packages log under "google_adk.*" and
             # "google_genai.*" (underscore), not "google.adk" (dot) — match the real names.
             "google_adk": {
-                "handlers": ["console", "adk_file", "error_file"],
+                "handlers": ["adk_file", "error_file"],
                 "level": level,
                 "propagate": False,
             },
             "google_genai": {
-                "handlers": ["console", "adk_file", "error_file"],
+                "handlers": ["adk_file", "error_file"],
+                "level": level,
+                "propagate": False,
+            },
+
+            # ADK's built-in LoggingPlugin (see agent/root_agent.py FileLoggingPlugin) is very
+            # verbose per-event tracing. Keep it in adk.log but not on the console for now.
+            "google_adk.logging_plugin": {
+                "handlers": ["adk_file", "error_file"],
                 "level": level,
                 "propagate": False,
             },
         },
         # Every module calls logging.getLogger(__name__) and propagates here by default.
-        "root": {"handlers": ["console", "app_file", "error_file"], "level": level},
+        # "console" handler omitted for now — keep the CLI quiet, logs still go to app.log/error.log.
+        "root": {"handlers": ["app_file", "error_file"], "level": level},
     }
 
     logging.config.dictConfig(config)

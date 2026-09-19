@@ -89,6 +89,8 @@ async def main():
                         f"\nThis will delete {preview['preview_count']} record(s) "
                         f"from '{preview['table']}' matching filters: {preview['filters']}"
                     )
+                    if preview.get("preview_path"):
+                        print(f"Preview saved to: {preview['preview_path']}")
                 print("Pausing for approval...")
 
                 while True:

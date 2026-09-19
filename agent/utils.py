@@ -49,6 +49,47 @@ def resolve_table_name(table: str) -> str:
 # Delete operation utilities
 # -----------------------------------------------------------------
 
+# Matches phrasing that explicitly asks for a capped number of records, e.g.
+# "delete 5 records", "remove the first 3 rows", "top 10 entries".
+_EXPLICIT_LIMIT_PATTERN = re.compile(
+    r"\b\d+\s*(records?|rows?|entries|items|files)\b"
+    r"|\b(first|top)\s+\d+\b"
+    r"|\blimit(ed)?\s+to\s+\d+\b",
+    re.IGNORECASE,
+)
+
+
+def _get_raw_user_text(tool_context: ToolContext) -> str:
+    """Best-effort read of the user's own words for this turn, bypassing
+    whatever the filter-extraction LLM decided to pass along."""
+    try:
+        user_content = tool_context._invocation_context.user_content
+        if user_content and user_content.parts:
+            return " ".join(p.text for p in user_content.parts if getattr(p, "text", None))
+    except Exception:
+        logger.debug("Could not read raw user text from invocation context", exc_info=True)
+    return ""
+
+
+def _sanitize_limit(tool_context: ToolContext, limit: int | None) -> int | None:
+    """Deterministically drop any limit the extraction LLM invented unless the
+    user's own request explicitly asked for a specific count. LLMs are prone
+    to hallucinating a plausible-looking default (e.g. 10) even when told not
+    to, which would silently turn "delete all matching records" into "delete
+    only the first N" — this makes that decision code, not model judgment."""
+    if limit is None:
+        return None
+    raw_text = _get_raw_user_text(tool_context)
+    if _EXPLICIT_LIMIT_PATTERN.search(raw_text):
+        return limit
+    logger.warning(
+        "Ignoring model-provided limit=%s — user request did not explicitly ask for a count: %r",
+        limit,
+        raw_text,
+    )
+    return None
+
+
 def preview_deletion(tool_context: ToolContext, db_path: str, table: str, filters: dict, limit: int | None = None) -> Dict[str, Any]:
     """
     Validates filters, performs a dry-run, and stores the pending operation in
@@ -56,6 +97,7 @@ def preview_deletion(tool_context: ToolContext, db_path: str, table: str, filter
     """
     # --- Resolve table alias ("track" → "TrackingFiles") ---
     table = resolve_table_name(table)
+    limit = _sanitize_limit(tool_context, limit)
 
     # --- Safety checks ---
     if not table:
@@ -110,6 +152,7 @@ def preview_deletion(tool_context: ToolContext, db_path: str, table: str, filter
         }
 
     preview_count = result.get("preview_count", 0)
+    preview_path = result.get("preview_path")
     if preview_count <= 0:
         clear_pending_deletion(tool_context)
         return {
@@ -125,14 +168,17 @@ def preview_deletion(tool_context: ToolContext, db_path: str, table: str, filter
         "filters": clean_filters,
         "limit": limit,
         "preview_count": preview_count,
+        "preview_path": preview_path,
     }
     logger.info("preview_deletion stored in state | count=%s", preview_count)
     return {
         "status": "preview",
         "preview_count": preview_count,
+        "preview_path": preview_path,
         "message": (
             f"{preview_count} record(s) from '{table}' would be deleted.\n"
             f"Filters applied: {clean_filters}\n"
+            f"Preview saved to: {preview_path}\n"
             "Review the platform confirmation request to approve or reject deletion."
         ),
     }

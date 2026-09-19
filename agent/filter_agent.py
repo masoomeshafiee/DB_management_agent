@@ -26,7 +26,7 @@ Your objective is to extract the target table name and filtering criteria from t
 
 # OUTPUT FORMAT (STRICT)
 Output ONLY a valid JSON object with this exact structure — no backticks, no explanation, no extra text:
-{{"db_path": "<path from user or ./data/sample_data.db>", "table": "<TableName>", "filters": {{"field": "value"}}, "limit": 10}}
+{{"db_path": "<path from user or ./data/sample_data.db>", "table": "<TableName>", "filters": {{"field": "value"}}, "limit": <int or null>}}
 
 # TABLE NAMES (use exactly as written)
 AnalysisFiles, AnalysisResultExperiment, AnalysisResults, CaptureSetting,
@@ -49,6 +49,20 @@ dye_concentration_unit, dye_concentration_value (float)
 3. Only include filters explicitly mentioned — do not guess defaults.
 4. If the request is dangerously ambiguous (e.g. "delete everything"), output an empty filters dict: {{}}.
 5. If the request does not provide usable deletion criteria, keep `filters` empty so the deletion safety layer blocks it.
+6. `limit` must be `null` unless the user explicitly asks for a specific number of records
+   (e.g. "delete 5 records", "delete the first 3 matches"). Requests like "delete all" or
+   "delete every record matching X" must use `limit: null` — never invent a number.
+
+# EXAMPLES
+
+User: "Delete all records from TrackingFiles from August 3rd, 2023"
+Output: {{"db_path": "./data/sample_data.db", "table": "TrackingFiles", "filters": {{"date": "20230803"}}, "limit": null}}
+
+User: "Delete 5 records from TrackingFiles where organism is mouse"
+Output: {{"db_path": "./data/sample_data.db", "table": "TrackingFiles", "filters": {{"organism": "mouse"}}, "limit": 5}}
+
+User: "Remove every RawFiles entry with is_valid false"
+Output: {{"db_path": "./data/sample_data.db", "table": "RawFiles", "filters": {{"is_valid": false}}, "limit": null}}
 """
 
 try:

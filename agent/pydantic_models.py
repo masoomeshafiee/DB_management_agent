@@ -118,11 +118,15 @@ class DeletionSchema(BaseModel):
         default_factory=LabFilters,
         description="Validated criteria selecting the records to delete.",
     )
-    limit: int = Field(
-        default=10,
+    limit: Optional[int] = Field(
+        default=None,
         ge=1,
         le=1000,
-        description="Maximum number of records included in the deletion.",
+        description=(
+            "Maximum number of records to delete. Omit/null means no cap — "
+            "delete all records matching the filters. Only set this when the "
+            "user explicitly asks for a specific number of records."
+        ),
     )
 
     @field_validator("table", mode="before")
