@@ -6,7 +6,7 @@ This project uses Google's Agent Development Kit (ADK) to translate human-langua
 
 **Status:** Active development. This repository contains Version 1, focused on correctness, safety, and observability.
 
-Contributors: Masoumeh Shafiei, Niusha Mirhakimi.
+Contributors: Niusha Mirhakimi, Masoumeh Shafiei.
 
 ---
 
