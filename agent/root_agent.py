@@ -9,11 +9,14 @@ from google.adk.plugins.logging_plugin import LoggingPlugin
 import os
 import logging
 
+# .config must be imported first: it loads .env (GOOGLE_API_KEY) before any
+# sub-agent module below reads it while constructing its Gemini(...) model.
+from .config import retry_config
+
 # Import sibling modules using relative imports
 from . import delete_supervisor_agent as delete_mod
 from . import insert_supervisor_agent as insert_mod
 from . import query_agent as query_mod
-from .config import retry_config
 
 logger = logging.getLogger(__name__)
 
@@ -76,9 +79,15 @@ try:
     db_manager_app = App(name = "db_manager_app",  
         root_agent = root_agent,
         resumability_config = ResumabilityConfig(is_resumable = True, storage_path = "./db_manager_app_state"),
-        events_compaction_config=EventsCompactionConfig(
-            compaction_interval=5,  # Cleanup every 5 turns
-            overlap_size=2),          # Keep the 2 newest messages, summarize the rest
+        # Disabled: ADK's [EXPERIMENTAL] event compaction does not round-trip through
+        # DatabaseSessionService correctly — a compacted event's `actions.compaction`
+        # comes back as a plain dict (not a Compaction object) on reload, crashing with
+        # `AttributeError: 'dict' object has no attribute 'start_timestamp'` in
+        # google/adk/flows/llm_flows/contents.py:_process_compaction_events. Re-enable
+        # once this is fixed upstream.
+        # events_compaction_config=EventsCompactionConfig(
+        #     compaction_interval=5,  # Cleanup every 5 turns
+        #     overlap_size=2),          # Keep the 2 newest messages, summarize the rest
         plugins=[FileLoggingPlugin()]
         )
     logger.info(f"DB Manager app: {db_manager_app.name} created successfully.")

@@ -1,6 +1,14 @@
 from __future__ import annotations
 
+from dotenv import load_dotenv
 from google.genai import types
+
+# ---------------------------------------------------------------------------
+# Load GOOGLE_API_KEY (and any other env vars) from .env before any agent
+# module reads os.getenv("GOOGLE_API_KEY") at import time. This module must
+# be imported before any agent that constructs a Gemini(...) model.
+# ---------------------------------------------------------------------------
+load_dotenv()
 
 # ---------------------------------------------------------------------------
 # Shared retry configuration for all Gemini agents
