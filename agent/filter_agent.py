@@ -96,7 +96,7 @@ def _sanitize_limit_in_model_response(callback_context, llm_response):
 try:
     filter_infer_agent = Agent(
         name = "filter_infer_agent",
-        model = Gemini(model="gemini-2.5-flash-lite", api_key=os.getenv("GOOGLE_API_KEY"), retry_config=retry_config),
+        model = Gemini(model="gemini-2.5-flash-lite", api_key=os.getenv("GOOGLE_API_KEY"), retry_options=retry_config),
         description = "An agent to infer SQL filters from user requests for the following delete/ search operations.",
         instruction = filter_prompt,
         output_schema=DeletionSchema,

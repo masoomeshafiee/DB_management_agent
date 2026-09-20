@@ -54,7 +54,7 @@ using the `transfer_to_agent` tool.
 try:
     root_agent = Agent(
         name="root_agent",
-        model=Gemini(model="gemini-2.5-flash", api_key=os.getenv("GOOGLE_API_KEY"), retry_config=retry_config),
+        model=Gemini(model="gemini-2.5-flash", api_key=os.getenv("GOOGLE_API_KEY"), retry_options=retry_config),
         description="Root orchestrator for Laboratory Data Management.",
         instruction=root_prompt,
     

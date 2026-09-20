@@ -45,7 +45,7 @@ insert_prompt =  """
 try:
     insert_agent = LlmAgent(
         name = "insert_agent",
-        model = Gemini(model="gemini-2.5-flash-lite", api_key=os.getenv("GOOGLE_API_KEY"), retry_config=retry_config),
+        model = Gemini(model="gemini-2.5-flash-lite", api_key=os.getenv("GOOGLE_API_KEY"), retry_options=retry_config),
         description = "This agent insert a new csv file into the database.",
         instruction = insert_prompt,
 

@@ -34,7 +34,7 @@ You receive a validated deletion request in `{filters}`.
 try:
     delete_agent = Agent(
         name="delete_agent",
-        model=Gemini(model="gemini-2.5-flash-lite", api_key=os.getenv("GOOGLE_API_KEY"), retry_config=retry_config),
+        model=Gemini(model="gemini-2.5-flash-lite", api_key=os.getenv("GOOGLE_API_KEY"), retry_options=retry_config),
         description = "You delete records based on inferred filter dictionary and operate with user confirmation.",
         instruction = delete_prompt,
         tools = [

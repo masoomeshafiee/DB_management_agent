@@ -434,7 +434,7 @@ Do NOT use synonyms or variations. Do NOT include keys that the user did not men
 try:
     query_agent = Agent(
         name="query_agent",
-        model=Gemini(model="gemini-2.5-flash-lite", api_key=os.getenv("GOOGLE_API_KEY"), retry_config=retry_config),
+        model=Gemini(model="gemini-2.5-flash-lite", api_key=os.getenv("GOOGLE_API_KEY"), retry_options=retry_config),
         description="Answers natural language questions about lab data by querying the database. Handles search, filtering, counting, trend analysis, and data quality checks.",
         instruction=query_prompt,
         tools=[
