@@ -59,6 +59,20 @@ def extract_pending_deletion(events):
     return None
 
 
+def extract_insert_result(events):
+    """Find the last_insert_result summary written by insert_csv_with_report.
+
+    Returns:
+        dict with total_rows, inserted_count, skipped_count, skipped_rows —
+        or None if this turn didn't run an insertion.
+    """
+    for event in events:
+        state_delta = getattr(getattr(event, "actions", None), "state_delta", None)
+        if state_delta and "last_insert_result" in state_delta:
+            return state_delta["last_insert_result"]
+    return None
+
+
 def create_approval_message(
     approval_id: str,
     is_approved: bool,
@@ -118,6 +132,7 @@ async def submit_request(
 
     # check for approval request in the events.
     approval_info = check_for_approval(events)
+    insert_result = extract_insert_result(events)
 
     # If approval is requested, pause and wait for user decision.
     if approval_info:
@@ -127,11 +142,11 @@ async def submit_request(
             f"APPROVAL_REQUESTED | user={user_id} | session={session_id} | "
             f"approval_id={approval_info['approval_id']} | preview={preview}"
         )
-        return {"status": "pending_approval", "text": reply_text, "approval_info": approval_info, "preview": preview}
+        return {"status": "pending_approval", "text": reply_text, "approval_info": approval_info, "preview": preview, "insert_result": None}
 
     logger.info("WORKFLOW_END: Status: completed_without_approval")
     audit_logger.info(f"RESPONSE | user={user_id} | session={session_id} | status=completed_without_approval | reply={reply_text!r}")
-    return {"status": "completed_without_approval", "text": reply_text, "approval_info": None, "preview": None}
+    return {"status": "completed_without_approval", "text": reply_text, "approval_info": None, "preview": None, "insert_result": insert_result}
 
 
 async def resume_with_confirmation(runner, approval_id, invocation_id, is_approved, session_id, user_id="default_user") -> dict:

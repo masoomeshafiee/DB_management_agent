@@ -31,5 +31,8 @@ build/
 
 data/
 
+# CSVs uploaded through the Streamlit "Insert new data" panel
+uploads/
+
 # Jupyter Notebook checkpoints (if you add notebooks later)
 .ipynb_checkpoints

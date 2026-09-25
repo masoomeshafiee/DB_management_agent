@@ -8,9 +8,8 @@ from google.adk.tools import FunctionTool
 import os
 import logging
 
-from lab_data_manager.insert_csv import insert_from_csv
-
 from .config import retry_config
+from .utils import insert_csv_with_report
 
 logger = logging.getLogger(__name__)
 
@@ -36,9 +35,14 @@ insert_prompt =  """
         ✅ **SCENARIO B: Validation Passed**
         - IF (and ONLY if) `validation_result` contains `{PASS:`:
         - **ACTION:** You are authorized to perform the user request for record insertion.
-        - Call `insert_from_csv` with the user's arguments.
+        - Call `insert_csv_with_report` with the user's arguments.
 
-        **REMEMBER:** If you insert invalid data, you have failed your mission. 
+        **CRITICAL — NEVER GUESS THE DATABASE PATH:**
+        `csv_path` and `db_path` are different files. If the user doesn't
+        name a database, **omit `db_path`** (it defaults on its own) — never
+        fill it in yourself, and never reuse `csv_path` as `db_path`.
+
+        **REMEMBER:** If you insert invalid data, you have failed your mission.
         It is better to refuse the user than to break the safety rule.
         """
 
@@ -49,7 +53,7 @@ try:
         description = "This agent insert a new csv file into the database.",
         instruction = insert_prompt,
 
-        tools = [FunctionTool(func=insert_from_csv)],
+        tools = [FunctionTool(func=insert_csv_with_report)],
     )
     logger.info("Created agent: %s", insert_agent.name)
 except Exception as e:

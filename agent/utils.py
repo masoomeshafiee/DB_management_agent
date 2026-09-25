@@ -11,6 +11,8 @@ from lab_data_manager.delete_records import delete_records_by_filter
 
 from .pydantic_models import ALLOWED_TABLES, StrictLabFilters, TABLE_ALIASES
 
+import csv
+import os
 import re
 import logging
 import asyncio
@@ -18,6 +20,11 @@ from typing import Any, Dict, Optional
 
 
 logger = logging.getLogger(__name__)
+
+# Resolved relative to this file (not the process cwd) so it works regardless
+# of where the app is launched from — same approach query_agent.py uses for
+# its own _DEFAULT_DB_PATH.
+_DEFAULT_DB_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "sample_data.db")
 
 
 # ADK State is mapping-like but does not implement dict.pop(). Assigning None
@@ -281,6 +288,102 @@ def execute_deletion(tool_context: ToolContext) -> Dict[str, Any]:
         "status": "completed",
         "deleted_count": result.get("deleted", 0),
         "message": f"Successfully deleted {result.get('deleted', 0)} record(s) from '{table}'.",
+    }
+
+
+# -----------------------------------------------------------------
+# Insert operation utilities
+# -----------------------------------------------------------------
+
+def _count_data_rows(csv_path: str) -> int:
+    """Count non-empty data rows in a CSV, mirroring the "skip empty rows"
+    check insert_from_csv does internally, so the reported total lines up
+    with what it actually tried to process."""
+    try:
+        with open(csv_path, newline="") as f:
+            reader = csv.DictReader(f)
+            return sum(1 for row in reader if any(row.values()))
+    except OSError:
+        logger.warning("Could not read %s to count rows for reporting", csv_path, exc_info=True)
+        return 0
+
+
+def insert_csv_with_report(
+    tool_context: ToolContext, csv_path: str, db_path: str = _DEFAULT_DB_PATH
+) -> Dict[str, Any]:
+    """
+    Wraps insert_from_csv, storing {inserted_count, skipped_count,
+    skipped_rows} in session state (like preview_deletion does with its
+    preview) so the UI can render a table instead of trusting the model's
+    prose. db_path defaults to data/sample_data.db so a request that omits
+    it still works. See DESIGN_LOG.md 3.7 for why: the model was previously
+    hallucinating db_path=csv_path, which crashed sqlite3 with an unhandled
+    500 further down.
+    """
+    if not csv_path or not db_path:
+        return {
+            "status": "error",
+            "message": "Both a CSV file path and a database file path are required. "
+            "Please ask the user for whichever one is missing.",
+        }
+    if os.path.abspath(csv_path) == os.path.abspath(db_path):
+        logger.warning(
+            "insert_csv_with_report blocked: csv_path and db_path are the same file (%s)",
+            csv_path,
+        )
+        return {
+            "status": "error",
+            "message": (
+                f"'{csv_path}' was given as both the CSV file and the database file. "
+                "These must be different — please ask the user for the actual database "
+                "file path (e.g. data/sample_data.db)."
+            ),
+        }
+    if not os.path.isfile(csv_path):
+        return {"status": "error", "message": f"CSV file not found: '{csv_path}'."}
+    if not os.path.isfile(db_path):
+        return {
+            "status": "error",
+            "message": (
+                f"Database file not found: '{db_path}'. Please ask the user to confirm "
+                "the correct database path."
+            ),
+        }
+
+    skipped_rows: list[Dict[str, Any]] = []
+    try:
+        skipped_rows = insert_from_csv(csv_path, db_path, skipped_rows)
+    except Exception as e:
+        logger.exception("insert_csv_with_report failed | csv_path=%s db_path=%s", csv_path, db_path)
+        return {"status": "error", "message": f"Insertion failed: {e}"}
+
+    total_rows = _count_data_rows(csv_path)
+    skipped_count = len(skipped_rows)
+    inserted_count = max(total_rows - skipped_count, 0)
+
+    tool_context.state["last_insert_result"] = {
+        "csv_path": csv_path,
+        "db_path": db_path,
+        "total_rows": total_rows,
+        "inserted_count": inserted_count,
+        "skipped_count": skipped_count,
+        "skipped_rows": skipped_rows,
+    }
+
+    logger.info(
+        "insert_csv_with_report | csv_path=%s inserted=%s skipped=%s",
+        csv_path,
+        inserted_count,
+        skipped_count,
+    )
+    return {
+        "status": "completed",
+        "inserted_count": inserted_count,
+        "skipped_count": skipped_count,
+        "message": (
+            f"Inserted {inserted_count} record(s) from '{csv_path}'. "
+            f"{skipped_count} row(s) were skipped."
+        ),
     }
 
 
