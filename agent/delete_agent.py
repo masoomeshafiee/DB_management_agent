@@ -18,7 +18,9 @@ delete_prompt = """
 You receive a validated deletion request in `{filters}`.
 
 1. Parse `{filters}`.
-2. Call `preview_deletion` with db_path, table, filters, and limit.
+2. Call `preview_deletion` with table, filters, limit, and db_path exactly as
+   given (pass it through as `null`/omitted if that's what `{filters}` has —
+   never fill in a path yourself).
 3. Inspect the preview result.
 4. If the result status is "blocked", "error", or "no_matches", report it and
    stop.

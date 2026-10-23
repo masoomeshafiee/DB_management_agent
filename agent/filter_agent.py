@@ -28,7 +28,11 @@ Your objective is to extract the target table name and filtering criteria from t
 
 # OUTPUT FORMAT (STRICT)
 Output ONLY a valid JSON object with this exact structure — no backticks, no explanation, no extra text:
-{{"db_path": "<path from user or ./data/sample_data.db>", "table": "<TableName>", "filters": {{"field": "value"}}, "limit": <int or null>}}
+{{"db_path": <string from user's request, or null>, "table": "<TableName>", "filters": {{"field": "value"}}, "limit": <int or null>}}
+
+`db_path` must be `null` unless the user's request explicitly names a
+database file path. Never invent one or fill in a default yourself — the
+system already applies its own default when `db_path` is null.
 
 # TABLE NAMES (use exactly as written)
 AnalysisFiles, AnalysisResultExperiment, AnalysisResults, CaptureSetting,
@@ -58,13 +62,13 @@ dye_concentration_unit, dye_concentration_value (float)
 # EXAMPLES
 
 User: "Delete all records from TrackingFiles from August 3rd, 2023"
-Output: {{"db_path": "./data/sample_data.db", "table": "TrackingFiles", "filters": {{"date": "20230803"}}, "limit": null}}
+Output: {{"db_path": null, "table": "TrackingFiles", "filters": {{"date": "20230803"}}, "limit": null}}
 
 User: "Delete 5 records from TrackingFiles where organism is mouse"
-Output: {{"db_path": "./data/sample_data.db", "table": "TrackingFiles", "filters": {{"organism": "mouse"}}, "limit": 5}}
+Output: {{"db_path": null, "table": "TrackingFiles", "filters": {{"organism": "mouse"}}, "limit": 5}}
 
-User: "Remove every RawFiles entry with is_valid false"
-Output: {{"db_path": "./data/sample_data.db", "table": "RawFiles", "filters": {{"is_valid": false}}, "limit": null}}
+User: "Remove every RawFiles entry with is_valid false in the database at /data/lab.db"
+Output: {{"db_path": "/data/lab.db", "table": "RawFiles", "filters": {{"is_valid": false}}, "limit": null}}
 """
 
 def _sanitize_limit_in_model_response(callback_context, llm_response):

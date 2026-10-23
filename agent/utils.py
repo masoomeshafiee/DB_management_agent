@@ -9,6 +9,7 @@ from lab_data_manager import data_validation, insert_csv
 from lab_data_manager.insert_csv import insert_from_csv
 from lab_data_manager.delete_records import delete_records_by_filter
 
+from .config import DEFAULT_DB_PATH
 from .pydantic_models import ALLOWED_TABLES, StrictLabFilters, TABLE_ALIASES
 
 import csv
@@ -20,11 +21,6 @@ from typing import Any, Dict, Optional
 
 
 logger = logging.getLogger(__name__)
-
-# Resolved relative to this file (not the process cwd) so it works regardless
-# of where the app is launched from — same approach query_agent.py uses for
-# its own _DEFAULT_DB_PATH.
-_DEFAULT_DB_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "sample_data.db")
 
 
 # ADK State is mapping-like but does not implement dict.pop(). Assigning None
@@ -116,11 +112,19 @@ def _sanitize_limit(tool_context: ToolContext, limit: int | None) -> int | None:
     return None
 
 
-def preview_deletion(tool_context: ToolContext, db_path: str, table: str, filters: dict, limit: int | None = None) -> Dict[str, Any]:
+def preview_deletion(
+    tool_context: ToolContext, table: str, filters: dict, db_path: str | None = None, limit: int | None = None
+) -> Dict[str, Any]:
     """
     Validates filters, performs a dry-run, and stores the pending operation in
     session state. Does NOT delete anything.
+
+    db_path defaults to DEFAULT_DB_PATH when the caller (the filter-extraction
+    LLM) doesn't provide one — the same fix applied to insert_csv_with_report
+    (DESIGN_LOG.md 3.7), instead of relying on the model to reliably echo a
+    default path string in its own JSON output.
     """
+    db_path = db_path or DEFAULT_DB_PATH
     # --- Resolve table alias ("track" → "TrackingFiles") ---
     table = resolve_table_name(table)
     limit = _sanitize_limit(tool_context, limit)
@@ -309,7 +313,7 @@ def _count_data_rows(csv_path: str) -> int:
 
 
 def insert_csv_with_report(
-    tool_context: ToolContext, csv_path: str, db_path: str = _DEFAULT_DB_PATH
+    tool_context: ToolContext, csv_path: str, db_path: str = DEFAULT_DB_PATH
 ) -> Dict[str, Any]:
     """
     Wraps insert_from_csv, storing {inserted_count, skipped_count,

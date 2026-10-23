@@ -24,13 +24,14 @@ from lab_data_manager.queries import (
     find_missing_values,
 )
 
-from .config import retry_config
+from .config import retry_config, DEFAULT_DB_PATH
 from .utils import validate_filters
 
 logger = logging.getLogger(__name__)
 
-# Resolve DB path relative to this file so it works regardless of working directory
-_DEFAULT_DB_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "sample_data.db")
+# Local alias kept so the default= references below don't all need renaming;
+# the actual value now lives in one place: agent/config.py.
+_DEFAULT_DB_PATH = DEFAULT_DB_PATH
 
 current_date = datetime.now().strftime("%B %d, %Y")
 

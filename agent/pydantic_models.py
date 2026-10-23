@@ -108,10 +108,14 @@ class StrictLabFilters(LabFilters):
 class DeletionSchema(BaseModel):
     """Structured request produced by the deletion filter agent."""
 
-    db_path: str = Field(
-        default="./data/sample_data.db",
+    # No hardcoded default here: preview_deletion resolves a missing db_path
+    # to DEFAULT_DB_PATH itself (DESIGN_LOG.md 3.7). Leaving this None lets
+    # the model genuinely omit it instead of being forced to invent/echo a
+    # path string on every request.
+    db_path: Optional[str] = Field(
+        default=None,
         min_length=1,
-        description="Path to the SQLite database file.",
+        description="Path to the SQLite database file, if the user named one.",
     )
     table: Literal[
         "AnalysisFiles",
