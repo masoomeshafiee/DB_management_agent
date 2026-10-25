@@ -19,6 +19,7 @@ from google.adk.errors.already_exists_error import AlreadyExistsError
 from agent.root_agent import db_manager_app
 from workflow import submit_request, resume_with_confirmation, parse_confirmation
 from observability.logging_config import config_logging
+from observability.tracing import setup_tracing
 
 
 DB_FOLDER = "db_manager_app_state"
@@ -47,6 +48,7 @@ class ConfirmationRequest(BaseModel):
 async def lifespan(app: FastAPI):
     """Lifespan context manager for FastAPI app."""
     config_logging(level="INFO")
+    setup_tracing("db-management-agent")
     session_service = DatabaseSessionService(f"sqlite:///{DB_FOLDER}/{DB_FILE}")
     runner = Runner(session_service=session_service, app=db_manager_app)
     yield {"session_service": session_service, "runner": runner}

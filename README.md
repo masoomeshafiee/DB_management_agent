@@ -257,6 +257,13 @@ python -m evaluation --suite deletion --runs 3          # one suite, three runs 
 RUN_AGENT_EVAL=1 pytest test/agent_eval -v              # the same suites as pass/fail thresholds
 ```
 
+**Tracing with Arize Phoenix** (optional; see every agent hand-off, Gemini call and tool call of a request)
+```bash
+uvx --python 3.12 --from arize-phoenix==20.26.0 phoenix serve   # local UI at http://localhost:6006
+PHOENIX_TRACING=1 uvicorn server:app --reload                   # also works for main.py and python -m evaluation
+```
+Traces contain prompts and database rows, so keep Phoenix running locally.
+
 Example CLI interaction:
 ```
 Enter your database request: Show all experiments from E.coli with protein DnaA.

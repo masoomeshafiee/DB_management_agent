@@ -11,6 +11,7 @@ from agent.root_agent import db_manager_app
 from workflow import submit_request, resume_with_confirmation, parse_confirmation
 from observability.logging_config import config_logging
 from observability.token_usage import describe
+from observability.tracing import setup_tracing
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +39,7 @@ def get_session_name():
 async def main():
 
     config_logging(level="INFO")
+    setup_tracing("db-management-agent")
 
     logger.info("Starting Database Management Agent")
 

@@ -101,6 +101,8 @@ PyYAML==6.0.3
 referencing==0.37.0
 requests==2.32.5
 rouge-score==0.1.2  # needed to import ADK's evaluation module
+arize-phoenix-otel==0.17.1  # optional tracing, see observability/tracing.py
+openinference-instrumentation-google-adk==1.0.5
 rpds-py==0.28.0
 rsa==4.9.1
 shapely==2.1.2

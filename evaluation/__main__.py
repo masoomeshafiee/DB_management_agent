@@ -16,6 +16,8 @@ import json
 import logging
 import os
 
+from observability.tracing import setup_tracing
+
 from .report import summary_lines, write_report
 from .runner import SUITES, run_suites
 
@@ -55,6 +57,8 @@ def main() -> None:
 
     # ADK and the app log a lot at INFO; the report is the output that matters.
     logging.basicConfig(level=logging.WARNING)
+    # Optional: with PHOENIX_TRACING=1 every eval case shows up as a trace in Phoenix.
+    setup_tracing("db-management-agent-eval")
 
     suites = args.suite or list(SUITES)
     results = asyncio.run(run_suites(suites, runs=args.runs, pause=args.pause, case_ids=args.case))
