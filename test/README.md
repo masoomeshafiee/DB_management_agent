@@ -4,49 +4,39 @@ The test suite is organized by testing responsibility.
 
 ## `unit/`
 
-Fast, deterministic tests that should not call Gemini or modify a real
-database.
+Fast, deterministic tests. They do not call Gemini or touch a real database.
 
-- `test_pydantic_models.py`: schema validation and normalization.
-- `test_deletion_utils.py`: preview, approval, denial, and state cleanup.
-- `test_workflow_confirmation.py`: CLI approval parsing and invocation resume.
-- `test_agent_configuration.py`: agent tools, schemas, and workflow wiring.
+- `test_pydantic_models.py`: filter schema validation and normalization.
+- `test_deletion_utils.py`: preview, approval, denial and state cleanup.
+- `test_insert_utils.py`: the insert tool and its report.
+- `test_workflow_confirmation.py`: approval parsing, resume, and reading results from ADK events.
+- `test_agent_configuration.py`: agent tools, schemas and wiring.
+- `test_token_usage.py`: token counts and cost estimates.
+- `test_eval_metrics.py`: the evaluation module's metrics, scenarios and sandbox.
 
 ## `integration/`
 
-Tests that exercise multiple components together using temporary databases and
-mocked external services where appropriate.
+Several components together, on a temporary copy of a real SQLite database,
+with the LLM faked.
 
-- `test_deletion_flow.py`
-- `test_insertion_flow.py`
-- `test_query_flow.py`
+- `test_deletion_flow.py`, `test_insertion_flow.py`, `test_query_flow.py`
+- `test_api.py`: the FastAPI routes.
 
 ## `agent_eval/`
 
-Tests and datasets that evaluate LLM-controlled behavior. These tests may
-require credentials, network access, quota, and a separate test marker.
+The suites of the evaluation module (`evaluation/`) as pass/fail tests. They
+call Gemini, so they are skipped unless `RUN_AGENT_EVAL=1` and `GOOGLE_API_KEY`
+are set.
 
-- Routing decisions
-- Structured filter extraction
-- Tool selection
-- Safety behavior
+## `scenarios/`
 
-## `ui/`
+The original hand-written request scenarios and the CSV files used by the
+insertion tests and the evaluation.
 
-Reserved for Streamlit component and end-to-end UI tests.
-
-## `fixtures/`
-
-Shared test data, temporary database templates, CSV files, and expected output
-examples. Existing CSV fixtures can remain in `test/insertion/` until they are
-gradually reorganized.
-
-## Suggested Commands
+## Commands
 
 ```bash
-pytest -m unit
-pytest -m integration
-pytest -m agent_eval
-pytest -m ui
-pytest
+pytest test/unit test/integration -v       # no API key needed
+RUN_AGENT_EVAL=1 pytest test/agent_eval -v # calls Gemini
+pytest -m unit                             # by marker: unit, integration, agent_eval
 ```
