@@ -1,6 +1,8 @@
 #!/bin/python3
 
+import csv
 import logging
+import os
 from typing import Any, Dict
 
 from google.genai import types
@@ -70,6 +72,45 @@ def extract_insert_result(events):
         state_delta = getattr(getattr(event, "actions", None), "state_delta", None)
         if state_delta and "last_insert_result" in state_delta:
             return state_delta["last_insert_result"]
+    return None
+
+
+VALIDATION_TOOLS = {"validate_csv", "validate_analysis_metadata"}
+
+
+def extract_validation_result(events):
+    """Find the rows that failed validation in this turn, if any.
+
+    The validators write every invalid row, with its issues, to the
+    output_path the agent passed them. The path is read from the tool call
+    and the rows from that file, so this works however the request was made.
+
+    Returns:
+        dict with output_path and invalid_rows, or None if this turn didn't
+        validate a file or every row was valid.
+    """
+    output_paths = {}
+    for event in events:
+        if not (event.content and event.content.parts):
+            continue
+        for part in event.content.parts:
+            call = part.function_call
+            if call and call.name in VALIDATION_TOOLS:
+                output_paths[call.id] = (call.args or {}).get("output_path")
+
+            response = part.function_response
+            if not (response and response.name in VALIDATION_TOOLS):
+                continue
+            # ADK wraps a non-dict return value as {"result": value}. The
+            # validators return the invalid rows (or their count), so an
+            # empty or zero result means the file passed.
+            if not (response.response or {}).get("result"):
+                return None
+            output_path = output_paths.get(response.id)
+            if not output_path or not os.path.exists(output_path):
+                return None
+            with open(output_path, newline="") as f:
+                return {"output_path": output_path, "invalid_rows": list(csv.DictReader(f))}
     return None
 
 
@@ -149,6 +190,7 @@ async def submit_request(
     # check for approval request in the events.
     approval_info = check_for_approval(events)
     insert_result = extract_insert_result(events)
+    validation_result = extract_validation_result(events)
 
     # If approval is requested, pause and wait for user decision.
     if approval_info:
@@ -158,11 +200,11 @@ async def submit_request(
             f"APPROVAL_REQUESTED | user={user_id} | session={session_id} | "
             f"approval_id={approval_info['approval_id']} | preview={preview}"
         )
-        return {"status": "pending_approval", "text": reply_text, "approval_info": approval_info, "preview": preview, "insert_result": None}
+        return {"status": "pending_approval", "text": reply_text, "approval_info": approval_info, "preview": preview, "insert_result": None, "validation_result": None}
 
     logger.info("WORKFLOW_END: Status: completed_without_approval")
     audit_logger.info(f"RESPONSE | user={user_id} | session={session_id} | status=completed_without_approval | reply={reply_text!r}")
-    return {"status": "completed_without_approval", "text": reply_text, "approval_info": None, "preview": None, "insert_result": insert_result}
+    return {"status": "completed_without_approval", "text": reply_text, "approval_info": None, "preview": None, "insert_result": insert_result, "validation_result": validation_result}
 
 
 async def resume_with_confirmation(runner, approval_id, invocation_id, is_approved, session_id, user_id="default_user") -> dict:

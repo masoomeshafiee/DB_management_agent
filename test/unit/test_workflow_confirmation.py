@@ -13,6 +13,7 @@ from workflow import (
     extract_deletion_result,
     extract_insert_result,
     extract_pending_deletion,
+    extract_validation_result,
     parse_confirmation,
     resume_with_confirmation,
     submit_request,
@@ -127,6 +128,45 @@ def test_insert_result_is_read_from_the_state_change():
     summary = {"inserted_count": 2, "skipped_count": 1}
     event = call_event("insert_csv_with_report", state_delta={"last_insert_result": summary})
     assert extract_insert_result([event]) == summary
+
+
+# ---------- extract_validation_result ----------
+
+def validation_events(output_path, result):
+    """The call the validation agent makes, then the value the validator returned."""
+    call = types.FunctionCall(
+        id="val-1", name="validate_csv", args={"file_path": "upload.csv", "output_path": str(output_path)}
+    )
+    response = types.FunctionResponse(id="val-1", name="validate_csv", response={"result": result})
+    return [
+        SimpleNamespace(content=types.Content(role="model", parts=[types.Part(function_call=call)]), actions=None),
+        SimpleNamespace(content=types.Content(role="user", parts=[types.Part(function_response=response)]), actions=None),
+    ]
+
+
+@pytest.fixture
+def invalid_rows_file(tmp_path):
+    path = tmp_path / "invalid_rows.csv"
+    path.write_text("file_name,row_number,issues\n,455,Filename error\n")
+    return path
+
+
+# The library returns the invalid rows; a local variant returns their count.
+@pytest.mark.parametrize("result", [[{"row_number": 455}], 1])
+def test_failed_validation_returns_the_rows_from_the_file_the_tool_wrote(invalid_rows_file, result):
+    found = extract_validation_result(validation_events(invalid_rows_file, result))
+
+    assert found["output_path"] == str(invalid_rows_file)
+    assert found["invalid_rows"] == [{"file_name": "", "row_number": "455", "issues": "Filename error"}]
+
+
+@pytest.mark.parametrize("result", [[], 0])
+def test_passed_validation_reports_nothing_even_if_an_old_file_exists(invalid_rows_file, result):
+    assert extract_validation_result(validation_events(invalid_rows_file, result)) is None
+
+
+def test_no_validation_result_when_no_file_was_validated():
+    assert extract_validation_result([text_event("Found 3 experiments.")]) is None
 
 
 # ---------- extract_deletion_result ----------

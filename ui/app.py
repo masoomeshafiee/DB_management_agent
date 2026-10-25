@@ -1,5 +1,4 @@
 import os
-import time
 
 import pandas as pd
 import requests
@@ -37,7 +36,7 @@ if "messages" not in st.session_state:
     # insert_result is only set on the assistant message that just ran an
     # insertion — it's what makes the results table render under it.
     # deletion_result is only set on the reply to a confirm/cancel click.
-    # validation_result is only set on the reply to an uploaded file that
+    # validation_result is only set on the reply to an insert request that
     # failed validation — it's what makes the invalid-rows table render.
     st.session_state.messages = []
 
@@ -96,6 +95,7 @@ def submit_chat_message(message: str) -> None:
             "approval_info": approval_info,
             "resolved": approval_info is None,
             "insert_result": result.get("insert_result"),
+            "validation_result": result.get("validation_result"),
         }
     )
 
@@ -107,35 +107,13 @@ def handle_insert_upload(uploaded_file, db_path: str, invalid_output_path: str) 
     with open(save_path, "wb") as f:
         f.write(uploaded_file.getbuffer())
 
-    # Absolute, so the backend writes the file where this process will look.
-    invalid_output_path = os.path.abspath(invalid_output_path)
     message = (
         f"Insert the data from the CSV file located at {save_path} into the "
         f"database at {db_path}. Save any invalid records found during "
         f"validation to {invalid_output_path}, and return any skipped/invalid rows."
     )
-    submitted_at = time.time()
     submit_chat_message(message)
-    st.session_state.messages[-1]["validation_result"] = read_validation_failures(
-        invalid_output_path, submitted_at
-    )
     st.rerun()
-
-
-def read_validation_failures(output_path: str, since: float) -> dict | None:
-    """The invalid rows the validator wrote during this request, if any.
-
-    lab_data_manager only writes output_path when it finds invalid rows, so a
-    file modified after the request started means validation failed. The rows
-    are copied into the message because the file is overwritten next time.
-    """
-    if not os.path.exists(output_path) or os.path.getmtime(output_path) < since:
-        return None
-    try:
-        rows = pd.read_csv(output_path, dtype=str, keep_default_na=False)
-    except (OSError, pd.errors.ParserError, pd.errors.EmptyDataError):
-        return None
-    return {"output_path": output_path, "invalid_rows": rows.to_dict("records")}
 
 
 with st.sidebar:
