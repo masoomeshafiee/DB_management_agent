@@ -1,0 +1,3044 @@
+{
+  "created": "2026-10-25 13:28",
+  "runs_per_case": 1,
+  "results": {
+    "routing": [
+      {
+        "suite": "routing",
+        "case_id": "route-find-yeast",
+        "run": 1,
+        "request": "Find all records for organism yeast",
+        "source": "filter_test.py #1",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": "query_agent",
+          "tools": [
+            "transfer_to_agent"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "[query_agent would handle this]"
+        },
+        "seconds": 1.2,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 454,
+          "output_tokens": 21,
+          "thinking_tokens": 95,
+          "total_tokens": 570,
+          "estimated_cost_usd": 0.0004262,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 454,
+              "output_tokens": 21,
+              "thinking_tokens": 95
+            }
+          }
+        }
+      },
+      {
+        "suite": "routing",
+        "case_id": "route-list-invalid",
+        "run": 1,
+        "request": "Show me the experiments that are marked invalid",
+        "source": "",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": "query_agent",
+          "tools": [
+            "transfer_to_agent"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "[query_agent would handle this]"
+        },
+        "seconds": 0.9,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 456,
+          "output_tokens": 21,
+          "thinking_tokens": 71,
+          "total_tokens": 548,
+          "estimated_cost_usd": 0.00036679999999999997,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 456,
+              "output_tokens": 21,
+              "thinking_tokens": 71
+            }
+          }
+        }
+      },
+      {
+        "suite": "routing",
+        "case_id": "route-count-by-organism",
+        "run": 1,
+        "request": "How many experiments do we have per organism?",
+        "source": "",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": "query_agent",
+          "tools": [
+            "transfer_to_agent"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "[query_agent would handle this]"
+        },
+        "seconds": 1.6,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 457,
+          "output_tokens": 21,
+          "thinking_tokens": 229,
+          "total_tokens": 707,
+          "estimated_cost_usd": 0.0007621,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 457,
+              "output_tokens": 21,
+              "thinking_tokens": 229
+            }
+          }
+        }
+      },
+      {
+        "suite": "routing",
+        "case_id": "route-most-recent",
+        "run": 1,
+        "request": "What was our most recent experiment?",
+        "source": "",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": "query_agent",
+          "tools": [
+            "transfer_to_agent"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "[query_agent would handle this]"
+        },
+        "seconds": 1.1,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 455,
+          "output_tokens": 21,
+          "thinking_tokens": 114,
+          "total_tokens": 590,
+          "estimated_cost_usd": 0.000474,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 455,
+              "output_tokens": 21,
+              "thinking_tokens": 114
+            }
+          }
+        }
+      },
+      {
+        "suite": "routing",
+        "case_id": "route-missing-files",
+        "run": 1,
+        "request": "Which experiments are missing tracking files?",
+        "source": "",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": "query_agent",
+          "tools": [
+            "transfer_to_agent"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "[query_agent would handle this]"
+        },
+        "seconds": 1.2,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 455,
+          "output_tokens": 21,
+          "thinking_tokens": 118,
+          "total_tokens": 594,
+          "estimated_cost_usd": 0.000484,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 455,
+              "output_tokens": 21,
+              "thinking_tokens": 118
+            }
+          }
+        }
+      },
+      {
+        "suite": "routing",
+        "case_id": "route-duplicates",
+        "run": 1,
+        "request": "Are there any duplicate experiment records?",
+        "source": "",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": "query_agent",
+          "tools": [
+            "transfer_to_agent"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "[query_agent would handle this]"
+        },
+        "seconds": 1.2,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 455,
+          "output_tokens": 21,
+          "thinking_tokens": 99,
+          "total_tokens": 575,
+          "estimated_cost_usd": 0.0004365,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 455,
+              "output_tokens": 21,
+              "thinking_tokens": 99
+            }
+          }
+        }
+      },
+      {
+        "suite": "routing",
+        "case_id": "route-period",
+        "run": 1,
+        "request": "List the experiments we ran in August 2023",
+        "source": "",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": "query_agent",
+          "tools": [
+            "transfer_to_agent"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "[query_agent would handle this]"
+        },
+        "seconds": 1.2,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 460,
+          "output_tokens": 21,
+          "thinking_tokens": 103,
+          "total_tokens": 584,
+          "estimated_cost_usd": 0.000448,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 460,
+              "output_tokens": 21,
+              "thinking_tokens": 103
+            }
+          }
+        }
+      },
+      {
+        "suite": "routing",
+        "case_id": "route-question-with-delete-word",
+        "run": 1,
+        "request": "How many records would be affected if I deleted the invalid experiments?",
+        "source": "",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 0.0,
+            "passed": false,
+            "explanation": "expected query_agent, got delete_supervisor_agent"
+          }
+        },
+        "observed": {
+          "routed_to": "delete_supervisor_agent",
+          "tools": [
+            "transfer_to_agent"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "[delete_supervisor_agent would handle this]"
+        },
+        "seconds": 1.2,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 461,
+          "output_tokens": 23,
+          "thinking_tokens": 134,
+          "total_tokens": 618,
+          "estimated_cost_usd": 0.0005308,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 461,
+              "output_tokens": 23,
+              "thinking_tokens": 134
+            }
+          }
+        }
+      },
+      {
+        "suite": "routing",
+        "case_id": "route-delete-invalid",
+        "run": 1,
+        "request": "Delete all experiments that are marked as invalid",
+        "source": "delete_test.py #2",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": "delete_supervisor_agent",
+          "tools": [
+            "transfer_to_agent"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "[delete_supervisor_agent would handle this]"
+        },
+        "seconds": 0.7,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 456,
+          "output_tokens": 23,
+          "thinking_tokens": 62,
+          "total_tokens": 541,
+          "estimated_cost_usd": 0.0003493,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 456,
+              "output_tokens": 23,
+              "thinking_tokens": 62
+            }
+          }
+        }
+      },
+      {
+        "suite": "routing",
+        "case_id": "route-remove",
+        "run": 1,
+        "request": "Remove the tracking files from August 3rd, 2023",
+        "source": "delete_test.py #3",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": "delete_supervisor_agent",
+          "tools": [
+            "transfer_to_agent"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "[delete_supervisor_agent would handle this]"
+        },
+        "seconds": 1.1,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 463,
+          "output_tokens": 23,
+          "thinking_tokens": 70,
+          "total_tokens": 556,
+          "estimated_cost_usd": 0.0003714,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 463,
+              "output_tokens": 23,
+              "thinking_tokens": 70
+            }
+          }
+        }
+      },
+      {
+        "suite": "routing",
+        "case_id": "route-get-rid",
+        "run": 1,
+        "request": "Get rid of the masks for untreated Rfa1 experiments that are invalid",
+        "source": "delete_test.py #5",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": "delete_supervisor_agent",
+          "tools": [
+            "transfer_to_agent"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "[delete_supervisor_agent would handle this]"
+        },
+        "seconds": 0.9,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 462,
+          "output_tokens": 23,
+          "thinking_tokens": 70,
+          "total_tokens": 555,
+          "estimated_cost_usd": 0.0003711,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 462,
+              "output_tokens": 23,
+              "thinking_tokens": 70
+            }
+          }
+        }
+      },
+      {
+        "suite": "routing",
+        "case_id": "route-clean-up",
+        "run": 1,
+        "request": "Clean up the database by deleting invalid raw files",
+        "source": "",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": "delete_supervisor_agent",
+          "tools": [
+            "transfer_to_agent"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "[delete_supervisor_agent would handle this]"
+        },
+        "seconds": 1.0,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 457,
+          "output_tokens": 23,
+          "thinking_tokens": 86,
+          "total_tokens": 566,
+          "estimated_cost_usd": 0.00040960000000000004,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 457,
+              "output_tokens": 23,
+              "thinking_tokens": 86
+            }
+          }
+        }
+      },
+      {
+        "suite": "routing",
+        "case_id": "route-delete-everything",
+        "run": 1,
+        "request": "Delete all records from the User table",
+        "source": "delete_test.py #7",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": "delete_supervisor_agent",
+          "tools": [
+            "transfer_to_agent"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "[delete_supervisor_agent would handle this]"
+        },
+        "seconds": 1.0,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 455,
+          "output_tokens": 23,
+          "thinking_tokens": 67,
+          "total_tokens": 545,
+          "estimated_cost_usd": 0.0003615,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 455,
+              "output_tokens": 23,
+              "thinking_tokens": 67
+            }
+          }
+        }
+      },
+      {
+        "suite": "routing",
+        "case_id": "route-delete-limit",
+        "run": 1,
+        "request": "Delete 2 invalid raw files",
+        "source": "",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": "delete_supervisor_agent",
+          "tools": [
+            "transfer_to_agent"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "[delete_supervisor_agent would handle this]"
+        },
+        "seconds": 1.0,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 454,
+          "output_tokens": 23,
+          "thinking_tokens": 61,
+          "total_tokens": 538,
+          "estimated_cost_usd": 0.0003462,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 454,
+              "output_tokens": 23,
+              "thinking_tokens": 61
+            }
+          }
+        }
+      },
+      {
+        "suite": "routing",
+        "case_id": "route-insert",
+        "run": 1,
+        "request": "Insert the rows from test/scenarios/insertion/valid.csv",
+        "source": "insert_test.py insertion #1",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": "insert_supervisor_agent",
+          "tools": [
+            "transfer_to_agent"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "[insert_supervisor_agent would handle this]"
+        },
+        "seconds": 1.2,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 462,
+          "output_tokens": 23,
+          "thinking_tokens": 52,
+          "total_tokens": 537,
+          "estimated_cost_usd": 0.0003261,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 462,
+              "output_tokens": 23,
+              "thinking_tokens": 52
+            }
+          }
+        }
+      },
+      {
+        "suite": "routing",
+        "case_id": "route-upload",
+        "run": 1,
+        "request": "Upload test/scenarios/insertion/rows_with_foreign_keys.csv to the database",
+        "source": "",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": "insert_supervisor_agent",
+          "tools": [
+            "transfer_to_agent"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "[insert_supervisor_agent would handle this]"
+        },
+        "seconds": 0.9,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 468,
+          "output_tokens": 23,
+          "thinking_tokens": 67,
+          "total_tokens": 558,
+          "estimated_cost_usd": 0.0003654,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 468,
+              "output_tokens": 23,
+              "thinking_tokens": 67
+            }
+          }
+        }
+      },
+      {
+        "suite": "routing",
+        "case_id": "route-add",
+        "run": 1,
+        "request": "Please add the new metadata in test/scenarios/insertion/valid_rows_non_existing_db.csv",
+        "source": "",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": "insert_supervisor_agent",
+          "tools": [
+            "transfer_to_agent"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "[insert_supervisor_agent would handle this]"
+        },
+        "seconds": 0.9,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 472,
+          "output_tokens": 23,
+          "thinking_tokens": 65,
+          "total_tokens": 560,
+          "estimated_cost_usd": 0.0003616,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 472,
+              "output_tokens": 23,
+              "thinking_tokens": 65
+            }
+          }
+        }
+      },
+      {
+        "suite": "routing",
+        "case_id": "route-validate",
+        "run": 1,
+        "request": "Validate and insert the CSV file test/scenarios/insertion/mixed_valid_invalid.csv",
+        "source": "insert_test.py validation #5",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": "insert_supervisor_agent",
+          "tools": [
+            "transfer_to_agent"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "[insert_supervisor_agent would handle this]"
+        },
+        "seconds": 0.9,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 468,
+          "output_tokens": 23,
+          "thinking_tokens": 68,
+          "total_tokens": 559,
+          "estimated_cost_usd": 0.0003679,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 468,
+              "output_tokens": 23,
+              "thinking_tokens": 68
+            }
+          }
+        }
+      },
+      {
+        "suite": "routing",
+        "case_id": "route-greeting",
+        "run": 1,
+        "request": "Hi there!",
+        "source": "",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 0.0,
+            "passed": false,
+            "explanation": "expected None, got query_agent"
+          }
+        },
+        "observed": {
+          "routed_to": "query_agent",
+          "tools": [
+            "transfer_to_agent"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "[query_agent would handle this]"
+        },
+        "seconds": 8.4,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 451,
+          "output_tokens": 21,
+          "thinking_tokens": 1535,
+          "total_tokens": 2007,
+          "estimated_cost_usd": 0.0040253,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 451,
+              "output_tokens": 21,
+              "thinking_tokens": 1535
+            }
+          }
+        }
+      },
+      {
+        "suite": "routing",
+        "case_id": "route-off-topic",
+        "run": 1,
+        "request": "Where does this database belong to?",
+        "source": "filter_test.py #6",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 0.0,
+            "passed": false,
+            "explanation": "expected None, got query_agent"
+          }
+        },
+        "observed": {
+          "routed_to": "query_agent",
+          "tools": [
+            "transfer_to_agent"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "[query_agent would handle this]"
+        },
+        "seconds": 1.0,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 455,
+          "output_tokens": 21,
+          "thinking_tokens": 89,
+          "total_tokens": 565,
+          "estimated_cost_usd": 0.0004115,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 455,
+              "output_tokens": 21,
+              "thinking_tokens": 89
+            }
+          }
+        }
+      },
+      {
+        "suite": "routing",
+        "case_id": "route-general-question",
+        "run": 1,
+        "request": "What is a fluorescence microscope?",
+        "source": "",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 0.0,
+            "passed": false,
+            "explanation": "expected None, got query_agent"
+          }
+        },
+        "observed": {
+          "routed_to": "query_agent",
+          "tools": [
+            "transfer_to_agent"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "[query_agent would handle this]"
+        },
+        "seconds": 5.4,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 454,
+          "output_tokens": 21,
+          "thinking_tokens": 1056,
+          "total_tokens": 1531,
+          "estimated_cost_usd": 0.0028287,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 454,
+              "output_tokens": 21,
+              "thinking_tokens": 1056
+            }
+          }
+        }
+      }
+    ],
+    "filter_extraction": [
+      {
+        "suite": "filter_extraction",
+        "case_id": "filter-single",
+        "run": 1,
+        "request": "Delete all experiments for organism yeast",
+        "source": "filter_test.py #1",
+        "error": null,
+        "metrics": {
+          "deletion_filter_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [],
+          "deletion": {
+            "table": "Experiment",
+            "filters": {
+              "organism": "yeast"
+            },
+            "limit": null
+          },
+          "deletion_outcome": "blocked",
+          "answer": "{\"db_path\": null, \"table\": \"Experiment\", \"filters\": {\"organism\": \"yeast\"}, \"limit\": null}"
+        },
+        "seconds": 1.0,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 821,
+          "output_tokens": 29,
+          "thinking_tokens": 0,
+          "total_tokens": 850,
+          "estimated_cost_usd": 9.370000000000001e-05,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 1,
+              "input_tokens": 821,
+              "output_tokens": 29,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "filter_extraction",
+        "case_id": "filter-multiple",
+        "run": 1,
+        "request": "Delete all experiment records for organism E.coli and protein DnaA",
+        "source": "filter_test.py #2",
+        "error": null,
+        "metrics": {
+          "deletion_filter_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [],
+          "deletion": {
+            "table": "Experiment",
+            "filters": {
+              "organism": "E.coli",
+              "protein": "DnaA"
+            },
+            "limit": null
+          },
+          "deletion_outcome": "blocked",
+          "answer": "{\"db_path\": null, \"table\": \"Experiment\", \"filters\": {\"organism\": \"E.coli\", \"protein\": \"DnaA\"}, \"limit\": null}"
+        },
+        "seconds": 0.8,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 829,
+          "output_tokens": 38,
+          "thinking_tokens": 0,
+          "total_tokens": 867,
+          "estimated_cost_usd": 9.810000000000001e-05,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 1,
+              "input_tokens": 829,
+              "output_tokens": 38,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "filter_extraction",
+        "case_id": "filter-date",
+        "run": 1,
+        "request": "Delete all experiment records from 2023-08-03",
+        "source": "filter_test.py #7",
+        "error": null,
+        "metrics": {
+          "deletion_filter_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [],
+          "deletion": {
+            "table": "Experiment",
+            "filters": {
+              "date": "20230803"
+            },
+            "limit": null
+          },
+          "deletion_outcome": "blocked",
+          "answer": "{\"db_path\": null, \"table\": \"Experiment\", \"filters\": {\"date\": \"20230803\"}, \"limit\": null}"
+        },
+        "seconds": 0.6,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 831,
+          "output_tokens": 34,
+          "thinking_tokens": 0,
+          "total_tokens": 865,
+          "estimated_cost_usd": 9.670000000000002e-05,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 1,
+              "input_tokens": 831,
+              "output_tokens": 34,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "filter_extraction",
+        "case_id": "filter-date-words",
+        "run": 1,
+        "request": "Remove the tracking files from August 3rd, 2023",
+        "source": "delete_test.py #3",
+        "error": null,
+        "metrics": {
+          "deletion_filter_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [],
+          "deletion": {
+            "table": "TrackingFiles",
+            "filters": {
+              "date": "20230803"
+            },
+            "limit": null
+          },
+          "deletion_outcome": "blocked",
+          "answer": "{\"db_path\": null, \"table\": \"TrackingFiles\", \"filters\": {\"date\": \"20230803\"}, \"limit\": null}"
+        },
+        "seconds": 0.7,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 830,
+          "output_tokens": 35,
+          "thinking_tokens": 0,
+          "total_tokens": 865,
+          "estimated_cost_usd": 9.7e-05,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 1,
+              "input_tokens": 830,
+              "output_tokens": 35,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "filter_extraction",
+        "case_id": "filter-exposure-seconds",
+        "run": 1,
+        "request": "Delete all capture settings with exposure time 2.5 seconds",
+        "source": "filter_test.py #8",
+        "error": null,
+        "metrics": {
+          "deletion_filter_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [],
+          "deletion": {
+            "table": "CaptureSetting",
+            "filters": {
+              "exposure_time": 2.5
+            },
+            "limit": null
+          },
+          "deletion_outcome": "blocked",
+          "answer": "{\"db_path\": null, \"table\": \"CaptureSetting\", \"filters\": {\"exposure_time\": 2.5}, \"limit\": null}"
+        },
+        "seconds": 0.7,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 827,
+          "output_tokens": 32,
+          "thinking_tokens": 0,
+          "total_tokens": 859,
+          "estimated_cost_usd": 9.55e-05,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 1,
+              "input_tokens": 827,
+              "output_tokens": 32,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "filter_extraction",
+        "case_id": "filter-exposure-ms",
+        "run": 1,
+        "request": "Delete capture settings with an exposure time of 500 milliseconds",
+        "source": "",
+        "error": null,
+        "metrics": {
+          "deletion_filter_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [],
+          "deletion": {
+            "table": "CaptureSetting",
+            "filters": {
+              "exposure_time": 0.5
+            },
+            "limit": null
+          },
+          "deletion_outcome": "blocked",
+          "answer": "{\"db_path\": null, \"table\": \"CaptureSetting\", \"filters\": {\"exposure_time\": 0.5}, \"limit\": null}"
+        },
+        "seconds": 0.6,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 828,
+          "output_tokens": 32,
+          "thinking_tokens": 0,
+          "total_tokens": 860,
+          "estimated_cost_usd": 9.56e-05,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 1,
+              "input_tokens": 828,
+              "output_tokens": 32,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "filter_extraction",
+        "case_id": "filter-time-minutes",
+        "run": 1,
+        "request": "Delete experiments with a time interval of 5 minutes",
+        "source": "filter_test.py #10 (minutes \u2192 seconds)",
+        "error": null,
+        "metrics": {
+          "deletion_filter_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [],
+          "deletion": {
+            "table": "Experiment",
+            "filters": {
+              "time_interval": 300.0
+            },
+            "limit": null
+          },
+          "deletion_outcome": "blocked",
+          "answer": "{\"db_path\": null, \"table\": \"Experiment\", \"filters\": {\"time_interval\": 300.0}, \"limit\": null}"
+        },
+        "seconds": 1.1,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 825,
+          "output_tokens": 33,
+          "thinking_tokens": 0,
+          "total_tokens": 858,
+          "estimated_cost_usd": 9.570000000000001e-05,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 1,
+              "input_tokens": 825,
+              "output_tokens": 33,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "filter_extraction",
+        "case_id": "filter-concentration-unit",
+        "run": 1,
+        "request": "Delete experiments with concentration unit nM",
+        "source": "filter_test.py #9",
+        "error": null,
+        "metrics": {
+          "deletion_filter_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [],
+          "deletion": {
+            "table": "Experiment",
+            "filters": {
+              "concentration_unit": "nM"
+            },
+            "limit": null
+          },
+          "deletion_outcome": "blocked",
+          "answer": "{\"db_path\": null, \"table\": \"Experiment\", \"filters\": {\"concentration_unit\": \"nM\"}, \"limit\": null}"
+        },
+        "seconds": 0.7,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 821,
+          "output_tokens": 29,
+          "thinking_tokens": 0,
+          "total_tokens": 850,
+          "estimated_cost_usd": 9.370000000000001e-05,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 1,
+              "input_tokens": 821,
+              "output_tokens": 29,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "filter_extraction",
+        "case_id": "filter-is-valid",
+        "run": 1,
+        "request": "Delete all experiment records that are not valid",
+        "source": "filter_test.py #11",
+        "error": null,
+        "metrics": {
+          "deletion_filter_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [],
+          "deletion": {
+            "table": "Experiment",
+            "filters": {
+              "is_valid": "N"
+            },
+            "limit": null
+          },
+          "deletion_outcome": "blocked",
+          "answer": "{\"db_path\": null, \"table\": \"Experiment\", \"filters\": {\"is_valid\": \"N\"}, \"limit\": null}"
+        },
+        "seconds": 0.7,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 823,
+          "output_tokens": 29,
+          "thinking_tokens": 0,
+          "total_tokens": 852,
+          "estimated_cost_usd": 9.39e-05,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 1,
+              "input_tokens": 823,
+              "output_tokens": 29,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "filter_extraction",
+        "case_id": "filter-four-keys",
+        "run": 1,
+        "request": "Delete all yeast Rfa1 raw files that are untreated and marked as invalid",
+        "source": "delete_test.py #3",
+        "error": null,
+        "metrics": {
+          "deletion_filter_match": {
+            "score": 0.667,
+            "passed": false,
+            "explanation": "expected {'table': 'RawFiles', 'filters': {'organism': 'yeast', 'protein': 'Rfa1', 'condition': 'untreated', 'is_valid': 'N'}, 'limit': None}, got {'table': 'RawFiles', 'filters': {'organism': 'yeast', 'raw_file_name': 'Rfa1', 'is_valid': 'N'}, 'limit': None}"
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [],
+          "deletion": {
+            "table": "RawFiles",
+            "filters": {
+              "organism": "yeast",
+              "raw_file_name": "Rfa1",
+              "is_valid": "N",
+              "concentration_unit": null
+            },
+            "limit": null
+          },
+          "deletion_outcome": "blocked",
+          "answer": "{\"db_path\": null, \"table\": \"RawFiles\", \"filters\": {\"organism\": \"yeast\", \"raw_file_name\": \"Rfa1\", \"is_valid\": \"N\", \"concentration_unit\": null}, \"limit\": null}"
+        },
+        "seconds": 0.8,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 830,
+          "output_tokens": 57,
+          "thinking_tokens": 0,
+          "total_tokens": 887,
+          "estimated_cost_usd": 0.0001058,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 1,
+              "input_tokens": 830,
+              "output_tokens": 57,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "filter_extraction",
+        "case_id": "filter-alias-table",
+        "run": 1,
+        "request": "Delete the tracks recorded on 2023-08-03",
+        "source": "",
+        "error": null,
+        "metrics": {
+          "deletion_filter_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [],
+          "deletion": {
+            "table": "TrackingFiles",
+            "filters": {
+              "date": "20230803"
+            },
+            "limit": null
+          },
+          "deletion_outcome": "blocked",
+          "answer": "{\"db_path\": null, \"table\": \"TrackingFiles\", \"filters\": {\"date\": \"20230803\"}, \"limit\": null}"
+        },
+        "seconds": 0.5,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 831,
+          "output_tokens": 35,
+          "thinking_tokens": 0,
+          "total_tokens": 866,
+          "estimated_cost_usd": 9.71e-05,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 1,
+              "input_tokens": 831,
+              "output_tokens": 35,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "filter_extraction",
+        "case_id": "filter-explicit-limit",
+        "run": 1,
+        "request": "Delete 5 records from TrackingFiles where organism is yeast",
+        "source": "",
+        "error": null,
+        "metrics": {
+          "deletion_filter_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [],
+          "deletion": {
+            "table": "TrackingFiles",
+            "filters": {
+              "organism": "yeast"
+            },
+            "limit": 5
+          },
+          "deletion_outcome": "blocked",
+          "answer": "{\"db_path\": null, \"table\": \"TrackingFiles\", \"filters\": {\"organism\": \"yeast\"}, \"limit\": 5}"
+        },
+        "seconds": 0.6,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 826,
+          "output_tokens": 31,
+          "thinking_tokens": 0,
+          "total_tokens": 857,
+          "estimated_cost_usd": 9.500000000000002e-05,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 1,
+              "input_tokens": 826,
+              "output_tokens": 31,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "filter_extraction",
+        "case_id": "filter-all-is-not-a-limit",
+        "run": 1,
+        "request": "Delete all invalid masks",
+        "source": "",
+        "error": null,
+        "metrics": {
+          "deletion_filter_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [],
+          "deletion": {
+            "table": "Masks",
+            "filters": {
+              "is_valid": "N"
+            },
+            "limit": null
+          },
+          "deletion_outcome": "blocked",
+          "answer": "{\"db_path\": null, \"table\": \"Masks\", \"filters\": {\"is_valid\": \"N\"}, \"limit\": null}"
+        },
+        "seconds": 0.5,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 819,
+          "output_tokens": 30,
+          "thinking_tokens": 0,
+          "total_tokens": 849,
+          "estimated_cost_usd": 9.39e-05,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 1,
+              "input_tokens": 819,
+              "output_tokens": 30,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "filter_extraction",
+        "case_id": "filter-no-criteria",
+        "run": 1,
+        "request": "Delete all records from the User table",
+        "source": "delete_test.py #7 (must stay empty)",
+        "error": null,
+        "metrics": {
+          "deletion_filter_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [],
+          "deletion": {
+            "table": "User",
+            "filters": {},
+            "limit": null
+          },
+          "deletion_outcome": "blocked",
+          "answer": "{\"db_path\": null, \"table\": \"User\", \"filters\": {}, \"limit\": null}"
+        },
+        "seconds": 0.6,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 822,
+          "output_tokens": 22,
+          "thinking_tokens": 0,
+          "total_tokens": 844,
+          "estimated_cost_usd": 9.1e-05,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 1,
+              "input_tokens": 822,
+              "output_tokens": 22,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "filter_extraction",
+        "case_id": "filter-delete-everything",
+        "run": 1,
+        "request": "Delete everything in the experiments table",
+        "source": "",
+        "error": null,
+        "metrics": {
+          "deletion_filter_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [],
+          "deletion": {
+            "table": "Experiment",
+            "filters": {},
+            "limit": null
+          },
+          "deletion_outcome": "blocked",
+          "answer": "{\"db_path\": null, \"table\": \"Experiment\", \"filters\": {}, \"limit\": null}"
+        },
+        "seconds": 0.7,
+        "usage": {
+          "calls": 1,
+          "input_tokens": 821,
+          "output_tokens": 22,
+          "thinking_tokens": 0,
+          "total_tokens": 843,
+          "estimated_cost_usd": 9.09e-05,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 1,
+              "input_tokens": 821,
+              "output_tokens": 22,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      }
+    ],
+    "deletion": [
+      {
+        "suite": "deletion",
+        "case_id": "delete-invalid-experiments",
+        "run": 1,
+        "request": "Delete all experiments that are marked as invalid",
+        "source": "delete_test.py #2 (14 rows)",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          },
+          "deletion_filter_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          },
+          "deletion_outcome": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": "delete_supervisor_agent",
+          "tools": [
+            "transfer_to_agent",
+            "preview_deletion",
+            "execute_deletion"
+          ],
+          "deletion": {
+            "table": "Experiment",
+            "filters": {
+              "is_valid": "N"
+            },
+            "limit": null
+          },
+          "deletion_outcome": "awaiting_approval",
+          "answer": ""
+        },
+        "seconds": 3.3,
+        "usage": {
+          "calls": 4,
+          "input_tokens": 2883,
+          "output_tokens": 178,
+          "thinking_tokens": 64,
+          "total_tokens": 3125,
+          "estimated_cost_usd": 0.000659,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 456,
+              "output_tokens": 23,
+              "thinking_tokens": 64
+            },
+            "gemini-2.5-flash-lite": {
+              "calls": 3,
+              "input_tokens": 2427,
+              "output_tokens": 155,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "deletion",
+        "case_id": "delete-by-date",
+        "run": 1,
+        "request": "Delete all experiments that took place on August 3rd, 2023",
+        "source": "delete_test.py #2 (1 row)",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          },
+          "deletion_filter_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          },
+          "deletion_outcome": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": "delete_supervisor_agent",
+          "tools": [
+            "transfer_to_agent",
+            "preview_deletion",
+            "execute_deletion"
+          ],
+          "deletion": {
+            "table": "Experiment",
+            "filters": {
+              "date": "20230803"
+            },
+            "limit": null
+          },
+          "deletion_outcome": "awaiting_approval",
+          "answer": ""
+        },
+        "seconds": 2.6,
+        "usage": {
+          "calls": 4,
+          "input_tokens": 2967,
+          "output_tokens": 97,
+          "thinking_tokens": 62,
+          "total_tokens": 3126,
+          "estimated_cost_usd": 0.0006318000000000001,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 465,
+              "output_tokens": 23,
+              "thinking_tokens": 62
+            },
+            "gemini-2.5-flash-lite": {
+              "calls": 3,
+              "input_tokens": 2502,
+              "output_tokens": 74,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "deletion",
+        "case_id": "delete-fk-tracking",
+        "run": 1,
+        "request": "Delete all records from table TrackingFiles from August 3rd, 2023",
+        "source": "delete_test.py #3 (18 rows)",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          },
+          "deletion_filter_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          },
+          "deletion_outcome": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": "delete_supervisor_agent",
+          "tools": [
+            "transfer_to_agent",
+            "preview_deletion",
+            "execute_deletion"
+          ],
+          "deletion": {
+            "table": "TrackingFiles",
+            "filters": {
+              "date": "20230803"
+            },
+            "limit": null
+          },
+          "deletion_outcome": "awaiting_approval",
+          "answer": ""
+        },
+        "seconds": 2.7,
+        "usage": {
+          "calls": 4,
+          "input_tokens": 2983,
+          "output_tokens": 99,
+          "thinking_tokens": 63,
+          "total_tokens": 3145,
+          "estimated_cost_usd": 0.0006369,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 466,
+              "output_tokens": 23,
+              "thinking_tokens": 63
+            },
+            "gemini-2.5-flash-lite": {
+              "calls": 3,
+              "input_tokens": 2517,
+              "output_tokens": 76,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "deletion",
+        "case_id": "delete-fk-four-filters",
+        "run": 1,
+        "request": "Delete all yeast Rfa1 raw files that are untreated and marked as invalid",
+        "source": "delete_test.py #3 (625 rows)",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          },
+          "deletion_filter_match": {
+            "score": 0.667,
+            "passed": false,
+            "explanation": "expected {'table': 'RawFiles', 'filters': {'organism': 'yeast', 'protein': 'Rfa1', 'condition': 'untreated', 'is_valid': 'N'}, 'limit': None}, got {'table': 'RawFiles', 'filters': {'organism': 'yeast', 'raw_file_name': 'Rfa1', 'is_valid': 'N'}, 'limit': None}"
+          },
+          "deletion_outcome": {
+            "score": 0.0,
+            "passed": false,
+            "explanation": "expected awaiting_approval, got no_matches"
+          }
+        },
+        "observed": {
+          "routed_to": "delete_supervisor_agent",
+          "tools": [
+            "transfer_to_agent",
+            "preview_deletion"
+          ],
+          "deletion": {
+            "table": "RawFiles",
+            "filters": {
+              "raw_file_name": "Rfa1",
+              "is_valid": "N",
+              "organism": "yeast"
+            },
+            "limit": null
+          },
+          "deletion_outcome": "no_matches",
+          "answer": "No records matched the deletion criteria. No files were deleted."
+        },
+        "seconds": 2.8,
+        "usage": {
+          "calls": 4,
+          "input_tokens": 2961,
+          "output_tokens": 131,
+          "thinking_tokens": 64,
+          "total_tokens": 3156,
+          "estimated_cost_usd": 0.0006494000000000001,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 463,
+              "output_tokens": 23,
+              "thinking_tokens": 64
+            },
+            "gemini-2.5-flash-lite": {
+              "calls": 3,
+              "input_tokens": 2498,
+              "output_tokens": 108,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "deletion",
+        "case_id": "delete-multi-fk-masks",
+        "run": 1,
+        "request": "Delete all masks for invalid experiments for Rfa1 protein that are untreated",
+        "source": "delete_test.py #5 (26 rows)",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          },
+          "deletion_filter_match": {
+            "score": 0.667,
+            "passed": false,
+            "explanation": "expected {'table': 'Masks', 'filters': {'protein': 'Rfa1', 'condition': 'untreated', 'is_valid': 'N'}, 'limit': None}, got {'table': 'Masks', 'filters': {'is_valid': 'N'}, 'limit': None}"
+          },
+          "deletion_outcome": {
+            "score": 0.0,
+            "passed": false,
+            "explanation": "expected awaiting_approval, got blocked"
+          }
+        },
+        "observed": {
+          "routed_to": "delete_supervisor_agent",
+          "tools": [
+            "transfer_to_agent",
+            "preview_deletion"
+          ],
+          "deletion": {
+            "table": "Masks",
+            "filters": {
+              "is_valid": "N"
+            },
+            "limit": null
+          },
+          "deletion_outcome": "blocked",
+          "answer": "I have received a request to delete records from the `Masks` table where `is_valid` is 'N'. The preview indicates that 26 records would be deleted. Please confirm if you would like to proceed with the deletion."
+        },
+        "seconds": 3.1,
+        "usage": {
+          "calls": 4,
+          "input_tokens": 2973,
+          "output_tokens": 156,
+          "thinking_tokens": 63,
+          "total_tokens": 3192,
+          "estimated_cost_usd": 0.0006579000000000001,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 462,
+              "output_tokens": 23,
+              "thinking_tokens": 63
+            },
+            "gemini-2.5-flash-lite": {
+              "calls": 3,
+              "input_tokens": 2511,
+              "output_tokens": 133,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "deletion",
+        "case_id": "delete-with-limit",
+        "run": 1,
+        "request": "Delete 2 records of invalid raw files",
+        "source": "",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          },
+          "deletion_filter_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          },
+          "deletion_outcome": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": "delete_supervisor_agent",
+          "tools": [
+            "transfer_to_agent",
+            "preview_deletion",
+            "execute_deletion"
+          ],
+          "deletion": {
+            "table": "RawFiles",
+            "filters": {
+              "is_valid": "N"
+            },
+            "limit": 2
+          },
+          "deletion_outcome": "awaiting_approval",
+          "answer": ""
+        },
+        "seconds": 2.8,
+        "usage": {
+          "calls": 4,
+          "input_tokens": 2938,
+          "output_tokens": 101,
+          "thinking_tokens": 59,
+          "total_tokens": 3098,
+          "estimated_cost_usd": 0.0006212,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 456,
+              "output_tokens": 23,
+              "thinking_tokens": 59
+            },
+            "gemini-2.5-flash-lite": {
+              "calls": 3,
+              "input_tokens": 2482,
+              "output_tokens": 78,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "deletion",
+        "case_id": "delete-no-match-capture-type",
+        "run": 1,
+        "request": "Delete all time-lapse capture settings",
+        "source": "delete_test.py #4",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          },
+          "deletion_filter_match": {
+            "score": 0.0,
+            "passed": false,
+            "explanation": "expected {'table': 'CaptureSetting', 'filters': {'capture_type': 'time_lapse'}, 'limit': None}, got None"
+          },
+          "deletion_outcome": {
+            "score": 0.0,
+            "passed": false,
+            "explanation": "expected no_matches, got blocked"
+          }
+        },
+        "observed": {
+          "routed_to": "delete_supervisor_agent",
+          "tools": [
+            "transfer_to_agent"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "<ctrl42>call\nprint(default_api.preview_deletion(table='CaptureSetting', filters={'capture_type': 'time-lapse'}))\n"
+        },
+        "seconds": 2.2,
+        "usage": {
+          "calls": 3,
+          "input_tokens": 2019,
+          "output_tokens": 85,
+          "thinking_tokens": 62,
+          "total_tokens": 2166,
+          "estimated_cost_usd": 0.0005302,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 455,
+              "output_tokens": 23,
+              "thinking_tokens": 62
+            },
+            "gemini-2.5-flash-lite": {
+              "calls": 2,
+              "input_tokens": 1564,
+              "output_tokens": 62,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "deletion",
+        "case_id": "delete-no-match-exposure",
+        "run": 1,
+        "request": "Delete all capture settings with exposure time of 1000 seconds",
+        "source": "delete_test.py #8",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          },
+          "deletion_filter_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          },
+          "deletion_outcome": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": "delete_supervisor_agent",
+          "tools": [
+            "transfer_to_agent",
+            "preview_deletion"
+          ],
+          "deletion": {
+            "table": "CaptureSetting",
+            "filters": {
+              "exposure_time": 1000
+            },
+            "limit": null
+          },
+          "deletion_outcome": "no_matches",
+          "answer": "The deletion request for capture settings with an exposure time of 1000 seconds has been processed. No records matched the specified criteria, so no records were deleted."
+        },
+        "seconds": 2.7,
+        "usage": {
+          "calls": 4,
+          "input_tokens": 2820,
+          "output_tokens": 121,
+          "thinking_tokens": 63,
+          "total_tokens": 3004,
+          "estimated_cost_usd": 0.0006286000000000001,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 462,
+              "output_tokens": 23,
+              "thinking_tokens": 63
+            },
+            "gemini-2.5-flash-lite": {
+              "calls": 3,
+              "input_tokens": 2358,
+              "output_tokens": 98,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "deletion",
+        "case_id": "delete-no-match-organism",
+        "run": 1,
+        "request": "Delete all experiments for organism E.coli and protein DnaA",
+        "source": "filter_test.py #2",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          },
+          "deletion_filter_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          },
+          "deletion_outcome": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": "delete_supervisor_agent",
+          "tools": [
+            "transfer_to_agent",
+            "preview_deletion"
+          ],
+          "deletion": {
+            "table": "Experiment",
+            "filters": {
+              "organism": "E.coli",
+              "protein": "DnaA"
+            },
+            "limit": null
+          },
+          "deletion_outcome": "no_matches",
+          "answer": "The deletion request has been cancelled because no records matched the deletion criteria."
+        },
+        "seconds": 2.8,
+        "usage": {
+          "calls": 4,
+          "input_tokens": 2845,
+          "output_tokens": 109,
+          "thinking_tokens": 39,
+          "total_tokens": 2993,
+          "estimated_cost_usd": 0.0005661,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 461,
+              "output_tokens": 23,
+              "thinking_tokens": 39
+            },
+            "gemini-2.5-flash-lite": {
+              "calls": 3,
+              "input_tokens": 2384,
+              "output_tokens": 86,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "deletion",
+        "case_id": "delete-no-filters",
+        "run": 1,
+        "request": "Delete all records from the User table",
+        "source": "delete_test.py #7",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          },
+          "deletion_filter_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          },
+          "deletion_outcome": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": "delete_supervisor_agent",
+          "tools": [
+            "transfer_to_agent",
+            "preview_deletion"
+          ],
+          "deletion": {
+            "table": "User",
+            "filters": {},
+            "limit": null
+          },
+          "deletion_outcome": "blocked",
+          "answer": "The deletion request was blocked. No filter criteria were provided, which would have resulted in the deletion of all records from the 'User' table. To proceed, please specify the criteria for deletion."
+        },
+        "seconds": 2.8,
+        "usage": {
+          "calls": 4,
+          "input_tokens": 2701,
+          "output_tokens": 102,
+          "thinking_tokens": 67,
+          "total_tokens": 2870,
+          "estimated_cost_usd": 0.0006177,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 455,
+              "output_tokens": 23,
+              "thinking_tokens": 67
+            },
+            "gemini-2.5-flash-lite": {
+              "calls": 3,
+              "input_tokens": 2246,
+              "output_tokens": 79,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "deletion",
+        "case_id": "delete-everything",
+        "run": 1,
+        "request": "Delete everything",
+        "source": "",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          },
+          "deletion_filter_match": {
+            "score": 0.0,
+            "passed": false,
+            "explanation": "expected {'table': None, 'filters': {}, 'limit': None}, got None"
+          },
+          "deletion_outcome": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": "delete_supervisor_agent",
+          "tools": [
+            "transfer_to_agent"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "<ctrl42>call\nprint(default_api.preview_deletion(table='User', filters={}))\n"
+        },
+        "seconds": 2.2,
+        "usage": {
+          "calls": 3,
+          "input_tokens": 1967,
+          "output_tokens": 65,
+          "thinking_tokens": 60,
+          "total_tokens": 2092,
+          "estimated_cost_usd": 0.000511,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 450,
+              "output_tokens": 23,
+              "thinking_tokens": 60
+            },
+            "gemini-2.5-flash-lite": {
+              "calls": 2,
+              "input_tokens": 1517,
+              "output_tokens": 42,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "deletion",
+        "case_id": "delete-unknown-table",
+        "run": 1,
+        "request": "Delete all records from the ImageStacks table where organism is yeast and protein is Rfa1",
+        "source": "delete_test.py #6",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          },
+          "deletion_filter_match": {
+            "score": 0.667,
+            "passed": false,
+            "explanation": "expected {'table': 'ImageStacks', 'filters': {'organism': 'yeast', 'protein': 'Rfa1'}, 'limit': None}, got {'table': 'AnalysisResults', 'filters': {'organism': 'yeast', 'protein': 'Rfa1'}, 'limit': None}"
+          },
+          "deletion_outcome": {
+            "score": 0.0,
+            "passed": false,
+            "explanation": "expected blocked, got awaiting_approval"
+          }
+        },
+        "observed": {
+          "routed_to": "delete_supervisor_agent",
+          "tools": [
+            "transfer_to_agent",
+            "preview_deletion",
+            "execute_deletion"
+          ],
+          "deletion": {
+            "table": "AnalysisResults",
+            "filters": {
+              "organism": "yeast",
+              "protein": "Rfa1"
+            },
+            "limit": null
+          },
+          "deletion_outcome": "awaiting_approval",
+          "answer": ""
+        },
+        "seconds": 3.5,
+        "usage": {
+          "calls": 4,
+          "input_tokens": 3013,
+          "output_tokens": 105,
+          "thinking_tokens": 65,
+          "total_tokens": 3183,
+          "estimated_cost_usd": 0.0006473,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 466,
+              "output_tokens": 23,
+              "thinking_tokens": 65
+            },
+            "gemini-2.5-flash-lite": {
+              "calls": 3,
+              "input_tokens": 2547,
+              "output_tokens": 82,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "deletion",
+        "case_id": "delete-unsupported-field",
+        "run": 1,
+        "request": "Delete all experiments for organism yeast and location lab1",
+        "source": "filter_test.py #3",
+        "error": null,
+        "metrics": {
+          "routing_accuracy": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          },
+          "deletion_filter_match": {
+            "score": 0.667,
+            "passed": false,
+            "explanation": "expected {'table': 'Experiment', 'filters': {'organism': 'yeast', 'location': 'lab1'}, 'limit': None}, got {'table': 'Experiment', 'filters': {'organism': 'yeast'}, 'limit': None}"
+          },
+          "deletion_outcome": {
+            "score": 0.0,
+            "passed": false,
+            "explanation": "expected blocked, got awaiting_approval"
+          }
+        },
+        "observed": {
+          "routed_to": "delete_supervisor_agent",
+          "tools": [
+            "transfer_to_agent",
+            "preview_deletion",
+            "execute_deletion"
+          ],
+          "deletion": {
+            "table": "Experiment",
+            "filters": {
+              "organism": "yeast"
+            },
+            "limit": null
+          },
+          "deletion_outcome": "awaiting_approval",
+          "answer": ""
+        },
+        "seconds": 2.7,
+        "usage": {
+          "calls": 4,
+          "input_tokens": 2891,
+          "output_tokens": 87,
+          "thinking_tokens": 64,
+          "total_tokens": 3042,
+          "estimated_cost_usd": 0.0006238,
+          "by_model": {
+            "gemini-2.5-flash": {
+              "calls": 1,
+              "input_tokens": 458,
+              "output_tokens": 23,
+              "thinking_tokens": 64
+            },
+            "gemini-2.5-flash-lite": {
+              "calls": 3,
+              "input_tokens": 2433,
+              "output_tokens": 64,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      }
+    ],
+    "search": [
+      {
+        "suite": "search",
+        "case_id": "search-invalid",
+        "run": 1,
+        "request": "Find all experiment records that are not valid",
+        "source": "filter_test.py #11",
+        "error": null,
+        "metrics": {
+          "tool_call_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          },
+          "response_mentions": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [
+            "search_experiments"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "The following 14 experiment records are not valid:\n* **id**: 4, **organism**: yeast, **protein**: rfa1, **strain**: zey098, **condition**: cpt, **concentration_value**: 40.0, **concentration_unit**: um, **capture_type**: long, **exposure_time**: 0.5, **time_interval**: 0.5, **user**: masoumeh, **date**: 20231120, **replicate**: 1, **is_valid**: N, **comment**: \"Do not use\"\n* **id**: 6, **organism**: yeast, **protein**: rfa1, **strain**: zey098, **condition**: cpt, **concentration_value**: 40.0, "
+        },
+        "seconds": 4.7,
+        "usage": {
+          "calls": 2,
+          "input_tokens": 8874,
+          "output_tokens": 1718,
+          "thinking_tokens": 0,
+          "total_tokens": 10592,
+          "estimated_cost_usd": 0.0015746000000000002,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 2,
+              "input_tokens": 8874,
+              "output_tokens": 1718,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "search",
+        "case_id": "search-by-organism",
+        "run": 1,
+        "request": "How many experiments do we have per organism?",
+        "source": "",
+        "error": null,
+        "metrics": {
+          "tool_call_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          },
+          "response_mentions": {
+            "score": 0.0,
+            "passed": false,
+            "explanation": "missing: yeast, 63"
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [
+            "count_experiments_by_group"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": ""
+        },
+        "seconds": 1.1,
+        "usage": {
+          "calls": 2,
+          "input_tokens": 8083,
+          "output_tokens": 22,
+          "thinking_tokens": 0,
+          "total_tokens": 8105,
+          "estimated_cost_usd": 0.0008171000000000001,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 2,
+              "input_tokens": 8083,
+              "output_tokens": 22,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "search",
+        "case_id": "search-per-year",
+        "run": 1,
+        "request": "How many experiments did we run each year?",
+        "source": "",
+        "error": null,
+        "metrics": {
+          "tool_call_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          },
+          "response_mentions": {
+            "score": 0.0,
+            "passed": false,
+            "explanation": "missing: 2023, 39, 2024, 24"
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [
+            "count_experiments_by_time_period"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": ""
+        },
+        "seconds": 0.9,
+        "usage": {
+          "calls": 2,
+          "input_tokens": 8093,
+          "output_tokens": 21,
+          "thinking_tokens": 0,
+          "total_tokens": 8114,
+          "estimated_cost_usd": 0.0008177000000000001,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 2,
+              "input_tokens": 8093,
+              "output_tokens": 21,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "search",
+        "case_id": "search-period",
+        "run": 1,
+        "request": "List the experiments from August 2023",
+        "source": "",
+        "error": null,
+        "metrics": {
+          "tool_call_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          },
+          "response_mentions": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [
+            "search_experiments_in_period"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "Here are the experiments from August 2023:\n\n| id | organism | protein | strain | condition | concentration_value | concentration_unit | capture_type | exposure_time | time_interval | user     | date     | replicate | is_valid | comment | experiment_path |\n|----|----------|---------|--------|-----------|-------------------|--------------------|--------------|---------------|---------------|----------|----------|-----------|----------|---------|-----------------|\n| 17 | yeast    | rfa1    | zey098"
+        },
+        "seconds": 2.7,
+        "usage": {
+          "calls": 2,
+          "input_tokens": 8611,
+          "output_tokens": 802,
+          "thinking_tokens": 0,
+          "total_tokens": 9413,
+          "estimated_cost_usd": 0.0011819,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 2,
+              "input_tokens": 8611,
+              "output_tokens": 802,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "search",
+        "case_id": "search-most-recent",
+        "run": 1,
+        "request": "What was our most recent experiment?",
+        "source": "",
+        "error": null,
+        "metrics": {
+          "tool_call_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          },
+          "response_mentions": {
+            "score": 0.0,
+            "passed": false,
+            "explanation": "missing: 20241028"
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [
+            "get_most_recent_experiment"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "The most recent experiment was experiment ID 51, conducted on October 28, 2024, with the organism 'yeast', protein 'rfa1', strain 'zey098', and condition 'uv'. It had a concentration value of 50.0 j/m2, capture type 'fast', exposure time of 0.01, time interval of 0.01, and was performed by user 'masoumeh' as replicate 1."
+        },
+        "seconds": 1.3,
+        "usage": {
+          "calls": 2,
+          "input_tokens": 8150,
+          "output_tokens": 117,
+          "thinking_tokens": 0,
+          "total_tokens": 8267,
+          "estimated_cost_usd": 0.0008618,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 2,
+              "input_tokens": 8150,
+              "output_tokens": 117,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "search",
+        "case_id": "search-earliest",
+        "run": 1,
+        "request": "When was the first experiment done?",
+        "source": "",
+        "error": null,
+        "metrics": {
+          "tool_call_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          },
+          "response_mentions": {
+            "score": 0.0,
+            "passed": false,
+            "explanation": "missing: 20230405"
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [
+            "get_earliest_experiment"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "The earliest experiment was done on April 5, 2023."
+        },
+        "seconds": 0.9,
+        "usage": {
+          "calls": 2,
+          "input_tokens": 8142,
+          "output_tokens": 29,
+          "thinking_tokens": 0,
+          "total_tokens": 8171,
+          "estimated_cost_usd": 0.0008258,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 2,
+              "input_tokens": 8142,
+              "output_tokens": 29,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "search",
+        "case_id": "search-missing-tracking",
+        "run": 1,
+        "request": "Which experiments are missing tracking files?",
+        "source": "",
+        "error": null,
+        "metrics": {
+          "tool_call_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          },
+          "response_mentions": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [
+            "find_experiments_with_missing_files"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "The following experiments are missing tracking files:\nid | organism | protein | strain | condition | concentration_value | concentration_unit | capture_type | exposure_time | time_interval | user     | date     | replicate | is_valid | comment   | experiment_path\n51 | yeast    | rfa1    | zey098 | uv        | 50.0                | j/m2               | fast         | 0.01          | 0.01          | masoumeh | 20241028 | 1         | Y        |           |\n52 | yeast    | rfa1    | zey098 | uv     "
+        },
+        "seconds": 5.8,
+        "usage": {
+          "calls": 2,
+          "input_tokens": 9875,
+          "output_tokens": 2296,
+          "thinking_tokens": 0,
+          "total_tokens": 12171,
+          "estimated_cost_usd": 0.0019058999999999999,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 2,
+              "input_tokens": 9875,
+              "output_tokens": 2296,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "search",
+        "case_id": "search-duplicates",
+        "run": 1,
+        "request": "Are there any duplicate experiment records?",
+        "source": "",
+        "error": null,
+        "metrics": {
+          "tool_call_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          },
+          "response_mentions": {
+            "score": null,
+            "passed": null,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [
+            "find_duplicate_experiment_records"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "No, there are no duplicate experiment records."
+        },
+        "seconds": 1.0,
+        "usage": {
+          "calls": 2,
+          "input_tokens": 8053,
+          "output_tokens": 23,
+          "thinking_tokens": 0,
+          "total_tokens": 8076,
+          "estimated_cost_usd": 0.0008145000000000001,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 2,
+              "input_tokens": 8053,
+              "output_tokens": 23,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "search",
+        "case_id": "search-no-match",
+        "run": 1,
+        "request": "Find all zebrafish experiments",
+        "source": "",
+        "error": null,
+        "metrics": {
+          "tool_call_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          },
+          "response_mentions": {
+            "score": null,
+            "passed": null,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [
+            "search_experiments"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "There are no zebrafish experiments in the database."
+        },
+        "seconds": 1.0,
+        "usage": {
+          "calls": 2,
+          "input_tokens": 8050,
+          "output_tokens": 30,
+          "thinking_tokens": 0,
+          "total_tokens": 8080,
+          "estimated_cost_usd": 0.000817,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 2,
+              "input_tokens": 8050,
+              "output_tokens": 30,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      }
+    ],
+    "insertion": [
+      {
+        "suite": "insertion",
+        "case_id": "insert-ui-wording",
+        "run": 1,
+        "request": "Insert the data from the CSV file located at test/scenarios/insertion/valid.csv into the database. Save any invalid records found during validation to evaluation/.work/invalid_rows.csv, and return any skipped/invalid rows.",
+        "source": "ui/app.py handle_insert_upload",
+        "error": null,
+        "metrics": {
+          "tool_call_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [
+            "validate_csv",
+            "insert_csv_with_report"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "All records have been inserted. 91 records were skipped."
+        },
+        "seconds": 2.4,
+        "usage": {
+          "calls": 4,
+          "input_tokens": 3763,
+          "output_tokens": 97,
+          "thinking_tokens": 0,
+          "total_tokens": 3860,
+          "estimated_cost_usd": 0.00041510000000000006,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 4,
+              "input_tokens": 3763,
+              "output_tokens": 97,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "insertion",
+        "case_id": "insert-valid-existing-rows",
+        "run": 1,
+        "request": "Insert the experiment metadata from the CSV file located at test/scenarios/insertion/valid.csv into the database. Save any invalid records found during validation to evaluation/.work/invalid_rows.csv.",
+        "source": "insert_test.py insertion #2 (all rows already exist, so all are skipped)",
+        "error": null,
+        "metrics": {
+          "tool_call_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [
+            "validate_csv",
+            "insert_csv_with_report"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": ""
+        },
+        "seconds": 2.0,
+        "usage": {
+          "calls": 4,
+          "input_tokens": 3683,
+          "output_tokens": 71,
+          "thinking_tokens": 0,
+          "total_tokens": 3754,
+          "estimated_cost_usd": 0.0003967,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 4,
+              "input_tokens": 3683,
+              "output_tokens": 71,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "insertion",
+        "case_id": "insert-foreign-keys",
+        "run": 1,
+        "request": "Insert the experiment metadata from the CSV file located at test/scenarios/insertion/rows_with_foreign_keys.csv into the database. Save any invalid records found during validation to evaluation/.work/invalid_rows.csv.",
+        "source": "insert_test.py insertion #3",
+        "error": null,
+        "metrics": {
+          "tool_call_match": {
+            "score": 1.0,
+            "passed": true,
+            "explanation": ""
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [
+            "validate_csv",
+            "insert_csv_with_report"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "It looks like the insertion failed because of a UNIQUE constraint violation. This means there were duplicate entries for the combination of user name and last name in the data. You might want to check the CSV file for duplicate entries or adjust the constraints in your database if duplicates are allowed under certain conditions."
+        },
+        "seconds": 2.4,
+        "usage": {
+          "calls": 4,
+          "input_tokens": 3702,
+          "output_tokens": 141,
+          "thinking_tokens": 0,
+          "total_tokens": 3843,
+          "estimated_cost_usd": 0.0004266,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 4,
+              "input_tokens": 3702,
+              "output_tokens": 141,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "insertion",
+        "case_id": "insert-blocked-mixed",
+        "run": 1,
+        "request": "Insert the experiment metadata from the CSV file located at test/scenarios/insertion/mixed_valid_invalid.csv into the database. Save any invalid records found during validation to evaluation/.work/invalid_rows.csv.",
+        "source": "insert_test.py validation #5 (invalid rows: nothing may be inserted)",
+        "error": null,
+        "metrics": {
+          "tool_call_match": {
+            "score": 0.0,
+            "passed": false,
+            "explanation": "unexpected write: insert_csv_with_report"
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [
+            "validate_csv",
+            "insert_csv_with_report"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "The CSV file was not inserted because the provided database path (`evaluation/.work/invalid_rows.csv`) is not a valid database file. The `insert_csv_with_report` tool requires a path to a SQLite database file. Please provide a valid database path."
+        },
+        "seconds": 2.2,
+        "usage": {
+          "calls": 4,
+          "input_tokens": 3694,
+          "output_tokens": 150,
+          "thinking_tokens": 0,
+          "total_tokens": 3844,
+          "estimated_cost_usd": 0.00042940000000000003,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 4,
+              "input_tokens": 3694,
+              "output_tokens": 150,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "insertion",
+        "case_id": "insert-blocked-missing-values",
+        "run": 1,
+        "request": "Insert the experiment metadata from the CSV file located at test/scenarios/insertion/missing_values.csv into the database. Save any invalid records found during validation to evaluation/.work/invalid_rows.csv.",
+        "source": "insert_test.py validation #4",
+        "error": null,
+        "metrics": {
+          "tool_call_match": {
+            "score": 0.0,
+            "passed": false,
+            "explanation": "unexpected write: insert_csv_with_report"
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [
+            "validate_csv",
+            "insert_csv_with_report"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "The insertion failed because the database is locked. This might be due to another process accessing the database. Please ensure the database is not in use before attempting the insertion again."
+        },
+        "seconds": 7.5,
+        "usage": {
+          "calls": 4,
+          "input_tokens": 3658,
+          "output_tokens": 109,
+          "thinking_tokens": 0,
+          "total_tokens": 3767,
+          "estimated_cost_usd": 0.00040940000000000003,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 4,
+              "input_tokens": 3658,
+              "output_tokens": 109,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      },
+      {
+        "suite": "insertion",
+        "case_id": "insert-blocked-bad-values",
+        "run": 1,
+        "request": "Insert the experiment metadata from the CSV file located at test/scenarios/insertion/valid_rows_non_existing_db.csv into the database. Save any invalid records found during validation to evaluation/.work/invalid_rows.csv.",
+        "source": "insert_test.py insertion #1 (the file has 8 invalid rows, e.g. organism 'Drosaphila')",
+        "error": null,
+        "metrics": {
+          "tool_call_match": {
+            "score": 0.0,
+            "passed": false,
+            "explanation": "unexpected write: insert_csv_with_report"
+          }
+        },
+        "observed": {
+          "routed_to": null,
+          "tools": [
+            "validate_csv",
+            "insert_csv_with_report"
+          ],
+          "deletion": null,
+          "deletion_outcome": "blocked",
+          "answer": "The insertion failed because of a UNIQUE constraint violation. There were likely duplicate entries in the CSV file for the combination of 'capture_type', 'exposure_time', 'time_interval', and 'dye_concentration_value' in the 'CaptureSetting' table. The invalid rows were saved to 'evaluation/.work/invalid_rows.csv'."
+        },
+        "seconds": 2.1,
+        "usage": {
+          "calls": 4,
+          "input_tokens": 3736,
+          "output_tokens": 158,
+          "thinking_tokens": 0,
+          "total_tokens": 3894,
+          "estimated_cost_usd": 0.00043680000000000005,
+          "by_model": {
+            "gemini-2.5-flash-lite": {
+              "calls": 4,
+              "input_tokens": 3736,
+              "output_tokens": 158,
+              "thinking_tokens": 0
+            }
+          }
+        }
+      }
+    ]
+  }
+}
