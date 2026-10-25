@@ -1,0 +1,337 @@
+{
+  "eval_set_id": "search",
+  "name": "search",
+  "description": "Query agent alone: right tool, right arguments, right facts in the answer.",
+  "eval_cases": [
+    {
+      "evalId": "search-invalid",
+      "conversation": [
+        {
+          "invocationId": "search-invalid-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Find all experiment records that are not valid"
+              }
+            ],
+            "role": "user"
+          },
+          "finalResponse": {
+            "parts": [
+              {
+                "text": "14"
+              }
+            ],
+            "role": "model"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "filters": {
+                    "is_valid": false
+                  }
+                },
+                "name": "search_experiments"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "search-by-organism",
+      "conversation": [
+        {
+          "invocationId": "search-by-organism-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "How many experiments do we have per organism?"
+              }
+            ],
+            "role": "user"
+          },
+          "finalResponse": {
+            "parts": [
+              {
+                "text": "yeast\n63"
+              }
+            ],
+            "role": "model"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "group_by": [
+                    "organism"
+                  ]
+                },
+                "name": "count_experiments_by_group"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "search-per-year",
+      "conversation": [
+        {
+          "invocationId": "search-per-year-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "How many experiments did we run each year?"
+              }
+            ],
+            "role": "user"
+          },
+          "finalResponse": {
+            "parts": [
+              {
+                "text": "2023\n39\n2024\n24"
+              }
+            ],
+            "role": "model"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {},
+                "name": "count_experiments_by_time_period"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "search-period",
+      "conversation": [
+        {
+          "invocationId": "search-period-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "List the experiments from August 2023"
+              }
+            ],
+            "role": "user"
+          },
+          "finalResponse": {
+            "parts": [
+              {
+                "text": "9"
+              }
+            ],
+            "role": "model"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {},
+                "name": "search_experiments_in_period|search_experiments_by_date_range"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "search-most-recent",
+      "conversation": [
+        {
+          "invocationId": "search-most-recent-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "What was our most recent experiment?"
+              }
+            ],
+            "role": "user"
+          },
+          "finalResponse": {
+            "parts": [
+              {
+                "text": "20241028"
+              }
+            ],
+            "role": "model"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {},
+                "name": "get_most_recent_experiment"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "search-earliest",
+      "conversation": [
+        {
+          "invocationId": "search-earliest-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "When was the first experiment done?"
+              }
+            ],
+            "role": "user"
+          },
+          "finalResponse": {
+            "parts": [
+              {
+                "text": "20230405"
+              }
+            ],
+            "role": "model"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {},
+                "name": "get_earliest_experiment"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "search-missing-tracking",
+      "conversation": [
+        {
+          "invocationId": "search-missing-tracking-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Which experiments are missing tracking files?"
+              }
+            ],
+            "role": "user"
+          },
+          "finalResponse": {
+            "parts": [
+              {
+                "text": "32"
+              }
+            ],
+            "role": "model"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {},
+                "name": "find_experiments_with_missing_files"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "search-duplicates",
+      "conversation": [
+        {
+          "invocationId": "search-duplicates-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Are there any duplicate experiment records?"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {},
+                "name": "find_duplicate_experiment_records"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "search-no-match",
+      "conversation": [
+        {
+          "invocationId": "search-no-match-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Find all zebrafish experiments"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "filters": {
+                    "organism": "zebrafish"
+                  }
+                },
+                "name": "search_experiments"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    }
+  ],
+  "creation_timestamp": 0.0
+}

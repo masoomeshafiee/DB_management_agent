@@ -1,0 +1,7 @@
+{
+  "criteria": {
+    "routing_accuracy": 1.0,
+    "deletion_filter_match": 1.0,
+    "deletion_outcome": 1.0
+  }
+}

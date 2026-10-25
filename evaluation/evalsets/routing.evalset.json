@@ -1,0 +1,638 @@
+{
+  "eval_set_id": "routing",
+  "name": "routing",
+  "description": "Root agent picks the right specialist (specialists stubbed).",
+  "eval_cases": [
+    {
+      "evalId": "route-find-yeast",
+      "conversation": [
+        {
+          "invocationId": "route-find-yeast-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Find all records for organism yeast"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "query_agent"
+                },
+                "name": "transfer_to_agent"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "route-list-invalid",
+      "conversation": [
+        {
+          "invocationId": "route-list-invalid-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Show me the experiments that are marked invalid"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "query_agent"
+                },
+                "name": "transfer_to_agent"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "route-count-by-organism",
+      "conversation": [
+        {
+          "invocationId": "route-count-by-organism-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "How many experiments do we have per organism?"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "query_agent"
+                },
+                "name": "transfer_to_agent"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "route-most-recent",
+      "conversation": [
+        {
+          "invocationId": "route-most-recent-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "What was our most recent experiment?"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "query_agent"
+                },
+                "name": "transfer_to_agent"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "route-missing-files",
+      "conversation": [
+        {
+          "invocationId": "route-missing-files-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Which experiments are missing tracking files?"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "query_agent"
+                },
+                "name": "transfer_to_agent"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "route-duplicates",
+      "conversation": [
+        {
+          "invocationId": "route-duplicates-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Are there any duplicate experiment records?"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "query_agent"
+                },
+                "name": "transfer_to_agent"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "route-period",
+      "conversation": [
+        {
+          "invocationId": "route-period-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "List the experiments we ran in August 2023"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "query_agent"
+                },
+                "name": "transfer_to_agent"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "route-question-with-delete-word",
+      "conversation": [
+        {
+          "invocationId": "route-question-with-delete-word-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "How many records would be affected if I deleted the invalid experiments?"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "query_agent"
+                },
+                "name": "transfer_to_agent"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "route-delete-invalid",
+      "conversation": [
+        {
+          "invocationId": "route-delete-invalid-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete all experiments that are marked as invalid"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "delete_supervisor_agent"
+                },
+                "name": "transfer_to_agent"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "route-remove",
+      "conversation": [
+        {
+          "invocationId": "route-remove-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Remove the tracking files from August 3rd, 2023"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "delete_supervisor_agent"
+                },
+                "name": "transfer_to_agent"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "route-get-rid",
+      "conversation": [
+        {
+          "invocationId": "route-get-rid-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Get rid of the masks for untreated Rfa1 experiments that are invalid"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "delete_supervisor_agent"
+                },
+                "name": "transfer_to_agent"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "route-clean-up",
+      "conversation": [
+        {
+          "invocationId": "route-clean-up-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Clean up the database by deleting invalid raw files"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "delete_supervisor_agent"
+                },
+                "name": "transfer_to_agent"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "route-delete-everything",
+      "conversation": [
+        {
+          "invocationId": "route-delete-everything-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete all records from the User table"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "delete_supervisor_agent"
+                },
+                "name": "transfer_to_agent"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "route-delete-limit",
+      "conversation": [
+        {
+          "invocationId": "route-delete-limit-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete 2 invalid raw files"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "delete_supervisor_agent"
+                },
+                "name": "transfer_to_agent"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "route-insert",
+      "conversation": [
+        {
+          "invocationId": "route-insert-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Insert the rows from test/scenarios/insertion/valid.csv"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "insert_supervisor_agent"
+                },
+                "name": "transfer_to_agent"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "route-upload",
+      "conversation": [
+        {
+          "invocationId": "route-upload-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Upload test/scenarios/insertion/rows_with_foreign_keys.csv to the database"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "insert_supervisor_agent"
+                },
+                "name": "transfer_to_agent"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "route-add",
+      "conversation": [
+        {
+          "invocationId": "route-add-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Please add the new metadata in test/scenarios/insertion/valid_rows_non_existing_db.csv"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "insert_supervisor_agent"
+                },
+                "name": "transfer_to_agent"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "route-validate",
+      "conversation": [
+        {
+          "invocationId": "route-validate-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Validate and insert the CSV file test/scenarios/insertion/mixed_valid_invalid.csv"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "insert_supervisor_agent"
+                },
+                "name": "transfer_to_agent"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "route-greeting",
+      "conversation": [
+        {
+          "invocationId": "route-greeting-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Hi there!"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "route-off-topic",
+      "conversation": [
+        {
+          "invocationId": "route-off-topic-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Where does this database belong to?"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "route-general-question",
+      "conversation": [
+        {
+          "invocationId": "route-general-question-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "What is a fluorescence microscope?"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    }
+  ],
+  "creation_timestamp": 0.0
+}

@@ -1,0 +1,6 @@
+{
+  "criteria": {
+    "tool_call_match": 1.0,
+    "response_mentions": 1.0
+  }
+}

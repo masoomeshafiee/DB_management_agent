@@ -1,0 +1,5 @@
+{
+  "criteria": {
+    "tool_call_match": 1.0
+  }
+}

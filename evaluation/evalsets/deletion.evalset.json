@@ -1,0 +1,660 @@
+{
+  "eval_set_id": "deletion",
+  "name": "deletion",
+  "description": "Full delete pipeline from the root agent, on a database copy. Never approved.",
+  "eval_cases": [
+    {
+      "evalId": "delete-invalid-experiments",
+      "conversation": [
+        {
+          "invocationId": "delete-invalid-experiments-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete all experiments that are marked as invalid"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "delete_supervisor_agent"
+                },
+                "name": "transfer_to_agent"
+              },
+              {
+                "args": {
+                  "table": "Experiment",
+                  "filters": {
+                    "is_valid": false
+                  },
+                  "limit": null
+                },
+                "name": "preview_deletion"
+              },
+              {
+                "args": {},
+                "name": "execute_deletion"
+              }
+            ],
+            "toolResponses": [
+              {
+                "name": "preview_deletion",
+                "response": {
+                  "status": "preview"
+                }
+              }
+            ],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "delete-by-date",
+      "conversation": [
+        {
+          "invocationId": "delete-by-date-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete all experiments that took place on August 3rd, 2023"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "delete_supervisor_agent"
+                },
+                "name": "transfer_to_agent"
+              },
+              {
+                "args": {
+                  "table": "Experiment",
+                  "filters": {
+                    "date": "20230803"
+                  },
+                  "limit": null
+                },
+                "name": "preview_deletion"
+              },
+              {
+                "args": {},
+                "name": "execute_deletion"
+              }
+            ],
+            "toolResponses": [
+              {
+                "name": "preview_deletion",
+                "response": {
+                  "status": "preview"
+                }
+              }
+            ],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "delete-fk-tracking",
+      "conversation": [
+        {
+          "invocationId": "delete-fk-tracking-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete all records from table TrackingFiles from August 3rd, 2023"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "delete_supervisor_agent"
+                },
+                "name": "transfer_to_agent"
+              },
+              {
+                "args": {
+                  "table": "TrackingFiles",
+                  "filters": {
+                    "date": "20230803"
+                  },
+                  "limit": null
+                },
+                "name": "preview_deletion"
+              },
+              {
+                "args": {},
+                "name": "execute_deletion"
+              }
+            ],
+            "toolResponses": [
+              {
+                "name": "preview_deletion",
+                "response": {
+                  "status": "preview"
+                }
+              }
+            ],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "delete-fk-four-filters",
+      "conversation": [
+        {
+          "invocationId": "delete-fk-four-filters-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete all yeast Rfa1 raw files that are untreated and marked as invalid"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "delete_supervisor_agent"
+                },
+                "name": "transfer_to_agent"
+              },
+              {
+                "args": {
+                  "table": "RawFiles",
+                  "filters": {
+                    "organism": "yeast",
+                    "protein": "Rfa1",
+                    "condition": "untreated",
+                    "is_valid": false
+                  },
+                  "limit": null
+                },
+                "name": "preview_deletion"
+              },
+              {
+                "args": {},
+                "name": "execute_deletion"
+              }
+            ],
+            "toolResponses": [
+              {
+                "name": "preview_deletion",
+                "response": {
+                  "status": "preview"
+                }
+              }
+            ],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "delete-multi-fk-masks",
+      "conversation": [
+        {
+          "invocationId": "delete-multi-fk-masks-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete all masks for invalid experiments for Rfa1 protein that are untreated"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "delete_supervisor_agent"
+                },
+                "name": "transfer_to_agent"
+              },
+              {
+                "args": {
+                  "table": "Masks",
+                  "filters": {
+                    "protein": "Rfa1",
+                    "condition": "untreated",
+                    "is_valid": false
+                  },
+                  "limit": null
+                },
+                "name": "preview_deletion"
+              },
+              {
+                "args": {},
+                "name": "execute_deletion"
+              }
+            ],
+            "toolResponses": [
+              {
+                "name": "preview_deletion",
+                "response": {
+                  "status": "preview"
+                }
+              }
+            ],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "delete-with-limit",
+      "conversation": [
+        {
+          "invocationId": "delete-with-limit-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete 2 records of invalid raw files"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "delete_supervisor_agent"
+                },
+                "name": "transfer_to_agent"
+              },
+              {
+                "args": {
+                  "table": "RawFiles",
+                  "filters": {
+                    "is_valid": false
+                  },
+                  "limit": 2
+                },
+                "name": "preview_deletion"
+              },
+              {
+                "args": {},
+                "name": "execute_deletion"
+              }
+            ],
+            "toolResponses": [
+              {
+                "name": "preview_deletion",
+                "response": {
+                  "status": "preview"
+                }
+              }
+            ],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "delete-no-match-capture-type",
+      "conversation": [
+        {
+          "invocationId": "delete-no-match-capture-type-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete all time-lapse capture settings"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "delete_supervisor_agent"
+                },
+                "name": "transfer_to_agent"
+              },
+              {
+                "args": {
+                  "table": "CaptureSetting",
+                  "filters": {
+                    "capture_type": "time_lapse"
+                  },
+                  "limit": null
+                },
+                "name": "preview_deletion"
+              }
+            ],
+            "toolResponses": [
+              {
+                "name": "preview_deletion",
+                "response": {
+                  "status": "no_matches"
+                }
+              }
+            ],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "delete-no-match-exposure",
+      "conversation": [
+        {
+          "invocationId": "delete-no-match-exposure-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete all capture settings with exposure time of 1000 seconds"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "delete_supervisor_agent"
+                },
+                "name": "transfer_to_agent"
+              },
+              {
+                "args": {
+                  "table": "CaptureSetting",
+                  "filters": {
+                    "exposure_time": 1000.0
+                  },
+                  "limit": null
+                },
+                "name": "preview_deletion"
+              }
+            ],
+            "toolResponses": [
+              {
+                "name": "preview_deletion",
+                "response": {
+                  "status": "no_matches"
+                }
+              }
+            ],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "delete-no-match-organism",
+      "conversation": [
+        {
+          "invocationId": "delete-no-match-organism-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete all experiments for organism E.coli and protein DnaA"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "delete_supervisor_agent"
+                },
+                "name": "transfer_to_agent"
+              },
+              {
+                "args": {
+                  "table": "Experiment",
+                  "filters": {
+                    "organism": "E.coli",
+                    "protein": "DnaA"
+                  },
+                  "limit": null
+                },
+                "name": "preview_deletion"
+              }
+            ],
+            "toolResponses": [
+              {
+                "name": "preview_deletion",
+                "response": {
+                  "status": "no_matches"
+                }
+              }
+            ],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "delete-no-filters",
+      "conversation": [
+        {
+          "invocationId": "delete-no-filters-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete all records from the User table"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "delete_supervisor_agent"
+                },
+                "name": "transfer_to_agent"
+              },
+              {
+                "args": {
+                  "table": "User",
+                  "filters": {},
+                  "limit": null
+                },
+                "name": "preview_deletion"
+              }
+            ],
+            "toolResponses": [
+              {
+                "name": "preview_deletion",
+                "response": {
+                  "status": "blocked"
+                }
+              }
+            ],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "delete-everything",
+      "conversation": [
+        {
+          "invocationId": "delete-everything-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete everything"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "delete_supervisor_agent"
+                },
+                "name": "transfer_to_agent"
+              },
+              {
+                "args": {
+                  "table": null,
+                  "filters": {},
+                  "limit": null
+                },
+                "name": "preview_deletion"
+              }
+            ],
+            "toolResponses": [
+              {
+                "name": "preview_deletion",
+                "response": {
+                  "status": "blocked"
+                }
+              }
+            ],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "delete-unknown-table",
+      "conversation": [
+        {
+          "invocationId": "delete-unknown-table-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete all records from the ImageStacks table where organism is yeast and protein is Rfa1"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "delete_supervisor_agent"
+                },
+                "name": "transfer_to_agent"
+              },
+              {
+                "args": {
+                  "table": "ImageStacks",
+                  "filters": {
+                    "organism": "yeast",
+                    "protein": "Rfa1"
+                  },
+                  "limit": null
+                },
+                "name": "preview_deletion"
+              }
+            ],
+            "toolResponses": [
+              {
+                "name": "preview_deletion",
+                "response": {
+                  "status": "blocked"
+                }
+              }
+            ],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "delete-unsupported-field",
+      "conversation": [
+        {
+          "invocationId": "delete-unsupported-field-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete all experiments for organism yeast and location lab1"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "delete_supervisor_agent"
+                },
+                "name": "transfer_to_agent"
+              },
+              {
+                "args": {
+                  "table": "Experiment",
+                  "filters": {
+                    "organism": "yeast",
+                    "location": "lab1"
+                  },
+                  "limit": null
+                },
+                "name": "preview_deletion"
+              }
+            ],
+            "toolResponses": [
+              {
+                "name": "preview_deletion",
+                "response": {
+                  "status": "blocked"
+                }
+              }
+            ],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    }
+  ],
+  "creation_timestamp": 0.0
+}

@@ -183,8 +183,16 @@ DB_management_agent/
 │   └── logging_config.py
 ├── ui/
 │   └── app.py            # Streamlit frontend
+├── evaluation/             # agent evaluation on ADK's eval framework (python -m evaluation)
+│   ├── scenarios.py        # the eval cases
+│   ├── metrics.py          # custom ADK metrics
+│   ├── evalsets/           # the cases exported as ADK .evalset.json files
+│   └── results/latest/     # report.md + results.json of the last run
 ├── test/
-│   └── unit/              # pytest unit tests
+│   ├── unit/              # fast tests, no model calls
+│   ├── integration/       # real SQLite copy and the FastAPI app, no model calls
+│   ├── agent_eval/        # evaluation suites as pass/fail tests (opt-in, calls Gemini)
+│   └── scenarios/         # hand-written test scenarios and CSV fixtures
 ├── workflow.py             # submit_request() / resume_with_confirmation()
 ├── main.py                 # CLI entrypoint
 ├── server.py                # FastAPI backend (/session /chat /confirm /cancel)
@@ -237,9 +245,16 @@ uvicorn server:app --reload
 streamlit run ui/app.py
 ```
 
-**Tests**
+**Tests** (no API key needed, under a second)
 ```bash
-pytest test/unit/ -v
+pytest test/unit test/integration -v
+```
+
+**Agent evaluation** (calls Gemini; runs on a copy of the database)
+```bash
+python -m evaluation                                    # all suites, writes evaluation/results/latest/report.md
+python -m evaluation --suite deletion --runs 3          # one suite, three runs per case
+RUN_AGENT_EVAL=1 pytest test/agent_eval -v              # the same suites as pass/fail thresholds
 ```
 
 Example CLI interaction:

@@ -1,0 +1,533 @@
+{
+  "eval_set_id": "filter_extraction",
+  "name": "filter_extraction",
+  "description": "Filter agent alone: table, filters and limit from plain English.",
+  "eval_cases": [
+    {
+      "evalId": "filter-single",
+      "conversation": [
+        {
+          "invocationId": "filter-single-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete all experiments for organism yeast"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "table": "Experiment",
+                  "filters": {
+                    "organism": "yeast"
+                  },
+                  "limit": null
+                },
+                "name": "preview_deletion"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "filter-multiple",
+      "conversation": [
+        {
+          "invocationId": "filter-multiple-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete all experiment records for organism E.coli and protein DnaA"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "table": "Experiment",
+                  "filters": {
+                    "organism": "E.coli",
+                    "protein": "DnaA"
+                  },
+                  "limit": null
+                },
+                "name": "preview_deletion"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "filter-date",
+      "conversation": [
+        {
+          "invocationId": "filter-date-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete all experiment records from 2023-08-03"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "table": "Experiment",
+                  "filters": {
+                    "date": "20230803"
+                  },
+                  "limit": null
+                },
+                "name": "preview_deletion"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "filter-date-words",
+      "conversation": [
+        {
+          "invocationId": "filter-date-words-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Remove the tracking files from August 3rd, 2023"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "table": "TrackingFiles",
+                  "filters": {
+                    "date": "20230803"
+                  },
+                  "limit": null
+                },
+                "name": "preview_deletion"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "filter-exposure-seconds",
+      "conversation": [
+        {
+          "invocationId": "filter-exposure-seconds-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete all capture settings with exposure time 2.5 seconds"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "table": "CaptureSetting",
+                  "filters": {
+                    "exposure_time": 2.5
+                  },
+                  "limit": null
+                },
+                "name": "preview_deletion"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "filter-exposure-ms",
+      "conversation": [
+        {
+          "invocationId": "filter-exposure-ms-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete capture settings with an exposure time of 500 milliseconds"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "table": "CaptureSetting",
+                  "filters": {
+                    "exposure_time": 0.5
+                  },
+                  "limit": null
+                },
+                "name": "preview_deletion"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "filter-time-minutes",
+      "conversation": [
+        {
+          "invocationId": "filter-time-minutes-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete experiments with a time interval of 5 minutes"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "table": "Experiment",
+                  "filters": {
+                    "time_interval": 300.0
+                  },
+                  "limit": null
+                },
+                "name": "preview_deletion"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "filter-concentration-unit",
+      "conversation": [
+        {
+          "invocationId": "filter-concentration-unit-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete experiments with concentration unit nM"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "table": "Experiment",
+                  "filters": {
+                    "concentration_unit": "nM"
+                  },
+                  "limit": null
+                },
+                "name": "preview_deletion"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "filter-is-valid",
+      "conversation": [
+        {
+          "invocationId": "filter-is-valid-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete all experiment records that are not valid"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "table": "Experiment",
+                  "filters": {
+                    "is_valid": false
+                  },
+                  "limit": null
+                },
+                "name": "preview_deletion"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "filter-four-keys",
+      "conversation": [
+        {
+          "invocationId": "filter-four-keys-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete all yeast Rfa1 raw files that are untreated and marked as invalid"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "table": "RawFiles",
+                  "filters": {
+                    "organism": "yeast",
+                    "protein": "Rfa1",
+                    "condition": "untreated",
+                    "is_valid": false
+                  },
+                  "limit": null
+                },
+                "name": "preview_deletion"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "filter-alias-table",
+      "conversation": [
+        {
+          "invocationId": "filter-alias-table-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete the tracks recorded on 2023-08-03"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "table": "TrackingFiles",
+                  "filters": {
+                    "date": "20230803"
+                  },
+                  "limit": null
+                },
+                "name": "preview_deletion"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "filter-explicit-limit",
+      "conversation": [
+        {
+          "invocationId": "filter-explicit-limit-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete 5 records from TrackingFiles where organism is yeast"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "table": "TrackingFiles",
+                  "filters": {
+                    "organism": "yeast"
+                  },
+                  "limit": 5
+                },
+                "name": "preview_deletion"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "filter-all-is-not-a-limit",
+      "conversation": [
+        {
+          "invocationId": "filter-all-is-not-a-limit-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete all invalid masks"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "table": "Masks",
+                  "filters": {
+                    "is_valid": false
+                  },
+                  "limit": null
+                },
+                "name": "preview_deletion"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "filter-no-criteria",
+      "conversation": [
+        {
+          "invocationId": "filter-no-criteria-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete all records from the User table"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "table": "User",
+                  "filters": {},
+                  "limit": null
+                },
+                "name": "preview_deletion"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "filter-delete-everything",
+      "conversation": [
+        {
+          "invocationId": "filter-delete-everything-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Delete everything in the experiments table"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "table": "Experiment",
+                  "filters": {},
+                  "limit": null
+                },
+                "name": "preview_deletion"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    }
+  ],
+  "creation_timestamp": 0.0
+}

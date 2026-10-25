@@ -1,0 +1,212 @@
+{
+  "eval_set_id": "insertion",
+  "name": "insertion",
+  "description": "Insert pipeline alone: validate first, insert only if the file passed.",
+  "eval_cases": [
+    {
+      "evalId": "insert-ui-wording",
+      "conversation": [
+        {
+          "invocationId": "insert-ui-wording-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Insert the data from the CSV file located at test/scenarios/insertion/valid.csv into the database. Save any invalid records found during validation to evaluation/.work/invalid_rows.csv, and return any skipped/invalid rows."
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "file_path": "test/scenarios/insertion/valid.csv"
+                },
+                "name": "validate_csv"
+              },
+              {
+                "args": {
+                  "csv_path": "test/scenarios/insertion/valid.csv"
+                },
+                "name": "insert_csv_with_report"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "insert-valid-existing-rows",
+      "conversation": [
+        {
+          "invocationId": "insert-valid-existing-rows-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Insert the experiment metadata from the CSV file located at test/scenarios/insertion/valid.csv into the database. Save any invalid records found during validation to evaluation/.work/invalid_rows.csv."
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "file_path": "test/scenarios/insertion/valid.csv"
+                },
+                "name": "validate_csv"
+              },
+              {
+                "args": {
+                  "csv_path": "test/scenarios/insertion/valid.csv"
+                },
+                "name": "insert_csv_with_report"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "insert-foreign-keys",
+      "conversation": [
+        {
+          "invocationId": "insert-foreign-keys-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Insert the experiment metadata from the CSV file located at test/scenarios/insertion/rows_with_foreign_keys.csv into the database. Save any invalid records found during validation to evaluation/.work/invalid_rows.csv."
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "file_path": "test/scenarios/insertion/rows_with_foreign_keys.csv"
+                },
+                "name": "validate_csv"
+              },
+              {
+                "args": {
+                  "csv_path": "test/scenarios/insertion/rows_with_foreign_keys.csv"
+                },
+                "name": "insert_csv_with_report"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "insert-blocked-mixed",
+      "conversation": [
+        {
+          "invocationId": "insert-blocked-mixed-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Insert the experiment metadata from the CSV file located at test/scenarios/insertion/mixed_valid_invalid.csv into the database. Save any invalid records found during validation to evaluation/.work/invalid_rows.csv."
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "file_path": "test/scenarios/insertion/mixed_valid_invalid.csv"
+                },
+                "name": "validate_csv"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "insert-blocked-missing-values",
+      "conversation": [
+        {
+          "invocationId": "insert-blocked-missing-values-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Insert the experiment metadata from the CSV file located at test/scenarios/insertion/missing_values.csv into the database. Save any invalid records found during validation to evaluation/.work/invalid_rows.csv."
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "file_path": "test/scenarios/insertion/missing_values.csv"
+                },
+                "name": "validate_csv"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "insert-blocked-bad-values",
+      "conversation": [
+        {
+          "invocationId": "insert-blocked-bad-values-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Insert the experiment metadata from the CSV file located at test/scenarios/insertion/valid_rows_non_existing_db.csv into the database. Save any invalid records found during validation to evaluation/.work/invalid_rows.csv."
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "file_path": "test/scenarios/insertion/valid_rows_non_existing_db.csv"
+                },
+                "name": "validate_csv"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    }
+  ],
+  "creation_timestamp": 0.0
+}
