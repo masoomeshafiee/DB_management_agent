@@ -73,6 +73,22 @@ def extract_insert_result(events):
     return None
 
 
+def extract_deletion_result(events):
+    """Find the result execute_deletion returned after the user decided.
+
+    Returns:
+        dict with status, deleted_count (when completed), and message —
+        or None if execute_deletion did not run in this turn.
+    """
+    for event in events:
+        if event.content and event.content.parts:
+            for part in event.content.parts:
+                response = part.function_response
+                if response and response.name == "execute_deletion":
+                    return response.response
+    return None
+
+
 def create_approval_message(
     approval_id: str,
     is_approved: bool,
@@ -157,16 +173,22 @@ async def resume_with_confirmation(runner, approval_id, invocation_id, is_approv
     )
 
     approval_message = create_approval_message(approval_id, is_approved)
+    events = []
     reply_text = ""
     async for event in run_with_backoff(runner, user_id=user_id, session_id=session_id, prompt=approval_message, invocation_id=invocation_id):
+        events.append(event)
         if event.content and event.content.parts:
             for part in event.content.parts:
                 if part.text:
                     reply_text += part.text
 
     status = "completed_approved" if is_approved else "completed_denied"
-    audit_logger.info(f"RESPONSE | user={user_id} | session={session_id} | status={status} | reply={reply_text!r}")
-    return {"status": status, "text": reply_text}
+    deletion_result = extract_deletion_result(events)
+    audit_logger.info(
+        f"RESPONSE | user={user_id} | session={session_id} | status={status} | "
+        f"deletion_result={deletion_result} | reply={reply_text!r}"
+    )
+    return {"status": status, "text": reply_text, "deletion_result": deletion_result}
 
 
 

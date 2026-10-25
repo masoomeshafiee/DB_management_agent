@@ -182,7 +182,11 @@ def preview_deletion(
         }
 
     preview_count = result.get("preview_count", 0)
+    # lab_data_manager returns a path relative to the backend's working
+    # directory; make it absolute so the UI can open the same file.
     preview_path = result.get("preview_path")
+    if preview_path:
+        preview_path = os.path.abspath(preview_path)
     if preview_count <= 0:
         clear_pending_deletion(tool_context)
         return {

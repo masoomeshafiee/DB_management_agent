@@ -22,7 +22,7 @@ TABLE_ALIASES = {
 
 ALLOWED_TABLES = frozenset({
     "AnalysisFiles",
-    "AnalysisResultExperiment",
+    "AnalysisResultExperiments",
     "AnalysisResults",
     "CaptureSetting",
     "Condition",
@@ -119,7 +119,7 @@ class DeletionSchema(BaseModel):
     )
     table: Literal[
         "AnalysisFiles",
-        "AnalysisResultExperiment",
+        "AnalysisResultExperiments",
         "AnalysisResults",
         "CaptureSetting",
         "Condition",

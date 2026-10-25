@@ -6,6 +6,10 @@ import streamlit as st
 
 API_BASE_URL = "http://localhost:8000"
 
+# run_with_backoff sleeps 65 s on each Gemini rate-limit error and retries up
+# to 3 times, so a slow request can legitimately take a few minutes.
+BACKEND_TIMEOUT = 240
+
 # Where uploaded CSVs are saved before being handed to the agent as a path.
 # The backend (FastAPI/agent) must be able to read this same path, so this
 # only works when Streamlit and the backend share a filesystem — true for the
@@ -25,12 +29,13 @@ st.title("DB Management Agent")
 if "session_id" not in st.session_state:
     st.session_state.session_id = None  # not started until the user names one
 if "messages" not in st.session_state:
-    # Each message: {role, content, preview, approval_info, resolved, insert_result}
+    # Each message: {role, content, preview, approval_info, resolved, insert_result, deletion_result}
     # preview/approval_info are only set on the assistant message that just
     # triggered a pending deletion; resolved=False is what makes the
     # confirm/cancel buttons render under that specific message.
     # insert_result is only set on the assistant message that just ran an
     # insertion — it's what makes the results table render under it.
+    # deletion_result is only set on the reply to a confirm/cancel click.
     st.session_state.messages = []
 
 
@@ -55,13 +60,15 @@ def start_session(name: str) -> None:
     st.session_state.messages = []
 
 
-def call_backend(method_path: str, payload: dict) -> dict:
+def call_backend(method_path: str, payload: dict, spinner_text: str = "Working on it…") -> dict:
+    """POST to the backend. The result has ok=False if the request itself failed."""
     try:
-        resp = requests.post(f"{API_BASE_URL}{method_path}", json=payload, timeout=60)
+        with st.spinner(spinner_text):
+            resp = requests.post(f"{API_BASE_URL}{method_path}", json=payload, timeout=BACKEND_TIMEOUT)
         resp.raise_for_status()
-        return resp.json()
+        return {**resp.json(), "ok": True}
     except requests.RequestException as e:
-        return {"text": f"Error contacting backend: {e}", "approval_info": None, "preview": None}
+        return {"ok": False, "text": f"Error contacting backend: {e}", "approval_info": None, "preview": None}
 
 
 def submit_chat_message(message: str) -> None:
@@ -148,8 +155,12 @@ def handle_confirmation(msg: dict, approve: bool) -> None:
             "approval_id": approval_info["approval_id"],
             "invocation_id": approval_info["invocation_id"],
         },
+        spinner_text="Deleting records…" if approve else "Cancelling…",
     )
-    msg["resolved"] = True  # hides this message's buttons on the next rerun
+    # Only hide the buttons once the backend has the decision. If the request
+    # failed, the deletion is still pending, so the user must be able to retry.
+    if result["ok"]:
+        msg["resolved"] = True
     st.session_state.messages.append(
         {
             "role": "assistant",
@@ -158,9 +169,20 @@ def handle_confirmation(msg: dict, approve: bool) -> None:
             "approval_info": None,
             "resolved": True,
             "insert_result": None,
+            "deletion_result": result.get("deletion_result"),
         }
     )
     st.rerun()
+
+
+def load_preview_rows(preview_path: str | None) -> pd.DataFrame | None:
+    """Read the dry-run CSV written by preview_deletion, if it is reachable."""
+    if not preview_path or not os.path.exists(preview_path):
+        return None
+    try:
+        return pd.read_csv(preview_path)
+    except (OSError, pd.errors.ParserError):
+        return None
 
 
 def render_confirmation(msg: dict, idx: int) -> None:
@@ -170,7 +192,23 @@ def render_confirmation(msg: dict, idx: int) -> None:
         if preview:
             st.write(f"**Table:** {preview['table']}")
             st.write(f"**Filters:** {preview['filters']}")
+            if preview.get("limit"):
+                st.write(f"**Limit:** {preview['limit']}")
             st.write(f"**{preview['preview_count']} record(s)** will be deleted.")
+
+            rows = load_preview_rows(preview.get("preview_path"))
+            if rows is not None:
+                st.caption("These are the exact rows that will be removed:")
+                st.dataframe(rows, use_container_width=True, height=min(400, 38 + 35 * len(rows)))
+                st.download_button(
+                    "Download preview as CSV",
+                    data=rows.to_csv(index=False),
+                    file_name="deletion_preview.csv",
+                    mime="text/csv",
+                    key=f"download_preview_{idx}",
+                )
+            else:
+                st.caption("Row preview unavailable — the preview file could not be read.")
 
         count = preview["preview_count"] if preview else ""
         col1, col2 = st.columns(2)
@@ -209,6 +247,17 @@ def render_insert_result(insert_result: dict, idx: int) -> None:
             st.success("✅ All rows were inserted successfully.")
 
 
+def render_deletion_result(deletion_result: dict) -> None:
+    """The outcome reported by execute_deletion itself, not the model's wording."""
+    status = deletion_result.get("status")
+    if status == "completed":
+        st.success(f"✅ Deleted {deletion_result.get('deleted_count', 0)} record(s).")
+    elif status == "cancelled":
+        st.info("Deletion cancelled. No records were removed.")
+    else:
+        st.error(deletion_result.get("message", "Deletion failed."))
+
+
 # ---------------------------------------------------------------------------
 # Render the conversation so far
 # ---------------------------------------------------------------------------
@@ -220,6 +269,8 @@ for i, msg in enumerate(st.session_state.messages):
             render_confirmation(msg, i)
         if msg.get("insert_result"):
             render_insert_result(msg["insert_result"], i)
+        if msg.get("deletion_result"):
+            render_deletion_result(msg["deletion_result"])
 
 # ---------------------------------------------------------------------------
 # New message input

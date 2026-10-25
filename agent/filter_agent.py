@@ -35,7 +35,7 @@ database file path. Never invent one or fill in a default yourself — the
 system already applies its own default when `db_path` is null.
 
 # TABLE NAMES (use exactly as written)
-AnalysisFiles, AnalysisResultExperiment, AnalysisResults, CaptureSetting,
+AnalysisFiles, AnalysisResultExperiments, AnalysisResults, CaptureSetting,
 Condition, Experiment, ExperimentAnalysisFiles, Masks, Organism,
 Protein, RawFiles, TrackingFiles, User
 

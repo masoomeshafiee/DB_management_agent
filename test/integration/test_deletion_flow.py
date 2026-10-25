@@ -35,6 +35,7 @@ def test_preview_finds_rows_without_deleting_them(lab_db, make_tool_context):
 
     assert result["status"] == "preview"
     assert result["preview_count"] > 0
+    assert os.path.isabs(result["preview_path"])  # the UI runs in another process
     assert os.path.exists(result["preview_path"])
     assert raw_files(lab_db) == before
 
@@ -85,12 +86,6 @@ def test_explicit_limit_caps_the_deletion(lab_db, make_tool_context):
     assert raw_files(lab_db) == before - 2
 
 
-@pytest.mark.parametrize("table", [
-    pytest.param(
-        name,
-        marks=pytest.mark.xfail(strict=True, reason="Known bug: the real table is AnalysisResultExperiments"),
-    ) if name == "AnalysisResultExperiment" else name
-    for name in sorted(ALLOWED_TABLES)
-])
+@pytest.mark.parametrize("table", sorted(ALLOWED_TABLES))
 def test_every_allowed_table_exists_in_the_database(lab_db, table):
     assert count_rows(lab_db, "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?", (table,)) == 1

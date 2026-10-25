@@ -10,6 +10,7 @@ from workflow import (
     DENIAL_WORDS,
     check_for_approval,
     create_approval_message,
+    extract_deletion_result,
     extract_insert_result,
     extract_pending_deletion,
     parse_confirmation,
@@ -36,6 +37,15 @@ def call_event(name, call_id="call-1", invocation_id="inv-1", state_delta=None):
         content=types.Content(role="model", parts=[types.Part(function_call=call)]),
         actions=SimpleNamespace(state_delta=state_delta or {}),
         invocation_id=invocation_id,
+    )
+
+
+def response_event(name, response):
+    result = types.FunctionResponse(id="call-1", name=name, response=response)
+    return SimpleNamespace(
+        content=types.Content(role="user", parts=[types.Part(function_response=result)]),
+        actions=None,
+        invocation_id="inv-1",
     )
 
 
@@ -119,6 +129,18 @@ def test_insert_result_is_read_from_the_state_change():
     assert extract_insert_result([event]) == summary
 
 
+# ---------- extract_deletion_result ----------
+
+def test_deletion_result_is_read_from_the_tool_response():
+    outcome = {"status": "completed", "deleted_count": 26}
+    events = [response_event("execute_deletion", outcome), text_event("Deleted 26 records.")]
+    assert extract_deletion_result(events) == outcome
+
+
+def test_other_tool_responses_are_not_deletion_results():
+    assert extract_deletion_result([response_event("preview_deletion", {"status": "preview"})]) is None
+
+
 # ---------- Async examples: submit_request / resume_with_confirmation ----------
 #
 # submit_request and resume_with_confirmation receive a runner instead of
@@ -176,3 +198,15 @@ async def test_resume_sends_the_decision_to_the_same_paused_run(approved, expect
     assert call["invocation_id"] == "inv-1"
     assert call["new_message"].parts[0].function_response.response == {"confirmed": approved}
     assert result["status"] == expected_status
+
+
+@pytest.mark.asyncio
+async def test_resume_reports_the_count_the_tool_returned_not_the_model_text():
+    outcome = {"status": "completed", "deleted_count": 26}
+    runner = FakeRunner([response_event("execute_deletion", outcome), text_event("All done!")])
+
+    result = await resume_with_confirmation(
+        runner, approval_id="appr-1", invocation_id="inv-1", is_approved=True, session_id="s1"
+    )
+
+    assert result["deletion_result"] == outcome
