@@ -10,6 +10,7 @@ from google.adk.sessions import DatabaseSessionService
 from agent.root_agent import db_manager_app
 from workflow import submit_request, resume_with_confirmation, parse_confirmation
 from observability.logging_config import config_logging
+from observability.token_usage import describe
 
 logger = logging.getLogger(__name__)
 
@@ -81,6 +82,7 @@ async def main():
             result = await submit_request(runner, user_prompt, session_id=session_name)
             if result["text"]:
                 print(f"Agent Response> {result['text']}")
+            print(f"[usage] {describe(result['usage'])}")
 
             if result["approval_info"]:
                 preview = result.get("preview")
@@ -115,6 +117,7 @@ async def main():
 
                 if result["text"]:
                     print(f"Agent Response> {result['text']}")
+                print(f"[usage] {describe(result['usage'])}")
 
         except Exception as e:
             print(f"An error occurred: {e}")

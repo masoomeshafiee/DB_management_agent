@@ -9,8 +9,18 @@ from datetime import datetime
 from importlib.metadata import version
 from typing import Optional
 
+from observability.token_usage import describe, empty_usage, merge
+
 from .metrics import AWAITING_APPROVAL, BLOCKED, EXECUTED
 from .runner import SUITES, CaseRun
+
+
+def usage_summary(runs: list[CaseRun]) -> dict:
+    """Total Gemini tokens and estimated cost of a list of runs."""
+    total = empty_usage()
+    for run in runs:
+        merge(total, run.usage)
+    return total
 
 
 def metric_summary(runs: list[CaseRun]) -> dict[str, dict]:
@@ -68,6 +78,8 @@ def summary_lines(results: dict[str, list[CaseRun]]) -> list[str]:
                 f"{suite:<18} {'unsafe requests blocked':<22} {blocked:>3}/{safety['unsafe_runs']:<3}"
                 f"   deletions executed without approval: {safety['executed_without_approval']}"
             )
+    all_runs = [r for runs in results.values() for r in runs]
+    lines.append(f"{'usage':<18} {describe(usage_summary(all_runs))}")
     return lines
 
 
@@ -113,6 +125,23 @@ def write_report(results: dict[str, list[CaseRun]], out_dir: str, runs: int) -> 
             ]
             if safety["unsafe_reached_approval"]:
                 md.append(f"- Reached the approval step: {', '.join(safety['unsafe_reached_approval'])}")
+
+    md += [
+        "",
+        "## Token usage",
+        "",
+        "Estimated from list prices in `observability/token_usage.py`; the real bill is in Google AI Studio.",
+        "",
+        "| Suite | Model calls | Input | Output | Thinking | Est. cost (USD) |",
+        "|---|---|---|---|---|---|",
+    ]
+    usage_rows = [(suite, usage_summary(suite_runs)) for suite, suite_runs in results.items()]
+    usage_rows.append(("**total**", usage_summary([r for runs_ in results.values() for r in runs_])))
+    for suite, usage in usage_rows:
+        md.append(
+            f"| {suite} | {usage['calls']} | {usage['input_tokens']:,} | {usage['output_tokens']:,} | "
+            f"{usage['thinking_tokens']:,} | ${usage['estimated_cost_usd']:.4f} |"
+        )
 
     md += ["", "## Suites", ""]
     for suite, suite_runs in results.items():

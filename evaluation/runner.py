@@ -29,6 +29,7 @@ from google.adk.evaluation.eval_metrics import EvalMetric
 from google.adk.evaluation.in_memory_eval_sets_manager import InMemoryEvalSetsManager
 from google.adk.evaluation.local_eval_service import LocalEvalService
 from google.adk.events import Event
+from google.adk.sessions import InMemorySessionService
 from google.genai import types
 
 from agent.root_agent import root_agent
@@ -36,6 +37,12 @@ from agent.root_agent import root_agent
 from . import scenarios
 from .metrics import EXPLAIN, deletion_outcome, extracted_deletion, final_text, register_metrics, routed_to, tool_calls
 from .sandbox import database_copy
+from observability.token_usage import empty_usage, usage_from_events
+
+# Where ADK's eval service stores a case's session when the case has no
+# session_input (ours don't): needed to read the session's events back.
+EVAL_SESSION_APP_NAME = "EvaluationGenerator"
+EVAL_USER_ID = "test_user_id"
 
 APP_NAME = "db_management_agent_eval"
 RATE_LIMIT_WAIT_SECONDS = 65
@@ -139,6 +146,7 @@ class CaseRun:
     metrics: dict[str, MetricOutcome] = field(default_factory=dict)
     observed: dict = field(default_factory=dict)
     seconds: float = 0.0
+    usage: dict = field(default_factory=empty_usage)
 
 
 def _observed(invocation) -> dict:
@@ -193,7 +201,9 @@ async def run_suite(
     manager.create_eval_set(app_name=APP_NAME, eval_set_id=eval_set.eval_set_id)
     for case in cases:
         manager.add_eval_case(app_name=APP_NAME, eval_set_id=eval_set.eval_set_id, eval_case=case)
-    service = LocalEvalService(root_agent=suite.build_agent(), eval_sets_manager=manager)
+    # Our own session store, so each case's events (and their token usage) can be read back.
+    sessions = InMemorySessionService()
+    service = LocalEvalService(root_agent=suite.build_agent(), eval_sets_manager=manager, session_service=sessions)
 
     os.makedirs(WORK_DIR, exist_ok=True)
     runs_by_key: dict[tuple[str, int], CaseRun] = {}
@@ -210,6 +220,11 @@ async def run_suite(
                 with contextlib.redirect_stdout(tool_output):
                     result = await _infer_case(service, eval_set.eval_set_id, case.eval_id, log)
                 case_run.seconds = round(time.monotonic() - started, 1)
+                session = await sessions.get_session(
+                    app_name=EVAL_SESSION_APP_NAME, user_id=EVAL_USER_ID, session_id=result.session_id
+                )
+                if session:
+                    case_run.usage = usage_from_events(session.events)
                 if result.status == InferenceStatus.SUCCESS and len(result.inferences or []) == len(case.conversation):
                     inferences.append((case_run, result))
                     case_run.observed = _observed(result.inferences[0])

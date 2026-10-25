@@ -96,6 +96,7 @@ def submit_chat_message(message: str) -> None:
             "resolved": approval_info is None,
             "insert_result": result.get("insert_result"),
             "validation_result": result.get("validation_result"),
+            "usage": result.get("usage"),
         }
     )
 
@@ -116,10 +117,27 @@ def handle_insert_upload(uploaded_file, db_path: str, invalid_output_path: str) 
     st.rerun()
 
 
+def usage_caption(usage: dict) -> str:
+    """e.g. '3 model calls · 4,390 tokens · ~$0.0006' (the cost is an estimate from list prices)."""
+    return (
+        f"{usage['calls']} model call(s) · {usage['total_tokens']:,} tokens · "
+        f"~${usage['estimated_cost_usd']:.4f}"
+    )
+
+
+def session_usage() -> dict:
+    totals = {"calls": 0, "total_tokens": 0, "estimated_cost_usd": 0.0}
+    for msg in st.session_state.messages:
+        for key in totals:
+            totals[key] += (msg.get("usage") or {}).get(key, 0)
+    return totals
+
+
 with st.sidebar:
     st.subheader("Session")
     if st.session_state.session_id:
         st.write(f"Active session: **{st.session_state.session_id}**")
+        st.caption(f"Gemini usage this session: {usage_caption(session_usage())}")
         if st.button("Switch session"):
             st.session_state.session_id = None
             st.session_state.messages = []
@@ -173,6 +191,7 @@ def handle_confirmation(msg: dict, approve: bool) -> None:
             "resolved": True,
             "insert_result": None,
             "deletion_result": result.get("deletion_result"),
+            "usage": result.get("usage"),
         }
     )
     st.rerun()
@@ -299,6 +318,8 @@ for i, msg in enumerate(st.session_state.messages):
             render_deletion_result(msg["deletion_result"])
         if msg.get("validation_result"):
             render_validation_result(msg["validation_result"], i)
+        if msg.get("usage"):
+            st.caption(usage_caption(msg["usage"]))
 
 # ---------------------------------------------------------------------------
 # New message input

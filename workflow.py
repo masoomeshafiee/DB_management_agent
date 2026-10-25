@@ -8,6 +8,7 @@ from typing import Any, Dict
 from google.genai import types
 
 from agent.utils import run_with_backoff
+from observability.token_usage import describe, usage_from_events
 
 logger = logging.getLogger(__name__)
 audit_logger = logging.getLogger("db_management_agent.audit")
@@ -191,6 +192,8 @@ async def submit_request(
     approval_info = check_for_approval(events)
     insert_result = extract_insert_result(events)
     validation_result = extract_validation_result(events)
+    usage = usage_from_events(events)
+    audit_logger.info(f"TOKENS | user={user_id} | session={session_id} | {describe(usage)}")
 
     # If approval is requested, pause and wait for user decision.
     if approval_info:
@@ -200,11 +203,11 @@ async def submit_request(
             f"APPROVAL_REQUESTED | user={user_id} | session={session_id} | "
             f"approval_id={approval_info['approval_id']} | preview={preview}"
         )
-        return {"status": "pending_approval", "text": reply_text, "approval_info": approval_info, "preview": preview, "insert_result": None, "validation_result": None}
+        return {"status": "pending_approval", "text": reply_text, "approval_info": approval_info, "preview": preview, "insert_result": None, "validation_result": None, "usage": usage}
 
     logger.info("WORKFLOW_END: Status: completed_without_approval")
     audit_logger.info(f"RESPONSE | user={user_id} | session={session_id} | status=completed_without_approval | reply={reply_text!r}")
-    return {"status": "completed_without_approval", "text": reply_text, "approval_info": None, "preview": None, "insert_result": insert_result, "validation_result": validation_result}
+    return {"status": "completed_without_approval", "text": reply_text, "approval_info": None, "preview": None, "insert_result": insert_result, "validation_result": validation_result, "usage": usage}
 
 
 async def resume_with_confirmation(runner, approval_id, invocation_id, is_approved, session_id, user_id="default_user") -> dict:
@@ -226,11 +229,13 @@ async def resume_with_confirmation(runner, approval_id, invocation_id, is_approv
 
     status = "completed_approved" if is_approved else "completed_denied"
     deletion_result = extract_deletion_result(events)
+    usage = usage_from_events(events)
+    audit_logger.info(f"TOKENS | user={user_id} | session={session_id} | {describe(usage)}")
     audit_logger.info(
         f"RESPONSE | user={user_id} | session={session_id} | status={status} | "
         f"deletion_result={deletion_result} | reply={reply_text!r}"
     )
-    return {"status": status, "text": reply_text, "deletion_result": deletion_result}
+    return {"status": status, "text": reply_text, "deletion_result": deletion_result, "usage": usage}
 
 
 
