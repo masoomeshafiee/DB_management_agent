@@ -56,7 +56,7 @@ itsdangerous==2.2.0
 Jinja2==3.1.6
 jsonschema==4.25.1
 jsonschema-specifications==2025.9.1
-lab-data-manager==0.1.0
+# lab-data-manager is not on PyPI: install it from its own repository first (see README, Getting started).
 Mako==1.3.10
 MarkupSafe==3.0.3
 mcp==1.21.0
