@@ -8,6 +8,10 @@ and Gemini. The agents never write SQL: they choose between tested Python
 functions, every deletion needs human approval of the exact rows, and every
 action is logged.
 
+<p align="center">
+  <img src="docs/images/delete-demo.gif" alt="Asking to delete raw files in plain English, reviewing the exact rows, then approving the deletion" width="600">
+</p>
+
 **Status:** Version 1, focused on correctness, safety and observability.
 Contributors: Niusha Mirhakimi, Masoumeh Shafiei.
 
@@ -211,6 +215,10 @@ Delete the raw files of experiment 12.
    rows that will be deleted**, with **Delete N records** and **Cancel** buttons.
 3. Only after **Delete** is anything removed. The UI then shows the deleted
    count reported by the tool itself.
+
+<p align="center">
+  <img src="docs/images/delete-confirmation.png" alt="The confirmation card: table, filters, record count, the rows to be deleted, and Delete and Cancel buttons" width="520">
+</p>
 
 Requests without usable filters, such as `Delete everything`, are blocked.
 
