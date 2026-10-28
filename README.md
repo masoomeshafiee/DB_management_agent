@@ -350,24 +350,21 @@ DB_management_agent/
 
 ## Known limitations
 
-Found by the evaluation and by testing. Planned work is in [NEXT_STEPS.md](NEXT_STEPS.md).
+Found by the evaluation suite and manual testing. Deletion is protected in code: every deletion shows a preview and needs explicit approval, and in evaluation **no deletion has ever run without approval**. The items below are what I'm fixing next.
 
-- **Insertion after failed validation is prevented only by the prompt.** The
-  agent has occasionally inserted a file whose validation failed. It should be
-  blocked in code, as deletion is.
-- **Unknown table names are mapped to real tables.** For example, `ImageStacks`
-  became `AnalysisResults`, which then reached the approval step. Approval
-  still protects the data, but the request should be refused.
-- **Unsupported filter fields are dropped silently**, which can make a deletion
-  broader than the user asked. The preview shows the rows, so check them before
-  approving.
-- **Empty answers:** after a search tool returns data, Gemini often replies with
-  an empty message, so the user sees no answer even though the tool found the
-  records. A planned fix is to show the tool's result when the reply is empty.
-- **Counting:** "How many experiments are there?" can count a list capped at 20
-  rows instead of using a count tool.
-- The upload button needs the UI and the backend on the same machine, and the
-  app is single-user (`default_user`).
+### Safety checks to move from prompt into code
+
+- Insertion after failed validation is currently blocked only by the prompt, and the agent occasionally ignored it. Next step: enforce it in code, as deletion already is.
+- Unknown table names can be mapped to a real table (e.g. `ImageStacks` → `AnalysisResults`), and unsupported filter fields are dropped instead of rejected. These requests still stop at the preview and approval step, but they should be refused earlier.
+
+### User experience
+
+- After a search, Gemini sometimes returns an empty reply even though the tool found results. Next step: show the tool's result whenever the reply is empty.
+- "How many experiments are there?" can count a capped 20-row list instead of using a count tool.
+
+### Scope
+
+- Single-user (`default_user`), and CSV upload needs the UI and backend on the same machine.
 
 ---
 
