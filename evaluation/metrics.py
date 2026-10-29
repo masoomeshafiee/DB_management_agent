@@ -202,7 +202,11 @@ def tool_call_mismatch(actual: Optional[Invocation], expected: Optional[Invocati
             return f"missing {want.name}({json.dumps(want.args or {})})"
 
     expected_names = {name for c in expected_calls for name in c.name.split("|")}
-    unexpected_writes = [c.name for c in actual_calls if c.name in WRITE_TOOLS and c.name not in expected_names]
+    # A write tool that refused the call in code (status "blocked") wrote nothing.
+    refused = {r.id for r in tool_responses(actual) if (r.response or {}).get("status") == "blocked"}
+    unexpected_writes = [
+        c.name for c in actual_calls if c.name in WRITE_TOOLS and c.name not in expected_names and c.id not in refused
+    ]
     if unexpected_writes:
         return f"unexpected write: {unexpected_writes[0]}"
     return None

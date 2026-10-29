@@ -15,6 +15,22 @@ action is logged.
 **Status:** Version 1, focused on correctness, safety and observability.
 Contributors: Niusha Mirhakimi, Masoumeh Shafiei.
 
+**The idea in one line: the LLM translates, the code decides.** Gemini turns a
+request such as *"Remove the raw image files from the second replicate of the
+November 15th, 2024 experiment"* into exact parameters
+(`RawFiles`, `{date: 20241115, replicate: 2}`). Every decision that must not be
+wrong (is the file valid, are there filters, did the user approve) is made in
+Python, not in a prompt.
+
+**Highlights**
+
+- No generated SQL: agents fill validated parameters for tested query functions.
+- Deletion is previewed row by row and needs approval; what you approve is exactly what is deleted.
+- Inserts are gated in code: a file is inserted only if that exact file passed validation.
+- A [64-case evaluation](#agent-evaluation-calls-gemini-about-004-per-full-run) on ADK's framework, with deterministic metrics:
+  **no deletion has ever run without approval**.
+- Every request is audit-logged with its Gemini tokens and estimated cost; optional Phoenix tracing.
+
 **Contents:** [Why](#why) · [Architecture](#architecture) · [Getting started](#getting-started) ·
 [Using it](#using-it) · [Testing and evaluation](#testing-and-evaluation) ·
 [Observability](#observability) · [Project structure](#project-structure) ·
@@ -77,9 +93,16 @@ not know which front end is driving them.
    which pauses the agent until the user approves. It then reads the filters
    back from the stored preview, never from a new model output, so what you
    approve is exactly what gets deleted.
-4. **Facts shown to the user come from the tools, not the model's wording.**
+4. **Insertion is gated in code too.** The validation tools record in session
+   state which file was checked and whether it passed. `insert_csv_with_report`
+   refuses (`status: blocked`) unless that exact file passed. The prompt used to
+   be the only guard, and the evaluation caught the model inserting files that
+   had just failed validation.
+5. **Facts shown to the user come from the tools, not the model's wording.**
    `workflow.py` reads the deletion preview, the deleted count, the insert
    counts and the invalid rows directly from the tool results in ADK's events.
+   When Gemini ends its turn with an empty reply, which it sometimes does after
+   a tool call, the app shows the tool's result instead of nothing.
 
 ### Agents
 
@@ -188,8 +211,14 @@ sidebar instead of typing its path.
 Find all experiments with organism yeast and protein Rfa1 that are untreated and invalid.
 ```
 → the query agent calls `search_experiments` with those four filters and finds
-the 11 matching experiments. Count questions such as *How many experiments are
-there for each condition?* use the count tools instead.
+the 11 matching experiments.
+
+Requests don't need the database's vocabulary:
+
+| You type | The agent calls |
+|---|---|
+| How many experiments do we have for each **treatment**? | `count_experiments_by_group(group_by=["condition"])` |
+| What experiments did we run on **November 15th, 2024**? | `search_experiments_by_date_range("20241115", "20241115")` |
 
 ### Insert a CSV
 
@@ -198,19 +227,19 @@ Insert the data from the CSV file located at /path/to/metadata.csv into the data
 ```
 1. Every row is validated first: required fields, date format, allowed organisms,
    capture types, units and so on.
-2. **If any row is invalid, nothing is inserted.** The UI shows a table of the
-   invalid rows, with the Excel row number and the reason for each, and a
-   download button.
+2. **If any row is invalid, nothing is inserted**, and this is enforced in code,
+   not by the prompt. The UI shows a table of the invalid rows, with the Excel
+   row number and the reason for each, and a download button.
 3. If the file is valid it is inserted. Rows already in the database are
    skipped as duplicates and listed with the reason.
 
 ### Delete (human in the loop)
 
 ```
-Delete the raw files of experiment 12.
+Remove the raw image files from the second replicate of the November 15th, 2024 experiment.
 ```
-1. The agent extracts `{table: RawFiles, filters: {experiment_id: 12}}` and runs
-   a dry run.
+1. The filter agent extracts `{table: RawFiles, filters: {date: 20241115, replicate: 2}}`
+   and `preview_deletion` runs a dry run.
 2. The UI shows the table, the filters, the number of records and **the exact
    rows that will be deleted**, with **Delete N records** and **Cancel** buttons.
 3. Only after **Delete** is anything removed. The UI then shows the deleted
@@ -277,16 +306,22 @@ RUN_AGENT_EVAL=1 pytest test/agent_eval -v                     # the suites as p
 
 | Suite | Metric | Result |
 |---|---|---|
-| routing | right specialist | 17/21 (81%) |
-| filter_extraction | right table, filters and limit | 14/15 (93%) |
-| deletion | right outcome | 8/13 (62%) |
+| routing | right specialist | 19/21 (90%) |
+| filter_extraction | right table, filters and limit | 15/15 (100%) |
+| deletion | right outcome | 10/13 (77%) |
 | deletion | **deletions executed without approval** | **0** |
-| search | right tool | 9/9 (100%) |
+| search | right tool | 8/9 (89%) |
 | search | answer contains the facts | 3/7 (43%) |
-| insertion | right tools, no unexpected write | 3/6 (50%) |
+| insertion | right tools, no write after failed validation | 6/6 (100%) |
 
-Results vary between runs because the model does; use `--runs 3` for steadier
-numbers. What the failures mean is listed under [Known limitations](#known-limitations).
+A full run makes about 130 Gemini calls for an estimated $0.03. Results vary
+between runs because the model does; use `--runs 3` for steadier numbers. What
+the failures mean is listed under [Known limitations](#known-limitations).
+
+Insertion went from 3/6 to 6/6 after the insert gate moved into code. In the
+three cases with invalid files the model still calls the insert tool, and the
+tool refuses it, so nothing is written. The metric counts a write tool only if
+it actually ran.
 
 ---
 
@@ -340,6 +375,8 @@ DB_management_agent/
 │   ├── integration/           # real SQLite copy and FastAPI, model faked
 │   ├── agent_eval/            # evaluation suites as opt-in pass/fail tests
 │   └── scenarios/             # hand-written scenarios and CSV files
+├── demo/                      # demo CSVs, the demo steps, and a script that records them
+├── docs/images/               # README GIF and screenshot
 ├── data/sample_data.db        # sample database
 ├── requirements.txt           # (lab_data_manager is installed separately, see Getting started)
 ├── .env.example
@@ -350,17 +387,32 @@ DB_management_agent/
 
 ## Known limitations
 
-Found by the evaluation suite and manual testing. Deletion is protected in code: every deletion shows a preview and needs explicit approval, and in evaluation **no deletion has ever run without approval**. The items below are what I'm fixing next.
+Found by the evaluation suite and manual testing. Deletion and insertion are
+protected in code: every deletion shows a preview and needs explicit approval,
+and in evaluation **no deletion has ever run without approval**. The items below
+are what I'm fixing next.
 
-### Safety checks to move from prompt into code
+### Requests that should be refused earlier
 
-- Insertion after failed validation is currently blocked only by the prompt, and the agent occasionally ignored it. Next step: enforce it in code, as deletion already is.
-- Unknown table names can be mapped to a real table (e.g. `ImageStacks` → `AnalysisResults`), and unsupported filter fields are dropped instead of rejected. These requests still stop at the preview and approval step, but they should be refused earlier.
+- Unknown table names can be mapped to a real table (e.g. `ImageStacks` →
+  `RawFiles`), and an unknown field can be turned into a real one (`location lab1`
+  → `condition: lab1`). These requests still stop at the preview and approval
+  step, but they should be refused before it.
+
+### Routing
+
+- A question that mentions deleting ("How many records would be affected if I
+  deleted …?") can be routed to the delete pipeline instead of search. It still
+  needs approval before anything is removed.
+- Off-topic questions ("What is a fluorescence microscope?") are sent to the
+  query agent instead of being answered directly.
 
 ### User experience
 
-- After a search, Gemini sometimes returns an empty reply even though the tool found results. Next step: show the tool's result whenever the reply is empty.
-- "How many experiments are there?" can count a capped 20-row list instead of using a count tool.
+- When Gemini returns an empty reply, the fallback shows the tool's raw result,
+  which is correct but not a friendly sentence.
+- "How many experiments are there?" can count a capped 20-row list instead of
+  using a count tool.
 
 ### Scope
 

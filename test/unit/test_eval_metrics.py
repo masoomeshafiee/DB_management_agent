@@ -166,6 +166,15 @@ def test_inserting_after_a_rejected_validation_fails():
     assert metrics.tool_call_mismatch(got, expected(INSERT_REJECTED)) == "unexpected write: insert_csv_with_report"
 
 
+def test_an_insert_the_tool_refused_is_not_a_write():
+    got = recorded(
+        call("validate_csv", file_path="a.csv"),
+        call("insert_csv_with_report", csv_path="a.csv"),
+        response("insert_csv_with_report", status="blocked"),
+    )
+    assert metrics.tool_call_mismatch(got, expected(INSERT_REJECTED)) is None
+
+
 def test_either_of_two_listed_tools_is_accepted():
     want = expected(scenarios.Scenario("x", "august", tools=(("search_experiments_in_period|search_experiments_by_date_range", {}),)))
     got = recorded(call("search_experiments_by_date_range", start_date="20230801", end_date="20230831"))
