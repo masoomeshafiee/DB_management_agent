@@ -8,7 +8,7 @@ from google.adk.tools import FunctionTool
 import os
 import logging
 
-from lab_data_manager import data_validation
+from .utils import validate_analysis_metadata, validate_csv
 
 from .config import retry_config
 
@@ -62,7 +62,7 @@ try:
         model = Gemini(model = "gemini-2.5-flash-lite", api_key=os.getenv("GOOGLE_API_KEY"), retry_options = retry_config),
         description = "An agent to validate  csv metadata file before inserting into the database.",
         instruction = prompt,
-        tools = [FunctionTool(data_validation.validate_csv), FunctionTool(data_validation.validate_analysis_metadata)],
+        tools = [FunctionTool(validate_csv), FunctionTool(validate_analysis_metadata)],
         output_key = "validation_result"
     )
     logger.info("Created agent: %s", data_validation_agent.name)

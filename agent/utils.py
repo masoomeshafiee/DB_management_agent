@@ -316,6 +316,34 @@ def _count_data_rows(csv_path: str) -> int:
         return 0
 
 
+def _record_validation(tool_context: ToolContext, file_path: str, result) -> None:
+    """Remember which file was validated and whether it passed, for the insert gate.
+
+    The validators return the invalid rows (or their count), so an empty or
+    zero result means every row is valid.
+    """
+    tool_context.state["last_validation"] = {"csv_path": os.path.abspath(file_path), "passed": not result}
+
+
+# The validation agent calls these instead of the library functions directly,
+# so the result is recorded in code rather than only in the model's reply.
+# They keep the library names, so the tool names the model sees don't change.
+def validate_csv(file_path: str, output_path: str, tool_context: ToolContext):
+    result = data_validation.validate_csv(file_path, output_path)
+    _record_validation(tool_context, file_path, result)
+    return result
+
+
+def validate_analysis_metadata(file_path: str, output_path: str, tool_context: ToolContext):
+    result = data_validation.validate_analysis_metadata(file_path, output_path)
+    _record_validation(tool_context, file_path, result)
+    return result
+
+
+validate_csv.__doc__ = data_validation.validate_csv.__doc__
+validate_analysis_metadata.__doc__ = data_validation.validate_analysis_metadata.__doc__
+
+
 def insert_csv_with_report(
     tool_context: ToolContext, csv_path: str, db_path: str = DEFAULT_DB_PATH
 ) -> Dict[str, Any]:
@@ -355,6 +383,19 @@ def insert_csv_with_report(
             "message": (
                 f"Database file not found: '{db_path}'. Please ask the user to confirm "
                 "the correct database path."
+            ),
+        }
+
+    # The gate is here, not in the prompt: the model has inserted files that
+    # had just failed validation.
+    validation = tool_context.state.get("last_validation") or {}
+    if validation.get("csv_path") != os.path.abspath(csv_path) or not validation.get("passed"):
+        logger.warning("insert_csv_with_report blocked: '%s' has not passed validation | %s", csv_path, validation)
+        return {
+            "status": "blocked",
+            "message": (
+                f"Not inserted: '{csv_path}' has not passed validation. "
+                "Fix the invalid rows listed in the validation output and upload the file again."
             ),
         }
 

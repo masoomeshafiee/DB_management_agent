@@ -1,3 +1,4 @@
+import os
 """Unit tests for the CSV insert wrapper's guards and result reporting."""
 
 import pytest
@@ -67,6 +68,7 @@ def test_successful_insert_reports_counts_and_saves_them_for_the_ui(make_tool_co
     csv_path, db_path = files
     fake_insert.skipped_rows = [{"row": 2, "reason": "duplicate"}]
     ctx = make_tool_context()
+    utils._record_validation(ctx, csv_path, [])
 
     result = utils.insert_csv_with_report(ctx, csv_path=csv_path, db_path=db_path)
 
@@ -85,6 +87,39 @@ def test_insert_failure_is_reported_as_an_error(make_tool_context, fake_insert, 
     csv_path, db_path = files
     fake_insert.error = RuntimeError("database locked")
     ctx = make_tool_context()
+    utils._record_validation(ctx, csv_path, [])
     result = utils.insert_csv_with_report(ctx, csv_path=csv_path, db_path=db_path)
     assert result["status"] == "error"
     assert "last_insert_result" not in ctx.state
+
+
+def test_file_that_failed_validation_is_not_inserted(make_tool_context, fake_insert, files):
+    csv_path, db_path = files
+    ctx = make_tool_context()
+    utils._record_validation(ctx, csv_path, [{"row_number": 3, "issues": ["Invalid organism"]}])
+    result = utils.insert_csv_with_report(ctx, csv_path=csv_path, db_path=db_path)
+    assert result["status"] == "blocked"
+    assert fake_insert.calls == []
+
+
+def test_file_that_was_never_validated_is_not_inserted(make_tool_context, fake_insert, files):
+    csv_path, db_path = files
+    result = utils.insert_csv_with_report(make_tool_context(), csv_path=csv_path, db_path=db_path)
+    assert result["status"] == "blocked"
+    assert fake_insert.calls == []
+
+
+def test_passing_a_different_file_does_not_unlock_the_insert(make_tool_context, fake_insert, files, tmp_path):
+    csv_path, db_path = files
+    ctx = make_tool_context()
+    utils._record_validation(ctx, str(tmp_path / "other.csv"), [])
+    result = utils.insert_csv_with_report(ctx, csv_path=csv_path, db_path=db_path)
+    assert result["status"] == "blocked"
+    assert fake_insert.calls == []
+
+
+def test_validation_tool_records_whether_the_file_passed(make_tool_context, monkeypatch, tmp_path):
+    ctx = make_tool_context()
+    monkeypatch.setattr(utils.data_validation, "validate_csv", lambda file_path, output_path: 2)
+    utils.validate_csv("data.csv", str(tmp_path / "invalid.csv"), ctx)
+    assert ctx.state["last_validation"] == {"csv_path": os.path.abspath("data.csv"), "passed": False}

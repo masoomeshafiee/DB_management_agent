@@ -297,7 +297,8 @@ def render_deletion_result(deletion_result: dict) -> None:
     status = deletion_result.get("status")
     if status == "completed":
         st.success(f"✅ Deleted {deletion_result.get('deleted_count', 0)} record(s).")
-    elif status == "cancelled":
+    # ADK answers a denied confirmation itself, with {"error": "This tool call is rejected."}.
+    elif status == "cancelled" or "rejected" in str(deletion_result.get("error", "")):
         st.info("Deletion cancelled. No records were removed.")
     else:
         st.error(deletion_result.get("message", "Deletion failed."))

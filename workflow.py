@@ -131,6 +131,20 @@ def extract_deletion_result(events):
     return None
 
 
+def last_tool_result_text(events) -> str:
+    """Fallback when the model's reply is empty: the most recent tool result, as text."""
+    for event in reversed(events):
+        if not (event.content and event.content.parts):
+            continue
+        for part in event.content.parts:
+            response = part.function_response
+            if response and response.name != "transfer_to_agent" and response.response:
+                # Search tools return {"result": "<table as text>"}; a code block keeps its columns aligned.
+                result = response.response.get("result", response.response)
+                return f"(The model gave no summary. Result of `{response.name}`:)\n\n```\n{result}\n```"
+    return ""
+
+
 def create_approval_message(
     approval_id: str,
     is_approved: bool,
@@ -194,6 +208,12 @@ async def submit_request(
     validation_result = extract_validation_result(events)
     usage = usage_from_events(events)
     audit_logger.info(f"TOKENS | user={user_id} | session={session_id} | {describe(usage)}")
+
+    # Gemini sometimes ends its turn with no text after a tool call; show the tool's result instead.
+    if not reply_text.strip():
+        reply_text = last_tool_result_text(events)
+        if reply_text:
+            logger.warning("EMPTY_REPLY | showing the last tool result instead")
 
     # If approval is requested, pause and wait for user decision.
     if approval_info:
