@@ -39,3 +39,6 @@ evaluation/.work/
 
 # Jupyter Notebook checkpoints (if you add notebooks later)
 .ipynb_checkpoints
+
+# demo recordings (large; see demo/README.md)
+demo/videos/
