@@ -1,3 +1,4 @@
+import json
 import os
 
 import pandas as pd
@@ -117,6 +118,23 @@ def handle_insert_upload(uploaded_file, db_path: str, invalid_output_path: str) 
     st.rerun()
 
 
+def hide_leading_json(text: str) -> str:
+    """Drop the JSON objects the filter agent puts at the start of a delete reply.
+
+    e.g. '{"db_path": null, "table": "Experiment", ...}I cannot delete...' -> 'I cannot delete...'
+    """
+    decoder = json.JSONDecoder()
+    rest = text.lstrip()
+    while rest.startswith(("{", "```json")):
+        body = rest.removeprefix("```json").lstrip()
+        try:
+            _, end = decoder.raw_decode(body)
+        except json.JSONDecodeError:
+            return text
+        rest = body[end:].lstrip().removeprefix("```").lstrip()
+    return rest
+
+
 def usage_caption(usage: dict) -> str:
     """e.g. '3 model calls · 4,390 tokens · ~$0.0006' (the cost is an estimate from list prices)."""
     return (
@@ -153,11 +171,12 @@ with st.sidebar:
         st.subheader("Insert new data")
         st.caption("Upload a metadata CSV instead of typing its file path.")
         uploaded_file = st.file_uploader("CSV file", type=["csv"])
-        db_path = st.text_input("Database file path", value=DEFAULT_DB_PATH)
-        invalid_output_path = st.text_input(
-            "Invalid-rows output path",
-            value=os.path.join("data", "invalid_rows.csv"),
-        )
+        with st.expander("Advanced"):
+            db_path = st.text_input("Database file path", value=DEFAULT_DB_PATH)
+            invalid_output_path = st.text_input(
+                "Invalid-rows output path",
+                value=os.path.join("data", "invalid_rows.csv"),
+            )
         if st.button("Insert file", disabled=uploaded_file is None):
             handle_insert_upload(uploaded_file, db_path, invalid_output_path)
 
@@ -310,7 +329,9 @@ def render_deletion_result(deletion_result: dict) -> None:
 
 for i, msg in enumerate(st.session_state.messages):
     with st.chat_message(msg["role"]):
-        st.write(msg["content"])
+        content = hide_leading_json(msg["content"]) if msg["role"] == "assistant" else msg["content"]
+        if content:
+            st.write(content)
         if msg.get("approval_info") and not msg.get("resolved"):
             render_confirmation(msg, i)
         if msg.get("insert_result"):
